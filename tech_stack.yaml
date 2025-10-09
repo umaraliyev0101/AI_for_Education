@@ -1,0 +1,12 @@
+# Project Technology Preferences
+
+speech_recognition: Vosk
+nlp_model: HuggingFace
+database: SQLite
+ui_framework: Streamlit
+
+# Rationale
+# - Vosk: Offline, multi-language, actively maintained
+# - HuggingFace: State-of-the-art models, flexible, active community
+# - SQLite: Simple, portable, ideal for prototyping
+# - Streamlit: Fast UI development, interactive ML/AI dashboards
