@@ -1,5 +1,10 @@
-vosk
 transformers
+torch
+datasets
+jiwer
+numpy
+scipy
+matplotlib
+seaborn
 streamlit
 spacy
-sqlite3

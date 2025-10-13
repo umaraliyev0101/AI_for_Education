@@ -1,0 +1,154 @@
+{
+  "test_session_id": "whisper_baseline",
+  "timestamp": "2025-10-13T16:45:27.633026",
+  "total_samples": 10,
+  "overall_wer": 0.35,
+  "overall_cer": 0.053004391743522186,
+  "average_confidence": 0.7984978041282389,
+  "average_processing_time": 0.000274968147277832,
+  "detailed_results": [
+    {
+      "sample_id": "test_0",
+      "reference_text": "Salom qalay siz?",
+      "recognized_text": "Salom qalay siz?",
+      "postprocessed_text": "Salom qalay siz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.0011665821075439453,
+      "metadata": {
+        "text": "Salom qalay siz?",
+        "category": "greeting"
+      }
+    },
+    {
+      "sample_id": "test_1",
+      "reference_text": "Men o'qiyman",
+      "recognized_text": "Men o'qiyman",
+      "postprocessed_text": "Men o'qiyman.",
+      "wer_score": 0.5,
+      "cer_score": 0.08333333333333333,
+      "confidence_score": 0.7083333333333333,
+      "processing_time": 0.00020360946655273438,
+      "metadata": {
+        "text": "Men o'qiyman",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_2",
+      "reference_text": "Bu kitob qizil",
+      "recognized_text": "Bu kitob qizil",
+      "postprocessed_text": "Bu kitob qizil.",
+      "wer_score": 0.3333333333333333,
+      "cer_score": 0.07142857142857142,
+      "confidence_score": 0.7976190476190477,
+      "processing_time": 0.00011181831359863281,
+      "metadata": {
+        "text": "Bu kitob qizil",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_3",
+      "reference_text": "O'qituvchi dars beradi",
+      "recognized_text": "O'qituvchi dars beradi",
+      "postprocessed_text": "O'qituvchi dars beradi.",
+      "wer_score": 0.3333333333333333,
+      "cer_score": 0.045454545454545456,
+      "confidence_score": 0.8106060606060606,
+      "processing_time": 9.751319885253906e-05,
+      "metadata": {
+        "text": "O'qituvchi dars beradi",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_4",
+      "reference_text": "Maktabda o'quvchilar ko'p",
+      "recognized_text": "Maktabda o'kuvchilar ko'p",
+      "postprocessed_text": "Maktabda o'kuvchilar ko'p.",
+      "wer_score": 0.6666666666666666,
+      "cer_score": 0.08,
+      "confidence_score": 0.6266666666666667,
+      "processing_time": 0.0002849102020263672,
+      "metadata": {
+        "text": "Maktabda o'quvchilar ko'p",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_5",
+      "reference_text": "Yozuv taxtasi toza",
+      "recognized_text": "Yozuv taxtasi toza",
+      "postprocessed_text": "Yozuv taxtasi toza.",
+      "wer_score": 0.3333333333333333,
+      "cer_score": 0.05555555555555555,
+      "confidence_score": 0.8055555555555556,
+      "processing_time": 0.0001404285430908203,
+      "metadata": {
+        "text": "Yozuv taxtasi toza",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_6",
+      "reference_text": "Darsliklar juda qiziq",
+      "recognized_text": "Darsliklar juda qiziq",
+      "postprocessed_text": "Darsliklar juda qiziq.",
+      "wer_score": 0.3333333333333333,
+      "cer_score": 0.047619047619047616,
+      "confidence_score": 0.8095238095238095,
+      "processing_time": 0.0001239776611328125,
+      "metadata": {
+        "text": "Darsliklar juda qiziq",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_7",
+      "reference_text": "O'zbek tili go'zal",
+      "recognized_text": "O'zbek tili go'zal",
+      "postprocessed_text": "O'zbek tili go'zal.",
+      "wer_score": 0.3333333333333333,
+      "cer_score": 0.05555555555555555,
+      "confidence_score": 0.8055555555555556,
+      "processing_time": 0.00019288063049316406,
+      "metadata": {
+        "text": "O'zbek tili go'zal",
+        "category": "general"
+      }
+    },
+    {
+      "sample_id": "test_8",
+      "reference_text": "Toshkent poytaxt shahri",
+      "recognized_text": "Toshkent poytaxt shahri",
+      "postprocessed_text": "Toshkent poytaxt shahri.",
+      "wer_score": 0.3333333333333333,
+      "cer_score": 0.043478260869565216,
+      "confidence_score": 0.8115942028985508,
+      "processing_time": 0.00016117095947265625,
+      "metadata": {
+        "text": "Toshkent poytaxt shahri",
+        "category": "general"
+      }
+    },
+    {
+      "sample_id": "test_9",
+      "reference_text": "Qishloqda hayot tinch",
+      "recognized_text": "Qishloqda hayot tinch",
+      "postprocessed_text": "Qishloqda hayot tinch.",
+      "wer_score": 0.3333333333333333,
+      "cer_score": 0.047619047619047616,
+      "confidence_score": 0.8095238095238095,
+      "processing_time": 0.00026679039001464844,
+      "metadata": {
+        "text": "Qishloqda hayot tinch",
+        "category": "general"
+      }
+    }
+  ],
+  "recommendations": [
+    "Consider additional training data or model fine-tuning."
+  ]
+}
