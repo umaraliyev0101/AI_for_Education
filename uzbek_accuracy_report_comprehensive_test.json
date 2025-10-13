@@ -1,0 +1,1881 @@
+{
+  "test_session_id": "comprehensive_test",
+  "timestamp": "2025-10-13T13:55:40.665231",
+  "total_samples": 75,
+  "overall_wer": 0.7744444444444444,
+  "overall_cer": 0.18249424005945747,
+  "average_confidence": 0.5486005537672204,
+  "average_processing_time": 0.00019095420837402343,
+  "results_by_speaker": {
+    "Toshkent Erkak": {
+      "wer": 0.6722222222222223,
+      "cer": 0.16183017465626162,
+      "confidence": 0.5991490299823633,
+      "count": 15
+    },
+    "Samarqand Qiz": {
+      "wer": 0.8,
+      "cer": 0.18166666666666667,
+      "confidence": 0.5303194953194954,
+      "count": 15
+    },
+    "Buxoro Chol": {
+      "wer": 0.7666666666666667,
+      "cer": 0.20235042735042738,
+      "confidence": 0.5593879577212912,
+      "count": 15
+    },
+    "Fargʻona Bola": {
+      "wer": 0.9,
+      "cer": 0.2180341880341881,
+      "confidence": 0.47325039158372495,
+      "count": 15
+    },
+    "Standard Ayol": {
+      "wer": 0.7333333333333333,
+      "cer": 0.14858974358974358,
+      "confidence": 0.5808958942292276,
+      "count": 15
+    }
+  },
+  "results_by_difficulty": {
+    "intermediate": {
+      "wer": 0.7744444444444444,
+      "cer": 0.18249424005945747,
+      "confidence": 0.5486005537672204,
+      "count": 75
+    }
+  },
+  "results_by_category": {
+    "general": {
+      "wer": 0.7744444444444444,
+      "cer": 0.18249424005945747,
+      "confidence": 0.5486005537672204,
+      "count": 75
+    }
+  },
+  "detailed_results": [
+    {
+      "sample_id": "1bf44f6f",
+      "reference_text": "Qora",
+      "recognized_text": "Qora",
+      "postprocessed_text": "Qora.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.0008349418640136719,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\1bf44f6f.wav",
+        "sample_quality": 0.2500002384185791,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "b91335fa",
+      "reference_text": "Besh",
+      "recognized_text": "Besh",
+      "postprocessed_text": "Besh.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00032806396484375,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\b91335fa.wav",
+        "sample_quality": 0.25000014901161194,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "c95b1c33",
+      "reference_text": "Yashil qalam bilan yozaman",
+      "recognized_text": "Yashil qalam bilan yozaman",
+      "postprocessed_text": "Yashil qalam bilan yozaman.",
+      "wer_score": 0.25,
+      "cer_score": 0.038461538461538464,
+      "confidence_score": 0.8564814814814814,
+      "processing_time": 0.00034236907958984375,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\c95b1c33.wav",
+        "sample_quality": 0.2500000596046448,
+        "tags": [
+          "sentence",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "5107e4bb",
+      "reference_text": "Ikki",
+      "recognized_text": "Ikki",
+      "postprocessed_text": "Ikki.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00032258033752441406,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\5107e4bb.wav",
+        "sample_quality": 0.25000032782554626,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "58ef6d3c",
+      "reference_text": "Biz oʻynaymiz",
+      "recognized_text": "Biz oʻynaymiz",
+      "postprocessed_text": "Biz oʻynaymiz.",
+      "wer_score": 0.5,
+      "cer_score": 0.07692307692307693,
+      "confidence_score": 0.7142857142857143,
+      "processing_time": 0.00025582313537597656,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\58ef6d3c.wav",
+        "sample_quality": 0.2500050365924835,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "bccd864f",
+      "reference_text": "Kitob",
+      "recognized_text": "Kitob",
+      "postprocessed_text": "Kitob.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00012826919555664062,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\bccd864f.wav",
+        "sample_quality": 0.2500000298023224,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "male",
+          "standard",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "4405c7c8",
+      "reference_text": "Xayr",
+      "recognized_text": "Xayr",
+      "postprocessed_text": "Xayr.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00011134147644042969,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\4405c7c8.wav",
+        "sample_quality": 0.2500002384185791,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "473343c4",
+      "reference_text": "Qalay siz?",
+      "recognized_text": "Qalay siz?",
+      "postprocessed_text": "Qalay siz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.000110626220703125,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\473343c4.wav",
+        "sample_quality": 0.2500010132789612,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "ed78b410",
+      "reference_text": "Salom",
+      "recognized_text": "Salom",
+      "postprocessed_text": "Salom.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00011539459228515625,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ed78b410.wav",
+        "sample_quality": 0.2500050961971283,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "1fb04338",
+      "reference_text": "Oq",
+      "recognized_text": "Oq",
+      "postprocessed_text": "Oq.",
+      "wer_score": 1.0,
+      "cer_score": 0.5,
+      "confidence_score": 0.3333333333333333,
+      "processing_time": 0.00030541419982910156,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\1fb04338.wav",
+        "sample_quality": 0.2500000596046448,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "b9b2a521",
+      "reference_text": "U yozadi",
+      "recognized_text": "U yozadi",
+      "postprocessed_text": "U yozadi.",
+      "wer_score": 0.5,
+      "cer_score": 0.125,
+      "confidence_score": 0.6944444444444444,
+      "processing_time": 0.000293731689453125,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\b9b2a521.wav",
+        "sample_quality": 0.25000447034835815,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "5419fa10",
+      "reference_text": "Oʻqituvchi kitob beradi",
+      "recognized_text": "Oʻqituvchi kitob beradi",
+      "postprocessed_text": "Oʻqituvchi kitob beradi.",
+      "wer_score": 0.3333333333333333,
+      "cer_score": 0.043478260869565216,
+      "confidence_score": 0.8125,
+      "processing_time": 0.0003609657287597656,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\5419fa10.wav",
+        "sample_quality": 0.2500016689300537,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "male",
+          "standard",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "6bc3cdfc",
+      "reference_text": "Yashil",
+      "recognized_text": "Yashil",
+      "postprocessed_text": "Yashil.",
+      "wer_score": 1.0,
+      "cer_score": 0.16666666666666666,
+      "confidence_score": 0.42857142857142855,
+      "processing_time": 0.0002837181091308594,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\6bc3cdfc.wav",
+        "sample_quality": 0.250007301568985,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "1d16c687",
+      "reference_text": "Qayerdan siz?",
+      "recognized_text": "Qayerdan siz?",
+      "postprocessed_text": "Qayerdan siz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00026106834411621094,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\1d16c687.wav",
+        "sample_quality": 0.2500014901161194,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "7cd75f14",
+      "reference_text": "Ular yashaydi",
+      "recognized_text": "Ular yashaydi",
+      "postprocessed_text": "Ular yashaydi.",
+      "wer_score": 0.5,
+      "cer_score": 0.07692307692307693,
+      "confidence_score": 0.7142857142857143,
+      "processing_time": 0.0002186298370361328,
+      "speaker_profile": "Toshkent Erkak",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\7cd75f14.wav",
+        "sample_quality": 0.25000229477882385,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "male",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "ece29efd",
+      "reference_text": "Qalay siz?",
+      "recognized_text": "Qalay siz?",
+      "postprocessed_text": "Qalay siz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00016045570373535156,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ece29efd.wav",
+        "sample_quality": 0.25000065565109253,
+        "tags": [
+          "short_phrase",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "23052076",
+      "reference_text": "U yozadi",
+      "recognized_text": "U yozadi",
+      "postprocessed_text": "U yozadi.",
+      "wer_score": 0.5,
+      "cer_score": 0.125,
+      "confidence_score": 0.6944444444444444,
+      "processing_time": 0.00014090538024902344,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\23052076.wav",
+        "sample_quality": 0.2500047981739044,
+        "tags": [
+          "short_phrase",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "04faa413",
+      "reference_text": "Kechirasiz",
+      "recognized_text": "Kesirasiz",
+      "postprocessed_text": "Kesirasiz.",
+      "wer_score": 1.0,
+      "cer_score": 0.3,
+      "confidence_score": 0.45,
+      "processing_time": 0.00017023086547851562,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\04faa413.wav",
+        "sample_quality": 0.25000596046447754,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "a583e6d7",
+      "reference_text": "Dars",
+      "recognized_text": "Dars",
+      "postprocessed_text": "Dars.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00017833709716796875,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\a583e6d7.wav",
+        "sample_quality": 0.2500067353248596,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "aaaf0fb4",
+      "reference_text": "Koʻk",
+      "recognized_text": "Koʻk",
+      "postprocessed_text": "Koʻk.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00043392181396484375,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\aaaf0fb4.wav",
+        "sample_quality": 0.25000014901161194,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "d73a4bfa",
+      "reference_text": "Ikki",
+      "recognized_text": "Ikki",
+      "postprocessed_text": "Ikki.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00035071372985839844,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\d73a4bfa.wav",
+        "sample_quality": 0.2500004768371582,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "9b67e5f1",
+      "reference_text": "Kitob",
+      "recognized_text": "Kitob",
+      "postprocessed_text": "Kitob.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00016117095947265625,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\9b67e5f1.wav",
+        "sample_quality": 0.2500000298023224,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "603426fb",
+      "reference_text": "Yozuv",
+      "recognized_text": "Yozuv",
+      "postprocessed_text": "Yozuv.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.0005180835723876953,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\603426fb.wav",
+        "sample_quality": 0.2500014305114746,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "e4a399a5",
+      "reference_text": "Salom",
+      "recognized_text": "Salom",
+      "postprocessed_text": "Salom.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00030350685119628906,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\e4a399a5.wav",
+        "sample_quality": 0.25000548362731934,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "4856f3e5",
+      "reference_text": "Uch",
+      "recognized_text": "Uch",
+      "postprocessed_text": "Uch.",
+      "wer_score": 1.0,
+      "cer_score": 0.3333333333333333,
+      "confidence_score": 0.375,
+      "processing_time": 0.0001423358917236328,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\4856f3e5.wav",
+        "sample_quality": 0.250000536441803,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "fd28175b",
+      "reference_text": "Qizil",
+      "recognized_text": "Qizil",
+      "postprocessed_text": "Qizil.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00011229515075683594,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\fd28175b.wav",
+        "sample_quality": 0.25000110268592834,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "158ff37d",
+      "reference_text": "Necha yoshdasiz?",
+      "recognized_text": "Necha yoshdasiz?",
+      "postprocessed_text": "Necha yoshdasiz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00011610984802246094,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\158ff37d.wav",
+        "sample_quality": 0.2500001788139343,
+        "tags": [
+          "short_phrase",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "ed16fc24",
+      "reference_text": "Men oʻqiyman",
+      "recognized_text": "Men oʻqiyman",
+      "postprocessed_text": "Men oʻqiyman.",
+      "wer_score": 0.5,
+      "cer_score": 0.08333333333333333,
+      "confidence_score": 0.7115384615384616,
+      "processing_time": 0.000125885009765625,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ed16fc24.wav",
+        "sample_quality": 0.2500004172325134,
+        "tags": [
+          "short_phrase",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "cd0e36cb",
+      "reference_text": "Maktab",
+      "recognized_text": "Maktab",
+      "postprocessed_text": "Maktab.",
+      "wer_score": 1.0,
+      "cer_score": 0.16666666666666666,
+      "confidence_score": 0.42857142857142855,
+      "processing_time": 0.00010967254638671875,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\cd0e36cb.wav",
+        "sample_quality": 0.2500092685222626,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "d4ee17cd",
+      "reference_text": "Rahmat",
+      "recognized_text": "Rahmat",
+      "postprocessed_text": "Rahmat.",
+      "wer_score": 1.0,
+      "cer_score": 0.16666666666666666,
+      "confidence_score": 0.42857142857142855,
+      "processing_time": 0.00027871131896972656,
+      "speaker_profile": "Samarqand Qiz",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\d4ee17cd.wav",
+        "sample_quality": 0.25000032782554626,
+        "tags": [
+          "single_word",
+          "samarqand",
+          "teen",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "9b224c4a",
+      "reference_text": "Koʻk",
+      "recognized_text": "Koʻk",
+      "postprocessed_text": "Koʻk.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00032830238342285156,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\9b224c4a.wav",
+        "sample_quality": 0.2500017285346985,
+        "tags": [
+          "single_word",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "5683a2ad",
+      "reference_text": "Qalay siz?",
+      "recognized_text": "Qalay siz?",
+      "postprocessed_text": "Qalay siz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.0003390312194824219,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\5683a2ad.wav",
+        "sample_quality": 0.25000274181365967,
+        "tags": [
+          "short_phrase",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "8ab956a2",
+      "reference_text": "Yashil qalam bilan yozaman",
+      "recognized_text": "Yashil kalam bilan yozaman",
+      "postprocessed_text": "Yashil kalam bilan yozaman.",
+      "wer_score": 0.5,
+      "cer_score": 0.07692307692307693,
+      "confidence_score": 0.8564814814814814,
+      "processing_time": 0.0003478527069091797,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\8ab956a2.wav",
+        "sample_quality": 0.25,
+        "tags": [
+          "sentence",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "6b9c8dc3",
+      "reference_text": "Toʻrt",
+      "recognized_text": "Toʻrt",
+      "postprocessed_text": "Toʻrt.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00033211708068847656,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\6b9c8dc3.wav",
+        "sample_quality": 0.2500002682209015,
+        "tags": [
+          "single_word",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "4f27ded1",
+      "reference_text": "Men oʻqiyman",
+      "recognized_text": "Men oʻqiyman",
+      "postprocessed_text": "Men oʻqiyman.",
+      "wer_score": 0.5,
+      "cer_score": 0.08333333333333333,
+      "confidence_score": 0.7115384615384616,
+      "processing_time": 0.0002589225769042969,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\4f27ded1.wav",
+        "sample_quality": 0.2500002384185791,
+        "tags": [
+          "short_phrase",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "ec9ee974",
+      "reference_text": "Rahmat",
+      "recognized_text": "Rahmat",
+      "postprocessed_text": "Rahmat.",
+      "wer_score": 1.0,
+      "cer_score": 0.16666666666666666,
+      "confidence_score": 0.42857142857142855,
+      "processing_time": 0.00015854835510253906,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ec9ee974.wav",
+        "sample_quality": 0.2500002980232239,
+        "tags": [
+          "single_word",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "bbb01c9f",
+      "reference_text": "U yozadi",
+      "recognized_text": "U yozadi",
+      "postprocessed_text": "U yozadi.",
+      "wer_score": 0.5,
+      "cer_score": 0.125,
+      "confidence_score": 0.6944444444444444,
+      "processing_time": 0.00010466575622558594,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\bbb01c9f.wav",
+        "sample_quality": 0.25000056624412537,
+        "tags": [
+          "short_phrase",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "18e90e3f",
+      "reference_text": "Xayr",
+      "recognized_text": "Xayr",
+      "postprocessed_text": "Xayr.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00010204315185546875,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\18e90e3f.wav",
+        "sample_quality": 0.25000160932540894,
+        "tags": [
+          "single_word",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "4879247b",
+      "reference_text": "Kechirasiz",
+      "recognized_text": "Kesirasiz",
+      "postprocessed_text": "Kesirasiz.",
+      "wer_score": 1.0,
+      "cer_score": 0.3,
+      "confidence_score": 0.45,
+      "processing_time": 0.00010347366333007812,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\4879247b.wav",
+        "sample_quality": 0.2500087022781372,
+        "tags": [
+          "single_word",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "7825a852",
+      "reference_text": "Kitob",
+      "recognized_text": "Kitob",
+      "postprocessed_text": "Kitob.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00012874603271484375,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\7825a852.wav",
+        "sample_quality": 0.25000083446502686,
+        "tags": [
+          "single_word",
+          "buxoro",
+          "senior",
+          "male",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "ddfd9176",
+      "reference_text": "Maktab",
+      "recognized_text": "Maktab",
+      "postprocessed_text": "Maktab.",
+      "wer_score": 1.0,
+      "cer_score": 0.16666666666666666,
+      "confidence_score": 0.42857142857142855,
+      "processing_time": 9.822845458984375e-05,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ddfd9176.wav",
+        "sample_quality": 0.25001177191734314,
+        "tags": [
+          "single_word",
+          "buxoro",
+          "senior",
+          "male",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "7e18f20c",
+      "reference_text": "Nima qilyapsiz?",
+      "recognized_text": "Nima qilyapsiz?",
+      "postprocessed_text": "Nima qilyapsiz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.000110626220703125,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\7e18f20c.wav",
+        "sample_quality": 0.25000280141830444,
+        "tags": [
+          "short_phrase",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "b2a33634",
+      "reference_text": "Dars",
+      "recognized_text": "Dars",
+      "postprocessed_text": "Dars.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00011134147644042969,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\b2a33634.wav",
+        "sample_quality": 0.25000113248825073,
+        "tags": [
+          "single_word",
+          "buxoro",
+          "senior",
+          "male",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "522c272b",
+      "reference_text": "Siz ishlayapsiz",
+      "recognized_text": "islayapsiz",
+      "postprocessed_text": "Islayapsiz.",
+      "wer_score": 1.0,
+      "cer_score": 0.4666666666666667,
+      "confidence_score": 0.45454545454545453,
+      "processing_time": 0.00021791458129882812,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\522c272b.wav",
+        "sample_quality": 0.25000062584877014,
+        "tags": [
+          "short_phrase",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "0c0f0991",
+      "reference_text": "Oq",
+      "recognized_text": "Oq",
+      "postprocessed_text": "Oq.",
+      "wer_score": 1.0,
+      "cer_score": 0.5,
+      "confidence_score": 0.3333333333333333,
+      "processing_time": 0.00018596649169921875,
+      "speaker_profile": "Buxoro Chol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\0c0f0991.wav",
+        "sample_quality": 0.2500005066394806,
+        "tags": [
+          "single_word",
+          "buxoro",
+          "senior",
+          "male",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "fa9637f5",
+      "reference_text": "Oq",
+      "recognized_text": "Oq",
+      "postprocessed_text": "Oq.",
+      "wer_score": 1.0,
+      "cer_score": 0.5,
+      "confidence_score": 0.3333333333333333,
+      "processing_time": 0.00013184547424316406,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\fa9637f5.wav",
+        "sample_quality": 0.2500000596046448,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "ffad6692",
+      "reference_text": "Ikki",
+      "recognized_text": "Ikki",
+      "postprocessed_text": "Ikki.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 9.894371032714844e-05,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ffad6692.wav",
+        "sample_quality": 0.25000032782554626,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "2f5c5244",
+      "reference_text": "Dars",
+      "recognized_text": "Dars",
+      "postprocessed_text": "Dars.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 8.702278137207031e-05,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\2f5c5244.wav",
+        "sample_quality": 0.25000643730163574,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "e35f73b9",
+      "reference_text": "Uch",
+      "recognized_text": "Uch",
+      "postprocessed_text": "Uch.",
+      "wer_score": 1.0,
+      "cer_score": 0.3333333333333333,
+      "confidence_score": 0.375,
+      "processing_time": 9.441375732421875e-05,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\e35f73b9.wav",
+        "sample_quality": 0.25000083446502686,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "7da71d47",
+      "reference_text": "Oʻqituvchi",
+      "recognized_text": "Oʻqituvchi",
+      "postprocessed_text": "Oʻqituvchi.",
+      "wer_score": 1.0,
+      "cer_score": 0.1,
+      "confidence_score": 0.45454545454545453,
+      "processing_time": 0.00011801719665527344,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\7da71d47.wav",
+        "sample_quality": 0.25000205636024475,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "6a76bcb0",
+      "reference_text": "Bir",
+      "recognized_text": "Bir",
+      "postprocessed_text": "Bir.",
+      "wer_score": 1.0,
+      "cer_score": 0.3333333333333333,
+      "confidence_score": 0.375,
+      "processing_time": 9.250640869140625e-05,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\6a76bcb0.wav",
+        "sample_quality": 0.2500014007091522,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "56ff0d92",
+      "reference_text": "Koʻk",
+      "recognized_text": "Koʻk",
+      "postprocessed_text": "Koʻk.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00010228157043457031,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\56ff0d92.wav",
+        "sample_quality": 0.2500002980232239,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "e7f70c46",
+      "reference_text": "Maktab",
+      "recognized_text": "Maktab",
+      "postprocessed_text": "Maktab.",
+      "wer_score": 1.0,
+      "cer_score": 0.16666666666666666,
+      "confidence_score": 0.42857142857142855,
+      "processing_time": 9.417533874511719e-05,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\e7f70c46.wav",
+        "sample_quality": 0.25001099705696106,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "4bcb9fe8",
+      "reference_text": "Xayr",
+      "recognized_text": "Xayr",
+      "postprocessed_text": "Xayr.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 0.00010037422180175781,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\4bcb9fe8.wav",
+        "sample_quality": 0.2500002384185791,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "c4fc6a23",
+      "reference_text": "Toʻrt",
+      "recognized_text": "Toʻrt",
+      "postprocessed_text": "Toʻrt.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 9.799003601074219e-05,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\c4fc6a23.wav",
+        "sample_quality": 0.2500002682209015,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "636251ad",
+      "reference_text": "Yozuv",
+      "recognized_text": "Yozuv",
+      "postprocessed_text": "Yozuv.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00010061264038085938,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\636251ad.wav",
+        "sample_quality": 0.2500011622905731,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "8c006f2f",
+      "reference_text": "Kitob",
+      "recognized_text": "Kitob",
+      "postprocessed_text": "Kitob.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 8.845329284667969e-05,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\8c006f2f.wav",
+        "sample_quality": 0.2500000298023224,
+        "tags": [
+          "single_word",
+          "fargʻona",
+          "child",
+          "female",
+          "regional",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "53881444",
+      "reference_text": "Men oʻqiyman",
+      "recognized_text": "Men oʻqiyman",
+      "postprocessed_text": "Men oʻqiyman.",
+      "wer_score": 0.5,
+      "cer_score": 0.08333333333333333,
+      "confidence_score": 0.7115384615384616,
+      "processing_time": 0.00011348724365234375,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\53881444.wav",
+        "sample_quality": 0.2500002682209015,
+        "tags": [
+          "short_phrase",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "ab7d5c97",
+      "reference_text": "Yashil qalam bilan yozaman",
+      "recognized_text": "Yashil kalam bilan yozaman",
+      "postprocessed_text": "Yashil kalam bilan yozaman.",
+      "wer_score": 0.5,
+      "cer_score": 0.07692307692307693,
+      "confidence_score": 0.8564814814814814,
+      "processing_time": 0.0002110004425048828,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ab7d5c97.wav",
+        "sample_quality": 0.2500000596046448,
+        "tags": [
+          "sentence",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "ee23ccb0",
+      "reference_text": "Biz oʻynaymiz",
+      "recognized_text": "Biz oʻynaymiz",
+      "postprocessed_text": "Biz oʻynaymiz.",
+      "wer_score": 0.5,
+      "cer_score": 0.07692307692307693,
+      "confidence_score": 0.7142857142857143,
+      "processing_time": 0.0004894733428955078,
+      "speaker_profile": "Fargʻona Bola",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ee23ccb0.wav",
+        "sample_quality": 0.2500050365924835,
+        "tags": [
+          "short_phrase",
+          "fargʻona",
+          "child",
+          "female",
+          "regional"
+        ]
+      }
+    },
+    {
+      "sample_id": "0e9bddb8",
+      "reference_text": "Ular yashaydi",
+      "recognized_text": "Ular yashaydi",
+      "postprocessed_text": "Ular yashaydi.",
+      "wer_score": 0.5,
+      "cer_score": 0.07692307692307693,
+      "confidence_score": 0.7142857142857143,
+      "processing_time": 0.0002353191375732422,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\0e9bddb8.wav",
+        "sample_quality": 0.25000253319740295,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "1774fe81",
+      "reference_text": "Men oʻqiyman",
+      "recognized_text": "Men oʻqiyman",
+      "postprocessed_text": "Men oʻqiyman.",
+      "wer_score": 0.5,
+      "cer_score": 0.08333333333333333,
+      "confidence_score": 0.7115384615384616,
+      "processing_time": 0.00010776519775390625,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\1774fe81.wav",
+        "sample_quality": 0.2500004172325134,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "b3ffe39b",
+      "reference_text": "Oʻqituvchi",
+      "recognized_text": "Oʻqituvchi",
+      "postprocessed_text": "Oʻqituvchi.",
+      "wer_score": 1.0,
+      "cer_score": 0.1,
+      "confidence_score": 0.45454545454545453,
+      "processing_time": 9.655952453613281e-05,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\b3ffe39b.wav",
+        "sample_quality": 0.25000232458114624,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "female",
+          "standard",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "8bee41ea",
+      "reference_text": "Rahmat",
+      "recognized_text": "Rahmat",
+      "postprocessed_text": "Rahmat.",
+      "wer_score": 1.0,
+      "cer_score": 0.16666666666666666,
+      "confidence_score": 0.42857142857142855,
+      "processing_time": 9.1552734375e-05,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\8bee41ea.wav",
+        "sample_quality": 0.2500002980232239,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "201e79d7",
+      "reference_text": "U yozadi",
+      "recognized_text": "U yozadi",
+      "postprocessed_text": "U yozadi.",
+      "wer_score": 0.5,
+      "cer_score": 0.125,
+      "confidence_score": 0.6944444444444444,
+      "processing_time": 0.00010466575622558594,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\201e79d7.wav",
+        "sample_quality": 0.25000473856925964,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "9714c623",
+      "reference_text": "Qora",
+      "recognized_text": "Qora",
+      "postprocessed_text": "Qora.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 9.775161743164062e-05,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\9714c623.wav",
+        "sample_quality": 0.25000035762786865,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "ace12168",
+      "reference_text": "Qayerdan siz?",
+      "recognized_text": "Qayerdan siz?",
+      "postprocessed_text": "Qayerdan siz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.0001010894775390625,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ace12168.wav",
+        "sample_quality": 0.25000113248825073,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "04e4d15c",
+      "reference_text": "Yashil qalam bilan yozaman",
+      "recognized_text": "Yashil kalam bilan yozaman",
+      "postprocessed_text": "Yashil kalam bilan yozaman.",
+      "wer_score": 0.5,
+      "cer_score": 0.07692307692307693,
+      "confidence_score": 0.8564814814814814,
+      "processing_time": 0.00012445449829101562,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\04e4d15c.wav",
+        "sample_quality": 0.2500000298023224,
+        "tags": [
+          "sentence",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "8bfe642c",
+      "reference_text": "Toʻrt",
+      "recognized_text": "Toʻrt",
+      "postprocessed_text": "Toʻrt.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00010061264038085938,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\8bfe642c.wav",
+        "sample_quality": 0.25000038743019104,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "15da5290",
+      "reference_text": "Yashil",
+      "recognized_text": "Yashil",
+      "postprocessed_text": "Yashil.",
+      "wer_score": 1.0,
+      "cer_score": 0.16666666666666666,
+      "confidence_score": 0.42857142857142855,
+      "processing_time": 0.0002357959747314453,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\15da5290.wav",
+        "sample_quality": 0.2500075399875641,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "ce6a359b",
+      "reference_text": "Qizil",
+      "recognized_text": "Qizil",
+      "postprocessed_text": "Qizil.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 0.00012874603271484375,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\ce6a359b.wav",
+        "sample_quality": 0.25000107288360596,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "36e85e35",
+      "reference_text": "Kitob",
+      "recognized_text": "Kitob",
+      "postprocessed_text": "Kitob.",
+      "wer_score": 1.0,
+      "cer_score": 0.2,
+      "confidence_score": 0.4166666666666667,
+      "processing_time": 9.846687316894531e-05,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\36e85e35.wav",
+        "sample_quality": 0.2500000298023224,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "female",
+          "standard",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "3ebd1fdb",
+      "reference_text": "Dars",
+      "recognized_text": "Dars",
+      "postprocessed_text": "Dars.",
+      "wer_score": 1.0,
+      "cer_score": 0.25,
+      "confidence_score": 0.4,
+      "processing_time": 9.441375732421875e-05,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\3ebd1fdb.wav",
+        "sample_quality": 0.25000667572021484,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "female",
+          "standard",
+          "educational"
+        ]
+      }
+    },
+    {
+      "sample_id": "1fb7b816",
+      "reference_text": "Qalay siz?",
+      "recognized_text": "Qalay siz?",
+      "postprocessed_text": "Qalay siz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 9.274482727050781e-05,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\1fb7b816.wav",
+        "sample_quality": 0.2500007152557373,
+        "tags": [
+          "short_phrase",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    },
+    {
+      "sample_id": "62716ade",
+      "reference_text": "Uch",
+      "recognized_text": "Uch",
+      "postprocessed_text": "Uch.",
+      "wer_score": 1.0,
+      "cer_score": 0.3333333333333333,
+      "confidence_score": 0.375,
+      "processing_time": 8.797645568847656e-05,
+      "speaker_profile": "Standard Ayol",
+      "difficulty_level": "intermediate",
+      "category": "general",
+      "metadata": {
+        "audio_file": "test_audio/uzbek_samples\\62716ade.wav",
+        "sample_quality": 0.25000056624412537,
+        "tags": [
+          "single_word",
+          "toshkent",
+          "adult",
+          "female",
+          "standard"
+        ]
+      }
+    }
+  ],
+  "recommendations": [
+    "High word error rate detected. Consider improving acoustic model training.",
+    "High character error rate suggests pronunciation variations. Consider expanding phonetic dictionary.",
+    "Speaker 'Fargʻona Bola' shows significantly lower accuracy. Consider additional training data for this profile."
+  ]
+}

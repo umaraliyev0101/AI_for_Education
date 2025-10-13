@@ -1,0 +1,1293 @@
+{
+  "metadata": {
+    "version": "1.0",
+    "created_date": "2025-01-13",
+    "total_entries": 42,
+    "description": "Uzbek Pronunciation Dictionary for Educational Terms"
+  },
+  "phonemes": {
+    "a": {
+      "symbol": "a",
+      "cyrillic": "а",
+      "latin": "a",
+      "type": "vowel",
+      "description": "Open front unrounded vowel",
+      "examples": [
+        "maktab",
+        "qalam"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "e": {
+      "symbol": "e",
+      "cyrillic": "е",
+      "latin": "e",
+      "type": "vowel",
+      "description": "Close-mid front unrounded vowel",
+      "examples": [
+        "men",
+        "sen"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "i": {
+      "symbol": "i",
+      "cyrillic": "и",
+      "latin": "i",
+      "type": "vowel",
+      "description": "Close front unrounded vowel",
+      "examples": [
+        "kitob",
+        "qiziq"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "o": {
+      "symbol": "o",
+      "cyrillic": "о",
+      "latin": "o",
+      "type": "vowel",
+      "description": "Close-mid back rounded vowel",
+      "examples": [
+        "o'qish",
+        "bolalar"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "u": {
+      "symbol": "u",
+      "cyrillic": "у",
+      "latin": "u",
+      "type": "vowel",
+      "description": "Close back rounded vowel",
+      "examples": [
+        "uy",
+        "qush"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "o'": {
+      "symbol": "o'",
+      "cyrillic": "ў",
+      "latin": "oʻ",
+      "type": "vowel",
+      "description": "Close-mid back unrounded vowel",
+      "examples": [
+        "o'qituvchi",
+        "o'quvchi"
+      ],
+      "difficulty_level": "intermediate"
+    },
+    "u'": {
+      "symbol": "u'",
+      "cyrillic": "ў",
+      "latin": "uʼ",
+      "type": "vowel",
+      "description": "Close back unrounded vowel (rare)",
+      "examples": [
+        "quloq"
+      ],
+      "difficulty_level": "advanced"
+    },
+    "b": {
+      "symbol": "b",
+      "cyrillic": "б",
+      "latin": "b",
+      "type": "consonant",
+      "description": "Voiced bilabial plosive",
+      "examples": [
+        "kitob",
+        "bolalar"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "p": {
+      "symbol": "p",
+      "cyrillic": "п",
+      "latin": "p",
+      "type": "consonant",
+      "description": "Voiceless bilabial plosive",
+      "examples": [
+        "pensiya",
+        "pul"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "d": {
+      "symbol": "d",
+      "cyrillic": "д",
+      "latin": "d",
+      "type": "consonant",
+      "description": "Voiced alveolar plosive",
+      "examples": [
+        "dars",
+        "do'st"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "t": {
+      "symbol": "t",
+      "cyrillic": "т",
+      "latin": "t",
+      "type": "consonant",
+      "description": "Voiceless alveolar plosive",
+      "examples": [
+        "maktab",
+        "til"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "g": {
+      "symbol": "g",
+      "cyrillic": "г",
+      "latin": "g",
+      "type": "consonant",
+      "description": "Voiced velar plosive",
+      "examples": [
+        "guruh",
+        "gal"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "k": {
+      "symbol": "k",
+      "cyrillic": "к",
+      "latin": "k",
+      "type": "consonant",
+      "description": "Voiceless velar plosive",
+      "examples": [
+        "kitob",
+        "qalam"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "q": {
+      "symbol": "q",
+      "cyrillic": "қ",
+      "latin": "q",
+      "type": "consonant",
+      "description": "Voiceless uvular plosive",
+      "examples": [
+        "qizil",
+        "qush"
+      ],
+      "difficulty_level": "intermediate"
+    },
+    "v": {
+      "symbol": "v",
+      "cyrillic": "в",
+      "latin": "v",
+      "type": "consonant",
+      "description": "Voiced labiodental fricative",
+      "examples": [
+        "vazifa",
+        "viloyat"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "f": {
+      "symbol": "f",
+      "cyrillic": "ф",
+      "latin": "f",
+      "type": "consonant",
+      "description": "Voiceless labiodental fricative",
+      "examples": [
+        "fan",
+        "fizika"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "z": {
+      "symbol": "z",
+      "cyrillic": "з",
+      "latin": "z",
+      "type": "consonant",
+      "description": "Voiced alveolar fricative",
+      "examples": [
+        "zavod",
+        "zamon"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "s": {
+      "symbol": "s",
+      "cyrillic": "с",
+      "latin": "s",
+      "type": "consonant",
+      "description": "Voiceless alveolar fricative",
+      "examples": [
+        "sinf",
+        "soat"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "j": {
+      "symbol": "j",
+      "cyrillic": "ж",
+      "latin": "j",
+      "type": "consonant",
+      "description": "Voiced postalveolar fricative",
+      "examples": [
+        "jurnal",
+        "jinoyat"
+      ],
+      "difficulty_level": "intermediate"
+    },
+    "sh": {
+      "symbol": "sh",
+      "cyrillic": "ш",
+      "latin": "sh",
+      "type": "consonant",
+      "description": "Voiceless postalveolar fricative",
+      "examples": [
+        "shahar",
+        "ish"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "ch": {
+      "symbol": "ch",
+      "cyrillic": "ч",
+      "latin": "ch",
+      "type": "consonant",
+      "description": "Voiceless postalveolar affricate",
+      "examples": [
+        "chiroq",
+        "choy"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "ng": {
+      "symbol": "ng",
+      "cyrillic": "нг",
+      "latin": "ng",
+      "type": "consonant",
+      "description": "Velar nasal",
+      "examples": [
+        "rang",
+        "singan"
+      ],
+      "difficulty_level": "intermediate"
+    },
+    "l": {
+      "symbol": "l",
+      "cyrillic": "л",
+      "latin": "l",
+      "type": "consonant",
+      "description": "Alveolar lateral approximant",
+      "examples": [
+        "maktab",
+        "qalam"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "m": {
+      "symbol": "m",
+      "cyrillic": "м",
+      "latin": "m",
+      "type": "consonant",
+      "description": "Bilabial nasal",
+      "examples": [
+        "maktab",
+        "matematika"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "n": {
+      "symbol": "n",
+      "cyrillic": "н",
+      "latin": "n",
+      "type": "consonant",
+      "description": "Alveolar nasal",
+      "examples": [
+        "nima",
+        "non"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "r": {
+      "symbol": "r",
+      "cyrillic": "р",
+      "latin": "r",
+      "type": "consonant",
+      "description": "Alveolar trill",
+      "examples": [
+        "raqam",
+        "rangi"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "h": {
+      "symbol": "h",
+      "cyrillic": "ҳ",
+      "latin": "h",
+      "type": "consonant",
+      "description": "Voiceless glottal fricative",
+      "examples": [
+        "halqa",
+        "hayot"
+      ],
+      "difficulty_level": "intermediate"
+    },
+    "y": {
+      "symbol": "y",
+      "cyrillic": "й",
+      "latin": "y",
+      "type": "consonant",
+      "description": "Palatal approximant",
+      "examples": [
+        "yozish",
+        "yangi"
+      ],
+      "difficulty_level": "beginner"
+    },
+    "'": {
+      "symbol": "'",
+      "cyrillic": "'",
+      "latin": "'",
+      "type": "consonant",
+      "description": "Glottal stop (hamza)",
+      "examples": [
+        "o'qish",
+        "o'quvchi"
+      ],
+      "difficulty_level": "intermediate"
+    }
+  },
+  "entries": {
+    "maktab": {
+      "word": "maktab",
+      "cyrillic": "maktab",
+      "latin": "maktab",
+      "phonetic_transcription": "'mak.tɑb",
+      "syllables": [
+        "ma",
+        "kta",
+        "b"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_school",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "o'qituvchi": {
+      "word": "o'qituvchi",
+      "cyrillic": "o'qituvchi",
+      "latin": "o'qituvchi",
+      "phonetic_transcription": "o'.qi.tuʋ.tʃi",
+      "syllables": [
+        "o'",
+        "qi",
+        "tu",
+        "vchi"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "q is pronounced from the back of throat. oʻ/uʼ are pronounced without lip rounding. h is a strong throat sound. ' represents a brief pause/glottal stop",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_teacher",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "o'quvchi": {
+      "word": "o'quvchi",
+      "cyrillic": "o'quvchi",
+      "latin": "o'quvchi",
+      "phonetic_transcription": "o'.quʋ.tʃi",
+      "syllables": [
+        "o'",
+        "qu",
+        "vchi"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "q is pronounced from the back of throat. oʻ/uʼ are pronounced without lip rounding. h is a strong throat sound. ' represents a brief pause/glottal stop",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_student",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "dars": {
+      "word": "dars",
+      "cyrillic": "dars",
+      "latin": "dars",
+      "phonetic_transcription": "dɑrs",
+      "syllables": [
+        "da",
+        "rs"
+      ],
+      "stress_pattern": "10",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_lesson",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "sinf": {
+      "word": "sinf",
+      "cyrillic": "sinf",
+      "latin": "sinf",
+      "phonetic_transcription": "sinf",
+      "syllables": [
+        "si",
+        "nf"
+      ],
+      "stress_pattern": "10",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_class",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "kitob": {
+      "word": "kitob",
+      "cyrillic": "kitob",
+      "latin": "kitob",
+      "phonetic_transcription": "ki.'tob",
+      "syllables": [
+        "ki",
+        "to",
+        "b"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_book",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "daftar": {
+      "word": "daftar",
+      "cyrillic": "daftar",
+      "latin": "daftar",
+      "phonetic_transcription": "dɑf.'tɑr",
+      "syllables": [
+        "da",
+        "fta",
+        "r"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_notebook",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "qalam": {
+      "word": "qalam",
+      "cyrillic": "qalam",
+      "latin": "qalam",
+      "phonetic_transcription": "qɑ.'lɑm",
+      "syllables": [
+        "qa",
+        "la",
+        "m"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "q is pronounced from the back of throat",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_pencil",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "ruchka": {
+      "word": "ruchka",
+      "cyrillic": "ruchka",
+      "latin": "ruchka",
+      "phonetic_transcription": "rutʃ.'kɑ",
+      "syllables": [
+        "ru",
+        "chka"
+      ],
+      "stress_pattern": "10",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_pen",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "doska": {
+      "word": "doska",
+      "cyrillic": "doska",
+      "latin": "doska",
+      "phonetic_transcription": "dos.'kɑ",
+      "syllables": [
+        "do",
+        "ska"
+      ],
+      "stress_pattern": "10",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "education_blackboard",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "matematika": {
+      "word": "matematika",
+      "cyrillic": "matematika",
+      "latin": "matematika",
+      "phonetic_transcription": "mɑ.te.mɑ.'ti.kɑ",
+      "syllables": [
+        "ma",
+        "te",
+        "ma",
+        "ti",
+        "ka"
+      ],
+      "stress_pattern": "00010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "subject_mathematics",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "fizika": {
+      "word": "fizika",
+      "cyrillic": "fizika",
+      "latin": "fizika",
+      "phonetic_transcription": "fi.'zi.kɑ",
+      "syllables": [
+        "fi",
+        "zi",
+        "ka"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "subject_physics",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "kimyo": {
+      "word": "kimyo",
+      "cyrillic": "kimyo",
+      "latin": "kimyo",
+      "phonetic_transcription": "kim.'jo",
+      "syllables": [
+        "ki",
+        "myo"
+      ],
+      "stress_pattern": "10",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "subject_chemistry",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "biologiya": {
+      "word": "biologiya",
+      "cyrillic": "biologiya",
+      "latin": "biologiya",
+      "phonetic_transcription": "bi.o.lo.'gi.jɑ",
+      "syllables": [
+        "bi",
+        "olo",
+        "gi",
+        "ya"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "subject_biology",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "tarix": {
+      "word": "tarix",
+      "cyrillic": "tarix",
+      "latin": "tarix",
+      "phonetic_transcription": "tɑ.'rix",
+      "syllables": [
+        "ta",
+        "ri",
+        "x"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "subject_history",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "geografiya": {
+      "word": "geografiya",
+      "cyrillic": "geografiya",
+      "latin": "geografiya",
+      "phonetic_transcription": "ge.o.grɑ.'fi.jɑ",
+      "syllables": [
+        "ge",
+        "ogra",
+        "fi",
+        "ya"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "subject_geography",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "adabiyot": {
+      "word": "adabiyot",
+      "cyrillic": "adabiyot",
+      "latin": "adabiyot",
+      "phonetic_transcription": "ɑ.dɑ.bi.'jot",
+      "syllables": [
+        "ada",
+        "bi",
+        "yo",
+        "t"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "subject_literature",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "ona tili": {
+      "word": "ona tili",
+      "cyrillic": "ona tili",
+      "latin": "ona tili",
+      "phonetic_transcription": "o.'nɑ ti.'li",
+      "syllables": [
+        "ona",
+        " ti",
+        "li"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "subject_native language",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "ingliz tili": {
+      "word": "ingliz tili",
+      "cyrillic": "ingliz tili",
+      "latin": "ingliz tili",
+      "phonetic_transcription": "in.'gliz ti.'li",
+      "syllables": [
+        "ingli",
+        "z ti",
+        "li"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "subject_English language",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "o'qish": {
+      "word": "o'qish",
+      "cyrillic": "o'qish",
+      "latin": "o'qish",
+      "phonetic_transcription": "o'.qish",
+      "syllables": [
+        "o'",
+        "qi",
+        "sh"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "q is pronounced from the back of throat. oʻ/uʼ are pronounced without lip rounding. h is a strong throat sound. ' represents a brief pause/glottal stop",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "action_reading",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "yozish": {
+      "word": "yozish",
+      "cyrillic": "yozish",
+      "latin": "yozish",
+      "phonetic_transcription": "jo.'zish",
+      "syllables": [
+        "yo",
+        "zi",
+        "sh"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "action_writing",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "o'rganish": {
+      "word": "o'rganish",
+      "cyrillic": "o'rganish",
+      "latin": "o'rganish",
+      "phonetic_transcription": "or.'gɑ.nish",
+      "syllables": [
+        "o'",
+        "rga",
+        "ni",
+        "sh"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "oʻ/uʼ are pronounced without lip rounding. h is a strong throat sound. ' represents a brief pause/glottal stop",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "action_learning",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "tushunish": {
+      "word": "tushunish",
+      "cyrillic": "tushunish",
+      "latin": "tushunish",
+      "phonetic_transcription": "tu.shu.'nish",
+      "syllables": [
+        "tu",
+        "shu",
+        "ni",
+        "sh"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "action_understanding",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "eslash": {
+      "word": "eslash",
+      "cyrillic": "eslash",
+      "latin": "eslash",
+      "phonetic_transcription": "es.'lɑsh",
+      "syllables": [
+        "esla",
+        "sh"
+      ],
+      "stress_pattern": "10",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "action_remembering",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "takrorlash": {
+      "word": "takrorlash",
+      "cyrillic": "takrorlash",
+      "latin": "takrorlash",
+      "phonetic_transcription": "tɑk.ro.'rɑsh",
+      "syllables": [
+        "ta",
+        "kro",
+        "rla",
+        "sh"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "action_repeating",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "savol": {
+      "word": "savol",
+      "cyrillic": "savol",
+      "latin": "savol",
+      "phonetic_transcription": "sɑ.'vol",
+      "syllables": [
+        "sa",
+        "vo",
+        "l"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "concept_question",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "javob": {
+      "word": "javob",
+      "cyrillic": "javob",
+      "latin": "javob",
+      "phonetic_transcription": "dʒɑ.'vob",
+      "syllables": [
+        "ja",
+        "vo",
+        "b"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "concept_answer",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "vazifa": {
+      "word": "vazifa",
+      "cyrillic": "vazifa",
+      "latin": "vazifa",
+      "phonetic_transcription": "vɑ.zi.'fɑ",
+      "syllables": [
+        "va",
+        "zi",
+        "fa"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "concept_task",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "baholash": {
+      "word": "baholash",
+      "cyrillic": "baholash",
+      "latin": "baholash",
+      "phonetic_transcription": "bɑ.ho.'lɑsh",
+      "syllables": [
+        "ba",
+        "ho",
+        "la",
+        "sh"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "concept_assessment",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "imtihon": {
+      "word": "imtihon",
+      "cyrillic": "imtihon",
+      "latin": "imtihon",
+      "phonetic_transcription": "im.ti.'hon",
+      "syllables": [
+        "imti",
+        "ho",
+        "n"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "concept_exam",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "diplom": {
+      "word": "diplom",
+      "cyrillic": "diplom",
+      "latin": "diplom",
+      "phonetic_transcription": "di.'plom",
+      "syllables": [
+        "di",
+        "plo",
+        "m"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "concept_diploma",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "raqam": {
+      "word": "raqam",
+      "cyrillic": "raqam",
+      "latin": "raqam",
+      "phonetic_transcription": "rɑ.'qɑm",
+      "syllables": [
+        "ra",
+        "qa",
+        "m"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "q is pronounced from the back of throat",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "math_number",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "hisoblash": {
+      "word": "hisoblash",
+      "cyrillic": "hisoblash",
+      "latin": "hisoblash",
+      "phonetic_transcription": "hi.sob.'lɑsh",
+      "syllables": [
+        "hi",
+        "so",
+        "bla",
+        "sh"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "math_calculating",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "qo'shish": {
+      "word": "qo'shish",
+      "cyrillic": "qo'shish",
+      "latin": "qo'shish",
+      "phonetic_transcription": "qo'shish",
+      "syllables": [
+        "qo",
+        "'shi",
+        "sh"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "q is pronounced from the back of throat. oʻ/uʼ are pronounced without lip rounding. h is a strong throat sound. ' represents a brief pause/glottal stop",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "math_addition",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "ayirish": {
+      "word": "ayirish",
+      "cyrillic": "ayirish",
+      "latin": "ayirish",
+      "phonetic_transcription": "ɑ.'jirish",
+      "syllables": [
+        "ayi",
+        "ri",
+        "sh"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "beginner",
+      "category": "math_subtraction",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "ko'paytirish": {
+      "word": "ko'paytirish",
+      "cyrillic": "ko'paytirish",
+      "latin": "ko'paytirish",
+      "phonetic_transcription": "kop.'pɑj.tirish",
+      "syllables": [
+        "ko",
+        "'pa",
+        "yti",
+        "ri",
+        "sh"
+      ],
+      "stress_pattern": "00010",
+      "pronunciation_guide": "oʻ/uʼ are pronounced without lip rounding. h is a strong throat sound. ' represents a brief pause/glottal stop",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "math_multiplication",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "bo'lish": {
+      "word": "bo'lish",
+      "cyrillic": "bo'lish",
+      "latin": "bo'lish",
+      "phonetic_transcription": "bo.'lish",
+      "syllables": [
+        "bo",
+        "'li",
+        "sh"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "oʻ/uʼ are pronounced without lip rounding. h is a strong throat sound. ' represents a brief pause/glottal stop",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "math_division",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "tajriba": {
+      "word": "tajriba",
+      "cyrillic": "tajriba",
+      "latin": "tajriba",
+      "phonetic_transcription": "tɑdʒ.ri.'bɑ",
+      "syllables": [
+        "ta",
+        "jri",
+        "ba"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "science_experiment",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "kashfiyot": {
+      "word": "kashfiyot",
+      "cyrillic": "kashfiyot",
+      "latin": "kashfiyot",
+      "phonetic_transcription": "kɑsh.fi.'jot",
+      "syllables": [
+        "ka",
+        "shfi",
+        "yo",
+        "t"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "h is a strong throat sound",
+      "common_mispronunciations": [],
+      "difficulty_level": "advanced",
+      "category": "science_discovery",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "tadqiqot": {
+      "word": "tadqiqot",
+      "cyrillic": "tadqiqot",
+      "latin": "tadqiqot",
+      "phonetic_transcription": "tɑd.qi.'qot",
+      "syllables": [
+        "ta",
+        "dqi",
+        "qo",
+        "t"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "q is pronounced from the back of throat",
+      "common_mispronunciations": [],
+      "difficulty_level": "advanced",
+      "category": "science_research",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "nazariya": {
+      "word": "nazariya",
+      "cyrillic": "nazariya",
+      "latin": "nazariya",
+      "phonetic_transcription": "nɑ.zɑ.ri.'jɑ",
+      "syllables": [
+        "na",
+        "za",
+        "ri",
+        "ya"
+      ],
+      "stress_pattern": "0010",
+      "pronunciation_guide": "Pronounce clearly with equal emphasis on each syllable",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "science_theory",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    },
+    "qonun": {
+      "word": "qonun",
+      "cyrillic": "qonun",
+      "latin": "qonun",
+      "phonetic_transcription": "qo.'nun",
+      "syllables": [
+        "qo",
+        "nu",
+        "n"
+      ],
+      "stress_pattern": "010",
+      "pronunciation_guide": "q is pronounced from the back of throat",
+      "common_mispronunciations": [],
+      "difficulty_level": "intermediate",
+      "category": "science_law",
+      "audio_examples": [],
+      "metadata": {
+        "added_date": "2025-01-13",
+        "verified": false,
+        "usage_frequency": "educational"
+      }
+    }
+  }
+}
