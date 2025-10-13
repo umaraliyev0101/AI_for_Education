@@ -1,0 +1,93 @@
+# Uzbek Speech Recognition Configuration
+# Optimized for Uzbek language detection and recognition
+
+general:
+  # Language code
+  language: "uz"
+  language_name: "Uzbek"
+
+  # Model settings
+  model_type: "vosk"
+  model_path: "models/uzbek/vosk-model-small-uz-0.22"
+  sample_rate: 16000
+
+  # Recognition parameters
+  beam_size: 10
+  max_active: 3000
+  lattice_beam: 2
+
+language_detection:
+  # Uzbek language characteristics
+  # Uzbek uses Cyrillic and Latin scripts
+  supported_scripts: ["cyrillic", "latin"]
+
+  # Common Uzbek words for language detection
+  common_words:
+    - "salom"
+    - "rahmat"
+    - "iltimos"
+    - "keling"
+    - "boring"
+    - "nima"
+    - "qayerda"
+    - "qachon"
+    - "qanday"
+    - "nega"
+    - "men"
+    - "sen"
+    - "u"
+    - "biz"
+    - "siz"
+    - "ular"
+
+  # Uzbek phonetic characteristics
+  vowel_harmony: true
+  consonant_clusters: ["st", "sk", "sp", "sh", "ch", "ng"]
+  typical_syllable_structure: "CV(C)"
+
+audio_preprocessing:
+  # Audio preprocessing settings optimized for Uzbek
+  noise_reduction: true
+  normalization: true
+  dc_offset_removal: true
+
+  # Uzbek speech characteristics
+  speech_rate_range: [120, 180]  # words per minute
+  pause_threshold: 0.5  # seconds
+
+  # Frequency range for Uzbek speech (Hz)
+  frequency_range: [80, 8000]
+
+recognition_settings:
+  # Vosk-specific settings
+  silence_timeout: 1.0
+  speech_timeout: 10.0
+  no_speech_prob_threshold: 0.4
+
+  # Language model settings
+  enable_dynamic_vocabulary: true
+  max_alternatives: 3
+
+performance:
+  # Performance optimization
+  use_gpu: false  # Set to true if GPU available
+  num_threads: 4
+  real_time_factor_target: 0.5
+
+logging:
+  # Logging configuration
+  log_level: "INFO"
+  log_file: "logs/uzbek_speech_recognition.log"
+  enable_performance_logging: true
+
+fallback_models:
+  # Alternative models if Vosk quality is insufficient
+  alternatives:
+    - name: "xls-r-uzbek-cv10"
+      provider: "huggingface"
+      model_id: "vodiylik/xls-r-uzbek-cv10-full"
+      description: "XLS-R model fine-tuned on Uzbek Common Voice 10"
+    - name: "xls-r-uzbek-cv8"
+      provider: "huggingface"
+      model_id: "lucio/xls-r-uzbek-cv8"
+      description: "XLS-R model fine-tuned on Uzbek Common Voice 8"
