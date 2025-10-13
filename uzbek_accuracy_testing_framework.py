@@ -4,19 +4,12 @@ Uzbek Speech Recognition Accuracy Testing Framework
 Simplified testing framework using Whisper for Uzbek STT
 """
 
-import os
 import json
 import time
 import numpy as np
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from datetime import datetime
-try:
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    VISUALIZATION_AVAILABLE = True
-except ImportError:
-    VISUALIZATION_AVAILABLE = False
 import jiwer
 
 from uzbek_whisper_pipeline import UzbekWhisperSTT

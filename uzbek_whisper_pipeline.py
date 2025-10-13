@@ -3,15 +3,13 @@ Uzbek Speech-to-Text Pipeline using OpenAI Whisper
 ==================================================
 
 A high-accuracy STT system for Uzbek language using Whisper model.
-Supports real-time processing and batch transcription.
 """
 
 import torch
 from transformers import pipeline, AutoModelForSpeechSeq2Seq, AutoProcessor
 import numpy as np
 import wave
-import io
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any
 import logging
 from dataclasses import dataclass
 from datetime import datetime
@@ -120,20 +118,26 @@ class UzbekWhisperSTT:
 
     def transcribe_file(self, file_path: str) -> Dict[str, Any]:
         """
-        Transcribe audio from file
+        Transcribe audio from WAV file
 
         Args:
-            file_path: Path to audio file (WAV, MP3, etc.)
+            file_path: Path to WAV audio file
 
         Returns:
             Dict with transcription results
         """
-
         try:
-            # Load audio file
-            audio_data, sample_rate = self._load_audio_file(file_path)
+            # Load WAV file
+            with wave.open(file_path, 'rb') as wav_file:
+                sample_rate = wav_file.getframerate()
+                n_frames = wav_file.getnframes()
+                audio_bytes = wav_file.readframes(n_frames)
+                audio_data = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
 
-            # Transcribe
+                # Handle stereo to mono
+                if wav_file.getnchannels() == 2:
+                    audio_data = audio_data.reshape(-1, 2).mean(axis=1)
+
             return self.transcribe_audio(audio_data, sample_rate)
 
         except Exception as e:
@@ -143,39 +147,6 @@ class UzbekWhisperSTT:
                 "error": str(e),
                 "timestamp": datetime.now().isoformat()
             }
-
-    def _load_audio_file(self, file_path: str) -> tuple[np.ndarray, int]:
-        """
-        Load audio file and return numpy array and sample rate
-
-        Args:
-            file_path: Path to audio file
-
-        Returns:
-            Tuple of (audio_array, sample_rate)
-        """
-
-        # For WAV files
-        if file_path.endswith('.wav'):
-            with wave.open(file_path, 'rb') as wav_file:
-                sample_rate = wav_file.getframerate()
-                n_frames = wav_file.getnframes()
-                audio_bytes = wav_file.readframes(n_frames)
-
-                # Convert to numpy array
-                audio_data = np.frombuffer(audio_bytes, dtype=np.int16)
-
-                # Convert to float32 and normalize
-                audio_data = audio_data.astype(np.float32) / 32768.0
-
-                # Handle stereo to mono
-                if wav_file.getnchannels() == 2:
-                    audio_data = audio_data.reshape(-1, 2).mean(axis=1)
-
-                return audio_data, sample_rate
-
-        else:
-            raise ValueError(f"Unsupported file format: {file_path}")
 
     def _estimate_confidence(self, result: Dict[str, Any]) -> float:
         """

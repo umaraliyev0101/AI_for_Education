@@ -112,3 +112,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Project specific
+uzbek_*_report*.json
+accuracy_reports/
+test_audio/
+models/
+*.zip
