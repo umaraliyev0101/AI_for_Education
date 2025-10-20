@@ -5,7 +5,8 @@ AI-powered speech recognition system for the Uzbek language using OpenAI Whisper
 ## Features
 
 - **High-Accuracy STT**: Uses OpenAI Whisper for superior Uzbek speech recognition
-- **Real-time Processing**: Optimized for live transcription
+- **Real-time Processing**: Optimized for live transcription from microphone
+- **Live Transcription**: Continuous speech-to-text from microphone input
 - **Accuracy Testing**: Comprehensive WER/CER metrics and reporting
 - **Text Post-processing**: Uzbek-specific text normalization and cleaning
 - **Audio Preprocessing**: Optimized audio processing for Uzbek phonetic characteristics
@@ -39,6 +40,9 @@ python main.py test
 
 # Transcribe audio file
 python main.py transcribe audio.wav
+
+# Live transcription from microphone (real-time)
+python main.py live
 
 # Interactive mode
 python main.py interactive
