@@ -16,8 +16,8 @@ import logging
 from datetime import datetime
 import time
 
-from face_recognition_db import FaceRecognitionDB
-from face_enrollment import FaceEnrollmentSystem
+from .face_recognition_db import FaceRecognitionDB
+from .face_enrollment import FaceEnrollmentSystem
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

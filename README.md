@@ -1,45 +1,78 @@
-# Uzbek Speech-to-Text System
+# AI in Education - Uzbek STT & Attendance System
 
-AI-powered speech recognition and text-to-speech system for the Uzbek language using OpenAI Whisper and Microsoft Edge TTS.
+Complete AI-powered system for education featuring speech-to-text and automatic face recognition attendance for Uzbek schools.
 
-## Features
+## 🎯 Features
 
-- **High-Accuracy STT**: Uses OpenAI Whisper for superior Uzbek speech recognition
-- **Real-time Processing**: Optimized for live transcription from microphone
-- **Live Transcription**: Continuous speech-to-text from microphone input
+### Speech-to-Text System
+- **High-Accuracy STT**: XLS-R model (15.07% WER) for Uzbek speech recognition
+- **Multiple Models**: XLS-R (primary), Whisper (backup), HF Pipeline (general)
+- **Live Transcription**: Real-time speech-to-text from microphone
 - **Text-to-Speech**: Natural Uzbek speech synthesis for educational content
 - **Interactive Teaching**: AI-powered lessons combining STT and TTS
-- **Child-Friendly Voices**: Optimized voices for teaching children
 - **Accuracy Testing**: Comprehensive WER/CER metrics and reporting
-- **Text Post-processing**: Uzbek-specific text normalization and cleaning
-- **Audio Preprocessing**: Optimized audio processing for Uzbek phonetic characteristicsch-to-Text System
 
-AI-powered speech recognition system for the Uzbek language using OpenAI Whisper.
+### Face Recognition Attendance
+- **Automatic Attendance**: FaceNet-based recognition at entrance camera
+- **Student Enrollment**: Easy webcam or image-based enrollment
+- **SQLite Database**: Local storage for students and attendance records
+- **Real-time Processing**: ~100ms recognition per frame
+- **Attendance Reports**: Daily, weekly, monthly statistics by class
+- **Privacy-Focused**: Local processing, no cloud dependency
 
-## Features
+## 📁 Project Structure
 
-- **High-Accuracy STT**: Uses OpenAI Whisper for superior Uzbek speech recognition
-- **Real-time Processing**: Optimized for live transcription from microphone
-- **Live Transcription**: Continuous speech-to-text from microphone input
-- **Accuracy Testing**: Comprehensive WER/CER metrics and reporting
-- **Text Post-processing**: Uzbek-specific text normalization and cleaning
-- **Audio Preprocessing**: Optimized audio processing for Uzbek phonetic characteristics
+```
+AI_in_Education/
+├── main.py                    # Main CLI entry point
+├── requirements.txt           # Python dependencies
+├── README.md                  # This file
+│
+├── stt_pipelines/            # Speech-to-Text modules
+│   ├── uzbek_xlsr_pipeline.py      # XLS-R (primary, 15% WER)
+│   ├── uzbek_whisper_pipeline.py   # Whisper (backup, 30% WER)
+│   ├── uzbek_hf_pipeline.py        # HuggingFace ASR
+│   └── uzbek_tts_pipeline.py       # Text-to-Speech
+│
+├── face_recognition/         # Attendance system
+│   ├── face_recognition_db.py      # SQLite database
+│   ├── face_enrollment.py          # Student enrollment
+│   └── face_attendance.py          # Real-time attendance
+│
+├── utils/                    # Utilities
+│   ├── uzbek_text_postprocessor.py
+│   └── uzbek_accuracy_testing_framework.py
+│
+├── docs/                     # Documentation
+│   ├── FACE_RECOGNITION_README.md
+│   ├── COMPLETE_SYSTEM_DOCS.md
+│   └── PROJECT_STRUCTURE.md
+│
+└── data/                     # Data files & reports
+    ├── students.db           # SQLite database (runtime)
+    └── *.json                # Accuracy reports
+```
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Installation
 
 ```bash
+# Clone repository
+git clone https://github.com/umaraliyev0101/AI_for_Education.git
+cd AI_in_Education
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### Basic Usage
+### STT Usage
 
 ```python
-from uzbek_whisper_pipeline import create_uzbek_whisper_stt
+from stt_pipelines.uzbek_xlsr_pipeline import create_uzbek_xlsr_stt
 
 # Create STT instance
-stt = create_uzbek_whisper_stt()
+stt = create_uzbek_xlsr_stt()
 
 # Transcribe audio file
 result = stt.transcribe_file("audio.wav")
@@ -48,23 +81,102 @@ print(result["text"])
 
 ### Command Line Usage
 
+**STT Commands:**
 ```bash
 # Run accuracy tests
 python main.py test
 
 # Transcribe audio file
-python main.py transcribe audio.wav
+python main.py transcribe audio.wav xlsr
 
-# Live transcription from microphone (real-time)
+# Live transcription from microphone
 python main.py live
 
-# Convert text to speech
+# Text-to-speech
 python main.py speak "Salom, bolalar!"
 
-# Interactive teaching mode (combines STT + TTS)
+# Interactive teaching mode
 python main.py teach
+```
 
-# Interactive mode
+**Attendance Commands:**
+```bash
+# Enroll new student
+python main.py enroll
+
+# Start entrance camera
+python main.py attendance
+
+# View attendance report
+python main.py report
+
+# List all students
+python main.py students
+```
+
+### Face Recognition Setup
+
+```python
+from face_recognition.face_enrollment import FaceEnrollmentSystem
+from face_recognition.face_recognition_db import FaceRecognitionDB
+
+# Enroll student
+enrollment = FaceEnrollmentSystem()
+db = FaceRecognitionDB()
+
+student_id, name, class_name, encoding = enrollment.enroll_student_interactive()
+db.add_student(student_id, name, class_name, encoding)
+```
+
+## 📊 Model Performance
+
+| Model | WER | CER | Language | Use Case |
+|-------|-----|-----|----------|----------|
+| XLS-R | 15.07% | 3.08% | Uzbek | Primary STT |
+| Whisper | ~30-35% | ~8-10% | Uzbek | Backup STT |
+| FaceNet | 99.3% | - | - | Face Recognition |
+
+## 📚 Documentation
+
+- **[Complete System Docs](docs/COMPLETE_SYSTEM_DOCS.md)**: Full technical documentation
+- **[Face Recognition Guide](docs/FACE_RECOGNITION_README.md)**: Attendance system usage
+- **[Project Structure](docs/PROJECT_STRUCTURE.md)**: Detailed file organization
+
+## 🔧 Requirements
+
+- Python 3.8+
+- PyTorch 2.0+
+- Transformers 4.30+
+- OpenCV 4.8+
+- facenet-pytorch
+- SQLite3 (included with Python)
+
+## 🎓 Use Cases
+
+1. **Classroom Attendance**: Automatic student attendance via entrance camera
+2. **Uzbek Language Learning**: Interactive STT/TTS lessons
+3. **Speech Recognition**: Transcribe Uzbek audio files
+4. **Attendance Analytics**: Track student attendance patterns
+5. **Educational Research**: Measure STT accuracy for Uzbek
+
+## 🤝 Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## 👥 Authors
+
+- **Umar Aliyev** - [GitHub](https://github.com/umaraliyev0101)
+
+## 🙏 Acknowledgments
+
+- XLS-R model by Meta AI
+- Whisper model by OpenAI
+- FaceNet by Google
+- Uzbek speech data contributors
 python main.py interactive
 ```
 

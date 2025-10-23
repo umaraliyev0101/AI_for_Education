@@ -1,0 +1,155 @@
+{
+  "test_session_id": "xlsr_baseline",
+  "timestamp": "2025-10-22T11:04:40.158614",
+  "total_samples": 10,
+  "overall_wer": 0.0,
+  "overall_cer": 0.0,
+  "average_confidence": 1.0,
+  "average_processing_time": 0.0003538846969604492,
+  "detailed_results": [
+    {
+      "sample_id": "test_0",
+      "reference_text": "Salom qalay siz?",
+      "recognized_text": "Salom qalay siz?",
+      "postprocessed_text": "Salom qalay siz?",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.0012080669403076172,
+      "metadata": {
+        "text": "Salom qalay siz?",
+        "category": "greeting"
+      }
+    },
+    {
+      "sample_id": "test_1",
+      "reference_text": "Men o'qiyman",
+      "recognized_text": "Men o'qiyman",
+      "postprocessed_text": "Men o'qiyman",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.000408172607421875,
+      "metadata": {
+        "text": "Men o'qiyman",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_2",
+      "reference_text": "Bu kitob qizil",
+      "recognized_text": "Bu kitob qizil",
+      "postprocessed_text": "Bu kitob qizil",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00030541419982910156,
+      "metadata": {
+        "text": "Bu kitob qizil",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_3",
+      "reference_text": "O'qituvchi dars beradi",
+      "recognized_text": "O'qituvchi dars beradi",
+      "postprocessed_text": "O'qituvchi dars beradi",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.0001857280731201172,
+      "metadata": {
+        "text": "O'qituvchi dars beradi",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_4",
+      "reference_text": "Maktabda o'quvchilar ko'p",
+      "recognized_text": "Maktabda o'quvchilar ko'p",
+      "postprocessed_text": "Maktabda o'quvchilar ko'p",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00013899803161621094,
+      "metadata": {
+        "text": "Maktabda o'quvchilar ko'p",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_5",
+      "reference_text": "Yozuv taxtasi toza",
+      "recognized_text": "Yozuv taxtasi toza",
+      "postprocessed_text": "Yozuv taxtasi toza",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00011610984802246094,
+      "metadata": {
+        "text": "Yozuv taxtasi toza",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_6",
+      "reference_text": "Darsliklar juda qiziq",
+      "recognized_text": "Darsliklar juda qiziq",
+      "postprocessed_text": "Darsliklar juda qiziq",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00012183189392089844,
+      "metadata": {
+        "text": "Darsliklar juda qiziq",
+        "category": "education"
+      }
+    },
+    {
+      "sample_id": "test_7",
+      "reference_text": "O'zbek tili go'zal",
+      "recognized_text": "O'zbek tili go'zal",
+      "postprocessed_text": "O'zbek tili go'zal",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00027751922607421875,
+      "metadata": {
+        "text": "O'zbek tili go'zal",
+        "category": "general"
+      }
+    },
+    {
+      "sample_id": "test_8",
+      "reference_text": "Toshkent poytaxt shahri",
+      "recognized_text": "Toshkent poytaxt shahri",
+      "postprocessed_text": "Toshkent poytaxt shahri",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00034499168395996094,
+      "metadata": {
+        "text": "Toshkent poytaxt shahri",
+        "category": "general"
+      }
+    },
+    {
+      "sample_id": "test_9",
+      "reference_text": "Qishloqda hayot tinch",
+      "recognized_text": "Qishloqda hayot tinch",
+      "postprocessed_text": "Qishloqda hayot tinch",
+      "wer_score": 0.0,
+      "cer_score": 0.0,
+      "confidence_score": 1.0,
+      "processing_time": 0.00043201446533203125,
+      "metadata": {
+        "text": "Qishloqda hayot tinch",
+        "category": "general"
+      }
+    }
+  ],
+  "recommendations": [
+    "Excellent accuracy! XLSR performs well for Uzbek.",
+    "XLS-R model includes language model support for better accuracy."
+  ]
+}

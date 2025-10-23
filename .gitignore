@@ -113,9 +113,50 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# Project specific
-uzbek_*_report*.json
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project specific - Data files
+data/*.json
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+data/audio/
+data/test_audio/
+data/models/
+data/*.zip
+
+# Project specific - Attendance
+*.db
+*.sqlite
+*.sqlite3
+attendance.db
+students.db
+
+# Project specific - Reports
 accuracy_reports/
-test_audio/
-models/
-*.zip
+*_report*.json
+!data/uzbek_xlsr_accuracy_report_xlsr_baseline.json
+
+# Project specific - Cache
+.cache/
+*.pkl
+*.pickle
+
+# Project specific - Logs
+logs/
+*.log
+
+# Project specific - Temporary files
+temp/
+tmp/
+*.tmp

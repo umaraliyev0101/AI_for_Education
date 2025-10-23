@@ -6,14 +6,14 @@ Uzbek Whisper STT System
 Complete Uzbek speech-to-text system using OpenAI Whisper.
 """
 
-from uzbek_whisper_pipeline import UzbekWhisperSTT, create_uzbek_whisper_stt
-from uzbek_xlsr_pipeline import UzbekXLSRSTT, create_uzbek_xlsr_stt
-from uzbek_hf_pipeline import UzbekHFSTTPipeline
-from uzbek_accuracy_testing_framework import UzbekAccuracyTester, run_xlsr_accuracy_test
-from uzbek_tts_pipeline import UzbekTTSPipeline, create_uzbek_tts, UZBEK_EDUCATIONAL_PHRASES
-from face_recognition_db import FaceRecognitionDB
-from face_enrollment import FaceEnrollmentSystem
-from face_attendance import FaceRecognitionAttendance
+from stt_pipelines.uzbek_whisper_pipeline import UzbekWhisperSTT, create_uzbek_whisper_stt
+from stt_pipelines.uzbek_xlsr_pipeline import UzbekXLSRSTT, create_uzbek_xlsr_stt
+from stt_pipelines.uzbek_hf_pipeline import UzbekHFSTTPipeline
+from utils.uzbek_accuracy_testing_framework import UzbekAccuracyTester, run_xlsr_accuracy_test
+from stt_pipelines.uzbek_tts_pipeline import UzbekTTSPipeline, create_uzbek_tts, UZBEK_EDUCATIONAL_PHRASES
+from face_recognition.face_recognition_db import FaceRecognitionDB
+from face_recognition.face_enrollment import FaceEnrollmentSystem
+from face_recognition.face_attendance import FaceRecognitionAttendance
 import sys
 import threading
 import queue
@@ -116,7 +116,7 @@ def main():
     elif command == "speak":
         # Lazy import TTS to avoid pygame warning when not using TTS
         try:
-            from uzbek_tts_pipeline import create_uzbek_tts, UZBEK_EDUCATIONAL_PHRASES
+            from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts, UZBEK_EDUCATIONAL_PHRASES
             text = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else UZBEK_EDUCATIONAL_PHRASES["greeting"]
 
             print("🗣️ Uzbek TTS - Text-to-Speech Mode")
@@ -141,7 +141,7 @@ def main():
 
         try:
             # Lazy import TTS for teaching mode
-            from uzbek_tts_pipeline import create_uzbek_tts
+            from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
             interactive_teaching(model)
         except KeyboardInterrupt:
             print("\n👋 Teaching session ended!")
@@ -329,7 +329,7 @@ def interactive_teaching(model="hf"):
     """Interactive teaching mode combining STT and TTS"""
 
     # Lazy import TTS to avoid pygame warning
-    from uzbek_tts_pipeline import create_uzbek_tts
+    from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
 
     # Initialize STT based on model
     if model == "nemo":
