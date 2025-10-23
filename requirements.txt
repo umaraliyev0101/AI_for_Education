@@ -9,3 +9,11 @@ seaborn
 streamlit
 spacy
 pyaudio
+edge-tts
+pygame
+# simpleaudio
+librosa
+soundfile
+facenet-pytorch
+opencv-python
+Pillow

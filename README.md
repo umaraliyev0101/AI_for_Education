@@ -1,5 +1,19 @@
 # Uzbek Speech-to-Text System
 
+AI-powered speech recognition and text-to-speech system for the Uzbek language using OpenAI Whisper and Microsoft Edge TTS.
+
+## Features
+
+- **High-Accuracy STT**: Uses OpenAI Whisper for superior Uzbek speech recognition
+- **Real-time Processing**: Optimized for live transcription from microphone
+- **Live Transcription**: Continuous speech-to-text from microphone input
+- **Text-to-Speech**: Natural Uzbek speech synthesis for educational content
+- **Interactive Teaching**: AI-powered lessons combining STT and TTS
+- **Child-Friendly Voices**: Optimized voices for teaching children
+- **Accuracy Testing**: Comprehensive WER/CER metrics and reporting
+- **Text Post-processing**: Uzbek-specific text normalization and cleaning
+- **Audio Preprocessing**: Optimized audio processing for Uzbek phonetic characteristicsch-to-Text System
+
 AI-powered speech recognition system for the Uzbek language using OpenAI Whisper.
 
 ## Features
@@ -44,6 +58,12 @@ python main.py transcribe audio.wav
 # Live transcription from microphone (real-time)
 python main.py live
 
+# Convert text to speech
+python main.py speak "Salom, bolalar!"
+
+# Interactive teaching mode (combines STT + TTS)
+python main.py teach
+
 # Interactive mode
 python main.py interactive
 ```
@@ -53,6 +73,7 @@ python main.py interactive
 ```
 ├── main.py                          # Main entry point
 ├── uzbek_whisper_pipeline.py        # Core Whisper STT pipeline
+├── uzbek_tts_pipeline.py           # Text-to-speech pipeline
 ├── uzbek_accuracy_testing_framework.py  # Testing and metrics
 ├── uzbek_text_postprocessor.py      # Text post-processing
 ├── uzbek_audio_preprocessor.py      # Audio preprocessing
@@ -76,6 +97,16 @@ class UzbekWhisperSTT:
     def transcribe_audio(audio_data, sample_rate=16000) -> Dict
     def transcribe_file(file_path) -> Dict
     def get_model_info() -> Dict
+```
+
+### UzbekTTSPipeline
+
+```python
+class UzbekTTSPipeline:
+    def speak_text(text: str, save_to_file=None) -> bool
+    def generate_speech(text: str) -> bytes
+    def get_available_voices() -> Dict[str, str]
+    def test_tts() -> bool
 ```
 
 ### UzbekAccuracyTester

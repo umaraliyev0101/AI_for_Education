@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """
-Uzbek Speech Recognition Accuracy Testing Framework
-Simplified testing framework using Whisper for Uzbek STT
+Uzbek STT Accuracy Testing Framework
 """
 
 import json
@@ -13,11 +12,11 @@ from datetime import datetime
 import jiwer
 
 from uzbek_whisper_pipeline import UzbekWhisperSTT
+from uzbek_xlsr_pipeline import UzbekXLSRSTT
 from uzbek_text_postprocessor import UzbekTextPostProcessor
 
 @dataclass
 class UzbekAccuracyResult:
-    """Result of accuracy testing for a single sample"""
     sample_id: str
     reference_text: str
     recognized_text: str
@@ -30,7 +29,6 @@ class UzbekAccuracyResult:
 
 @dataclass
 class UzbekAccuracyReport:
-    """Comprehensive accuracy report"""
     test_session_id: str
     timestamp: str
     total_samples: int
@@ -42,47 +40,37 @@ class UzbekAccuracyReport:
     recommendations: List[str]
 
 class UzbekAccuracyTester:
-    """
-    Simplified accuracy testing framework for Uzbek Whisper STT
-    """
+    """Accuracy testing for Uzbek STT engines"""
 
-    def __init__(self):
-        """Initialize the accuracy tester"""
-        self.stt_engine = UzbekWhisperSTT()
+    def __init__(self, stt_engine: str = "xlsr"):
+        self.stt_engine_type = stt_engine
+
+        if stt_engine == "whisper":
+            self.stt_engine = UzbekWhisperSTT()
+        elif stt_engine == "xlsr":
+            self.stt_engine = UzbekXLSRSTT()
+        else:
+            raise ValueError(f"Unknown STT engine: {stt_engine}")
+
         self.post_processor = UzbekTextPostProcessor()
         self.results: List[UzbekAccuracyResult] = []
-        print("🧪 Uzbek Whisper Accuracy Testing Framework initialized")
+        print(f"🧪 {stt_engine.upper()} accuracy tester ready")
 
     def test_text_accuracy(self, test_cases: List[Dict[str, str]],
                           session_name: Optional[str] = None) -> UzbekAccuracyReport:
-        """
-        Test accuracy using text-to-speech simulation
-
-        Args:
-            test_cases: List of dicts with 'text' and optional 'speaker' keys
-            session_name: Optional name for the test session
-
-        Returns:
-            Accuracy report
-        """
+        """Test accuracy using text-to-speech simulation"""
         if session_name is None:
-            session_name = f"whisper_test_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            session_name = f"{self.stt_engine_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-        print(f"🧪 Starting Whisper accuracy test: {session_name}")
-        print(f"📊 Testing {len(test_cases)} cases...")
+        print(f"🧪 Testing {len(test_cases)} cases with {self.stt_engine_type.upper()}...")
 
         self.results = []
-
         for i, test_case in enumerate(test_cases):
-            if (i + 1) % 5 == 0:
-                print(f"  Processed {i + 1}/{len(test_cases)} cases...")
-
             result = self._test_single_case(test_case, i)
             self.results.append(result)
 
         report = self._generate_report(session_name)
-        print("✅ Accuracy testing completed!")
-        print(".2f")
+        print("✅ Testing completed!")
         return report
 
     def _test_single_case(self, test_case: Dict[str, str], index: int) -> UzbekAccuracyResult:
@@ -92,9 +80,8 @@ class UzbekAccuracyTester:
         reference_text = test_case['text']
         sample_id = f"test_{index}"
 
-        # For now, simulate recognition with some errors
-        # In real usage, you'd have actual audio files
-        recognized_text = self._simulate_whisper_recognition(reference_text)
+        # Simulate recognition (placeholder for real audio)
+        recognized_text = self._simulate_stt_recognition(reference_text)
 
         # Post-process
         postprocessed_text = self.post_processor.post_process_text(recognized_text)
@@ -102,7 +89,7 @@ class UzbekAccuracyTester:
         # Calculate metrics
         wer_score = jiwer.wer(reference_text, postprocessed_text)
         cer_score = jiwer.cer(reference_text, postprocessed_text)
-        confidence_score = max(0.5, 1.0 - (wer_score + cer_score) / 2)  # Simplified confidence
+        confidence_score = max(0.5, 1.0 - (wer_score + cer_score) / 2)
 
         processing_time = time.time() - start_time
 
@@ -118,14 +105,11 @@ class UzbekAccuracyTester:
             metadata=test_case
         )
 
-    def _simulate_whisper_recognition(self, text: str) -> str:
-        """Simulate Whisper recognition with realistic Uzbek errors"""
-        # This is a placeholder - in real usage, you'd transcribe actual audio
-        # For now, simulate occasional errors that Whisper might make
-
+    def _simulate_stt_recognition(self, text: str) -> str:
+        """Simulate STT recognition with realistic Uzbek errors"""
         recognized = text
 
-        # Simulate common Whisper errors for Uzbek
+        # Simulate common STT errors for Uzbek
         error_patterns = [
             ("o'", "o"), ("u'", "u"), ("q", "k"), ("sh", "s"),
             ("maktab", "maktap"), ("o'qituvchi", "oqituvchi")
@@ -176,22 +160,30 @@ class UzbekAccuracyTester:
         )
 
     def _generate_recommendations(self, wer: float, cer: float) -> List[str]:
-        """Generate recommendations"""
+        """Generate recommendations based on engine type"""
         recommendations = []
 
+        engine_name = self.stt_engine_type.upper()
+
         if wer < 0.1 and cer < 0.05:
-            recommendations.append("Excellent accuracy! Whisper performs well for Uzbek.")
+            recommendations.append(f"Excellent accuracy! {engine_name} performs well for Uzbek.")
         elif wer < 0.2:
-            recommendations.append("Good accuracy. Consider fine-tuning for specific domains.")
+            recommendations.append(f"Good accuracy with {engine_name}. Consider fine-tuning for specific domains.")
         else:
-            recommendations.append("Consider additional training data or model fine-tuning.")
+            recommendations.append(f"Consider additional training data or model fine-tuning for {engine_name}.")
+
+        # Engine-specific recommendations
+        if self.stt_engine_type == "xlsr":
+            recommendations.append("XLS-R model includes language model support for better accuracy.")
+        elif self.stt_engine_type == "whisper":
+            recommendations.append("Whisper is multilingual - consider Uzbek-specific fine-tuning.")
 
         return recommendations
 
     def save_report(self, report: UzbekAccuracyReport, output_file: Optional[str] = None):
         """Save report to file"""
         if output_file is None:
-            output_file = f"uzbek_whisper_accuracy_report_{report.test_session_id}.json"
+            output_file = f"uzbek_{self.stt_engine_type}_accuracy_report_{report.test_session_id}.json"
 
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(asdict(report), f, ensure_ascii=False, indent=2)
@@ -201,7 +193,7 @@ class UzbekAccuracyTester:
     def print_summary(self, report: UzbekAccuracyReport):
         """Print report summary"""
         print("\n" + "="*50)
-        print("🧪 UZBEK WHISPER ACCURACY REPORT")
+        print(f"🧪 UZBEK {self.stt_engine_type.upper()} ACCURACY REPORT")
         print("="*50)
         print(f"Session: {report.test_session_id}")
         print(f"Samples: {report.total_samples}")
@@ -212,12 +204,17 @@ class UzbekAccuracyTester:
         for rec in report.recommendations:
             print(f"  • {rec}")
 
-def run_whisper_accuracy_test():
-    """Run accuracy test with sample Uzbek phrases"""
-    print("🧪 UZBEK WHISPER ACCURACY TESTING")
+def run_stt_accuracy_test(engine: str = "whisper"):
+    """
+    Run accuracy test with sample Uzbek phrases
+
+    Args:
+        engine: STT engine to test ('whisper' or 'xlsr')
+    """
+    print(f"🧪 UZBEK {engine.upper()} ACCURACY TESTING")
     print("=" * 40)
 
-    tester = UzbekAccuracyTester()
+    tester = UzbekAccuracyTester(engine)
 
     # Sample test cases
     test_cases = [
@@ -233,12 +230,25 @@ def run_whisper_accuracy_test():
         {"text": "Qishloqda hayot tinch", "category": "general"}
     ]
 
-    report = tester.test_text_accuracy(test_cases, "whisper_baseline")
+    session_name = f"{engine}_baseline"
+    report = tester.test_text_accuracy(test_cases, session_name)
 
     tester.print_summary(report)
     tester.save_report(report)
 
-    print("✅ Whisper accuracy testing completed!")
+    print(f"✅ {engine.upper()} accuracy testing completed!")
+
+def run_whisper_accuracy_test():
+    """Run accuracy test with Whisper"""
+    run_stt_accuracy_test("whisper")
+
+def run_xlsr_accuracy_test():
+    """Run accuracy test with XLS-R"""
+    run_stt_accuracy_test("xlsr")
 
 if __name__ == "__main__":
-    run_whisper_accuracy_test()
+    # Test XLS-R (recommended model)
+    run_xlsr_accuracy_test()
+
+    # Uncomment to test Whisper as well
+    # run_whisper_accuracy_test()
