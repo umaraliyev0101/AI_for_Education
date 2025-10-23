@@ -17,3 +17,17 @@ soundfile
 facenet-pytorch
 opencv-python
 Pillow
+
+# NLP/QA System dependencies
+sentence-transformers
+langchain
+langchain-community
+langchain-core
+langchain-text-splitters
+faiss-cpu
+PyPDF2
+python-pptx
+python-docx
+llama-cpp-python
+tiktoken
+chromadb

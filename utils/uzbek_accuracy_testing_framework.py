@@ -11,9 +11,9 @@ from dataclasses import dataclass, asdict
 from datetime import datetime
 import jiwer
 
-from uzbek_whisper_pipeline import UzbekWhisperSTT
-from uzbek_xlsr_pipeline import UzbekXLSRSTT
-from uzbek_text_postprocessor import UzbekTextPostProcessor
+from stt_pipelines.uzbek_whisper_pipeline import UzbekWhisperSTT
+from stt_pipelines.uzbek_xlsr_pipeline import UzbekXLSRSTT
+from utils.uzbek_text_postprocessor import UzbekTextPostProcessor
 
 @dataclass
 class UzbekAccuracyResult:
