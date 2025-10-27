@@ -1,0 +1,21 @@
+
+        Matematika - Algebra
+
+        Algebra - bu matematikaning bir qismi bo'lib, harflar va raqamlardan foydalangan holda
+        umumiy qoidalarni ifodalash bilan shug'ullanadi.
+
+        Asosiy tushunchalar:
+        - O'zgaruvchi (variable): x, y, z kabi harflar
+        - Tenglama (equation): ikki ifoda tengligini ko'rsatadi
+        - Tengsizlik (inequality): bir ifoda ikkinchisidan katta yoki kichikligini ko'rsatadi
+
+        Masalan:
+        2x + 3 = 7
+        x² + 2x - 3 = 0
+        x > 5
+
+        Algebra qoidalari:
+        1. Tenglamani hal qilish: har ikkala tomondan bir xil amal bajarish
+        2. Ko'paytirish: (a + b)² = a² + 2ab + b²
+        3. Faktoring: x² - 4 = (x - 2)(x + 2)
+        

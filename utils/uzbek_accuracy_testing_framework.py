@@ -10,9 +10,17 @@ from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
 from datetime import datetime
 import jiwer
+from io import BytesIO
+
+try:
+    from pydub import AudioSegment
+    PYDUB_AVAILABLE = True
+except ImportError:
+    PYDUB_AVAILABLE = False
 
 from stt_pipelines.uzbek_whisper_pipeline import UzbekWhisperSTT
 from stt_pipelines.uzbek_xlsr_pipeline import UzbekXLSRSTT
+from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
 from utils.uzbek_text_postprocessor import UzbekTextPostProcessor
 
 @dataclass
@@ -53,16 +61,17 @@ class UzbekAccuracyTester:
             raise ValueError(f"Unknown STT engine: {stt_engine}")
 
         self.post_processor = UzbekTextPostProcessor()
+        self.tts_engine = create_uzbek_tts()  # Initialize TTS for audio generation
         self.results: List[UzbekAccuracyResult] = []
-        print(f"🧪 {stt_engine.upper()} accuracy tester ready")
+        print(f"[TEST] {stt_engine.upper()} accuracy tester ready")
 
     def test_text_accuracy(self, test_cases: List[Dict[str, str]],
                           session_name: Optional[str] = None) -> UzbekAccuracyReport:
-        """Test accuracy using text-to-speech simulation"""
+        """Test accuracy using real TTS generation and STT transcription"""
         if session_name is None:
             session_name = f"{self.stt_engine_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
-        print(f"🧪 Testing {len(test_cases)} cases with {self.stt_engine_type.upper()}...")
+        print(f"[TEST] Testing {len(test_cases)} cases with {self.stt_engine_type.upper()} using real TTS->STT pipeline...")
 
         self.results = []
         for i, test_case in enumerate(test_cases):
@@ -70,18 +79,43 @@ class UzbekAccuracyTester:
             self.results.append(result)
 
         report = self._generate_report(session_name)
-        print("✅ Testing completed!")
+        print("[DONE] Testing completed!")
         return report
 
     def _test_single_case(self, test_case: Dict[str, str], index: int) -> UzbekAccuracyResult:
-        """Test a single case"""
+        """Test a single case using real TTS and STT"""
         start_time = time.time()
 
         reference_text = test_case['text']
         sample_id = f"test_{index}"
 
-        # Simulate recognition (placeholder for real audio)
-        recognized_text = self._simulate_stt_recognition(reference_text)
+        try:
+            print(f"[TTS] Generating audio for: '{reference_text[:50]}...'")
+            audio_bytes = self.tts_engine.generate_speech(reference_text)
+            
+            if not audio_bytes:
+                raise ValueError("TTS failed to generate audio")
+            
+            # Convert MP3 bytes to raw PCM using pydub
+            if PYDUB_AVAILABLE:
+                audio_segment = AudioSegment.from_mp3(BytesIO(audio_bytes))
+                # Convert to mono, 16kHz (expected by STT models)
+                audio_segment = audio_segment.set_channels(1).set_frame_rate(16000)
+                audio_data = np.array(audio_segment.get_array_of_samples(), dtype=np.float32) / 32768.0
+                sample_rate = 16000
+            else:
+                # Fallback: assume 16-bit PCM at 22kHz
+                audio_data = np.frombuffer(audio_bytes, dtype=np.int16).astype(np.float32) / 32768.0
+                sample_rate = 22050
+            
+            # Transcribe with real STT
+            print(f"[STT] Transcribing audio...")
+            stt_result = self.stt_engine.transcribe_audio(audio_data, sample_rate)
+            recognized_text = stt_result.get('text', '')
+
+        except Exception as e:
+            print(f"[ERROR] Error in TTS/STT processing: {e}")
+            recognized_text = ""  # Fallback to empty string
 
         # Post-process
         postprocessed_text = self.post_processor.post_process_text(recognized_text)
@@ -89,7 +123,7 @@ class UzbekAccuracyTester:
         # Calculate metrics
         wer_score = jiwer.wer(reference_text, postprocessed_text)
         cer_score = jiwer.cer(reference_text, postprocessed_text)
-        confidence_score = max(0.5, 1.0 - (wer_score + cer_score) / 2)
+        confidence_score = max(0.0, 1.0 - (wer_score + cer_score) / 2)
 
         processing_time = time.time() - start_time
 
@@ -145,6 +179,10 @@ class UzbekAccuracyTester:
         average_confidence = float(np.mean([r.confidence_score for r in self.results]))
         average_processing_time = float(np.mean([r.processing_time for r in self.results]))
 
+        print(f"[STATS] Overall WER: {overall_wer:.2f}, CER: {overall_cer:.2f}, "
+              f"Avg Confidence: {average_confidence:.2f}, "
+              f"Avg Processing Time: {average_processing_time:.2f}s")
+
         recommendations = self._generate_recommendations(overall_wer, overall_cer)
 
         return UzbekAccuracyReport(
@@ -188,46 +226,65 @@ class UzbekAccuracyTester:
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(asdict(report), f, ensure_ascii=False, indent=2)
 
-        print(f"💾 Report saved to {output_file}")
+        print(f"[SAVE] Report saved to {output_file}")
 
     def print_summary(self, report: UzbekAccuracyReport):
         """Print report summary"""
         print("\n" + "="*50)
-        print(f"🧪 UZBEK {self.stt_engine_type.upper()} ACCURACY REPORT")
+        print(f"[REPORT] UZBEK {self.stt_engine_type.upper()} ACCURACY REPORT")
         print("="*50)
         print(f"Session: {report.test_session_id}")
         print(f"Samples: {report.total_samples}")
         print(".2f")
         print(".2f")
         print(".2f")
-        print("\n💡 RECOMMENDATIONS:")
+        print("\n RECOMMENDATIONS:")
         for rec in report.recommendations:
             print(f"  • {rec}")
 
-def run_stt_accuracy_test(engine: str = "whisper"):
+def run_stt_accuracy_test(engine: str = "xlsr"):
     """
     Run accuracy test with sample Uzbek phrases
 
     Args:
         engine: STT engine to test ('whisper' or 'xlsr')
     """
-    print(f"🧪 UZBEK {engine.upper()} ACCURACY TESTING")
+    print(f"[TEST] UZBEK {engine.upper()} ACCURACY TESTING")
     print("=" * 40)
 
     tester = UzbekAccuracyTester(engine)
 
-    # Sample test cases
+    # Sample test cases - expanded for better accuracy testing
     test_cases = [
-        {"text": "Salom qalay siz?", "category": "greeting"},
-        {"text": "Men o'qiyman", "category": "education"},
-        {"text": "Bu kitob qizil", "category": "education"},
-        {"text": "O'qituvchi dars beradi", "category": "education"},
-        {"text": "Maktabda o'quvchilar ko'p", "category": "education"},
-        {"text": "Yozuv taxtasi toza", "category": "education"},
-        {"text": "Darsliklar juda qiziq", "category": "education"},
-        {"text": "O'zbek tili go'zal", "category": "general"},
-        {"text": "Toshkent poytaxt shahri", "category": "general"},
-        {"text": "Qishloqda hayot tinch", "category": "general"}
+        # Basic greetings and simple phrases
+        {"text": "Salom, qandaysiz?", "category": "greeting"},
+        {"text": "Rahmat, yordamingiz uchun", "category": "greeting"},
+        
+        # Educational content
+        {"text": "Men har kuni maktabga boraman va o'qiyman", "category": "education"},
+        {"text": "O'qituvchi dars beradi va savollar beradi", "category": "education"},
+        {"text": "Maktabda ko'plab bolalar o'qiydi", "category": "education"},
+        
+        # General knowledge
+        {"text": "O'zbek tili juda boy va go'zal", "category": "general"},
+        {"text": "Toshkent O'zbekistonning poytaxti", "category": "general"},
+        {"text": "Qishloqda odamlar dehqonchilik bilan shug'ullanadi", "category": "general"},
+        
+        # Simple sentences
+        {"text": "Bugun maktabda yangi dars boshlandi", "category": "simple"},
+        {"text": "Toshkent poytaxt sifatida rivojlangan", "category": "simple"},
+        
+        # Technical and scientific terms
+        {"text": "Algoritm kompyuterda muammo hal qilish uchun ishlatiladi", "category": "technical"},
+        {"text": "Kvadratning tomonlari teng bo'ladi", "category": "technical"},
+        
+        # Numbers and dates
+        {"text": "2025-yil kelgusi yil bo'ladi", "category": "numbers"},
+        {"text": "Pi soni matematikada muhim", "category": "numbers"},
+        
+        # Questions and commands
+        {"text": "Qayerda yashaysiz?", "category": "questions"},
+        {"text": "Och eshikni, iltimos", "category": "commands"}
     ]
 
     session_name = f"{engine}_baseline"
@@ -236,7 +293,7 @@ def run_stt_accuracy_test(engine: str = "whisper"):
     tester.print_summary(report)
     tester.save_report(report)
 
-    print(f"✅ {engine.upper()} accuracy testing completed!")
+    print(f"[DONE] {engine.upper()} accuracy testing completed!")
 
 def run_whisper_accuracy_test():
     """Run accuracy test with Whisper"""

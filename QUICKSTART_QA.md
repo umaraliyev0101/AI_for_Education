@@ -1,4 +1,4 @@
-# NLP/QA System - Quick Start Guide
+# LLM/QA System - Quick Start Guide (Pending Implementation)
 
 ## 🚀 Tezkor Boshlash
 
@@ -23,7 +23,10 @@ Bu script avtomatik ravishda:
 ### 3. O'z Materiallaringiz bilan Sinab Ko'rish
 
 ```python
-from utils.uzbek_nlp_qa_service import UzbekQAService
+```python
+# LLM integration pending
+# from utils.uzbek_llm_qa_service import UzbekLLMQAService
+```
 
 # QA service yaratish (LLM siz - tez test uchun)
 qa_service = UzbekQAService(
@@ -224,7 +227,7 @@ with open("file.txt", "r", encoding="utf-8") as f:
 
 ## 📖 To'liq Qo'llanma
 
-To'liq qo'llanma uchun qarang: [NLP_QA_SYSTEM_README.md](docs/NLP_QA_SYSTEM_README.md)
+To'liq qo'llanma LLM integratsiyasidan keyin yaratiladi.
 
 ---
 

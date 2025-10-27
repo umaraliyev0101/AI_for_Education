@@ -25,7 +25,7 @@ class QASession(Base):
     answer_text = Column(Text, nullable=True)
     answer_audio_path = Column(String(500), nullable=True)  # Path to TTS audio
     found_answer = Column(Boolean, default=False)
-    relevance_score = Column(Float, nullable=True)  # NLP relevance score
+    relevance_score = Column(Float, nullable=True)  # LLM relevance score
     
     # Source documents (JSON string of document IDs)
     source_documents = Column(Text, nullable=True)

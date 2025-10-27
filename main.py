@@ -14,11 +14,13 @@ from stt_pipelines.uzbek_tts_pipeline import UzbekTTSPipeline, create_uzbek_tts,
 from face_recognition.face_recognition_db import FaceRecognitionDB
 from face_recognition.face_enrollment import FaceEnrollmentSystem
 from face_recognition.face_attendance import FaceRecognitionAttendance
+from utils.uzbek_llm_qa_service import create_uzbek_llm_qa_service
 import sys
 import threading
 import queue
 import time
 import numpy as np
+import os
 
 try:
     import pyaudio
@@ -27,25 +29,13 @@ except ImportError:
     PYAUDIO_AVAILABLE = False
     print("⚠️ PyAudio not available. Live transcription will not work.")
 
-def create_uzbek_hf_stt(model_name="sarahai/uzbek-stt-3", device="cpu"):
-    """Create Uzbek STT pipeline using Hugging Face model"""
-    return UzbekHFSTTPipeline(model_name=model_name, device=device)
+# def create_uzbek_hf_stt(model_name="sarahai/uzbek-stt-3", device="cpu"):
+#     """Create Uzbek STT pipeline using Hugging Face model"""
+#     return UzbekHFSTTPipeline(model_name=model_name, device=device)
 
 def create_uzbek_nemo_stt(model_name="lucio/xls-r-uzbek-cv8"):
     """Create Uzbek STT pipeline using XLS-R model (formerly NeMo)"""
     return create_uzbek_xlsr_stt(model_name)
-import sys
-import threading
-import queue
-import time
-import numpy as np
-
-try:
-    import pyaudio
-    PYAUDIO_AVAILABLE = True
-except ImportError:
-    PYAUDIO_AVAILABLE = False
-    print("⚠️ PyAudio not available. Live transcription will not work.")
 
 def main():
     """Main entry point for the Uzbek STT system"""
@@ -58,6 +48,11 @@ def main():
         print("  live          - Live transcription from microphone")
         print("  speak         - Convert text to speech")
         print("  teach         - Interactive teaching mode")
+        print("\nLLM/Q&A Commands:")
+        print("  qa-test       - Test LLM QA system")
+        print("  qa-prepare    - Prepare lesson materials for Q&A [lesson_dir]")
+        print("  qa-ask        - Ask questions interactively [lesson_id]")
+        print("  qa-voice      - Ask questions via voice (STT + LLM) [lesson_id]")
         print("\nAttendance Commands:")
         print("  enroll        - Enroll new student with face recognition")
         print("  attendance    - Start entrance camera for attendance")
@@ -103,7 +98,7 @@ def main():
             print("Install it with: pip install pyaudio")
             return
 
-        model = sys.argv[2] if len(sys.argv) > 2 else "hf"  # Default to hf for live as it's faster
+        model = sys.argv[2] if len(sys.argv) > 2 else "nemo"  # Default to nemo for live as it's faster
 
         print(f"🎙️ Uzbek STT - Live Transcription Mode using {model} model")
         print("Press Ctrl+C to stop")
@@ -167,6 +162,170 @@ def main():
                 break
 
         print("\n👋 Goodbye!")
+
+    elif command == "qa-test":
+        print("🤖 Testing Uzbek LLM QA System")
+        try:
+            from test_qa_system import run_full_test
+            success = run_full_test()
+            if success:
+                print("✅ LLM QA System test passed!")
+            else:
+                print("❌ LLM QA System test failed!")
+        except Exception as e:
+            print(f"❌ Test failed: {e}")
+
+    elif command == "qa-prepare":
+        if len(sys.argv) < 3:
+            print("Usage: python main.py qa-prepare <lesson_directory>")
+            print("Example: python main.py qa-prepare ./lesson_materials")
+            return
+
+        lesson_dir = sys.argv[2]
+        lesson_id = os.path.basename(lesson_dir) or "prepared_lesson"
+
+        print(f"📚 Preparing lesson materials from: {lesson_dir}")
+        print(f"📝 Lesson ID: {lesson_id}")
+
+        try:
+            # Get all supported files
+            file_paths = []
+            if os.path.exists(lesson_dir):
+                for root, dirs, files in os.walk(lesson_dir):
+                    for file in files:
+                        if file.endswith(('.pdf', '.pptx', '.docx', '.txt', '.md')):
+                            file_paths.append(os.path.join(root, file))
+
+            if not file_paths:
+                print(f"❌ No supported files found in {lesson_dir}")
+                print("Supported formats: .pdf, .pptx, .docx, .txt, .md")
+                return
+
+            print(f"📄 Found {len(file_paths)} files to process")
+
+            # Initialize LLM service
+            llm_service = create_uzbek_llm_qa_service()
+
+            # Prepare materials
+            success = llm_service.prepare_lesson_materials(file_paths, lesson_id)
+
+            if success:
+                stats = llm_service.get_lesson_statistics(lesson_id)
+                print("✅ Lesson materials prepared successfully!")
+                print(f"📊 Documents processed: {stats.get('num_documents', 'unknown')}")
+                print(f"🤖 LLM Model: {stats.get('llm_model', 'unknown')}")
+                print(f"🔍 Embedding Model: {stats.get('embedding_model', 'unknown')}")
+                
+                # Save vector store to disk for persistence
+                vector_store_path = f"vector_stores/{lesson_id}"
+                os.makedirs(os.path.dirname(vector_store_path), exist_ok=True)
+                llm_service.save_vector_store(lesson_id, vector_store_path)
+                print(f"💾 Vector store saved to: {vector_store_path}")
+            else:
+                print("❌ Failed to prepare lesson materials")
+
+        except Exception as e:
+            print(f"❌ Preparation failed: {e}")
+            import traceback
+            traceback.print_exc()
+
+    elif command == "qa-ask":
+        lesson_id = sys.argv[2] if len(sys.argv) > 2 else "prepared_lesson"
+
+        print(f"[BOT] Uzbek LLM Q&A - Interactive Mode")
+        print(f"Lesson: {lesson_id}")
+        print("Type 'quit' to exit, 'help' for commands")
+
+        try:
+            llm_service = create_uzbek_llm_qa_service()
+
+            # Check if lesson is prepared
+            stats = llm_service.get_lesson_statistics(lesson_id)
+            if "error" in stats:
+                print(f"WARNING: Lesson '{lesson_id}' not found. Run 'qa-prepare' first.")
+                return
+
+            print(f"OK: Lesson ready with {stats.get('num_documents', 'unknown')} documents")
+
+            while True:
+                try:
+                    question = input("\nYour question (or 'quit'): ").strip()
+
+                    if question.lower() == 'quit':
+                        break
+                    elif question.lower() == 'help':
+                        print("Commands:")
+                        print("  quit - Exit Q&A mode")
+                        print("  help - Show this help")
+                        print("  stats - Show lesson statistics")
+                        continue
+                    elif question.lower() == 'stats':
+                        stats = llm_service.get_lesson_statistics(lesson_id)
+                        print(f"📊 Lesson Statistics:")
+                        for key, value in stats.items():
+                            print(f"   {key}: {value}")
+                        continue
+
+                    if not question:
+                        continue
+
+                    print("Thinking...", end="", flush=True)
+
+                    # Get answer
+                    answer, found, docs = llm_service.answer_question(question, lesson_id, use_llm=True)
+
+                    print(f"\r{' ' * 50}\r", end="")  # Clear thinking message
+
+                    if found:
+                        print(f"Answer: {answer}")
+                        print(f"Retrieved {len(docs)} relevant documents")
+                    else:
+                        print(f"ERROR: {answer}")
+
+                except KeyboardInterrupt:
+                    break
+                except Exception as e:
+                    print(f"ERROR: {e}")
+
+        except Exception as e:
+            print(f"Failed to start Q&A mode: {e}")
+
+        print("\nQ&A session ended!")
+
+    elif command == "qa-voice":
+        if not PYAUDIO_AVAILABLE:
+            print("❌ PyAudio is required for voice Q&A.")
+            print("Install it with: pip install pyaudio")
+            return
+
+        lesson_id = sys.argv[2] if len(sys.argv) > 2 else "prepared_lesson"
+
+        print(f"🎤 Uzbek Voice Q&A - STT + LLM Mode")
+        print(f"📚 Lesson: {lesson_id}")
+        print("💡 Speak your question, then wait for the answer")
+        print("   Press Ctrl+C to stop")
+
+        try:
+            # Initialize services
+            llm_service = create_uzbek_llm_qa_service()
+            stt = create_uzbek_xlsr_stt()  # Use HF STT for faster processing
+            tts = create_uzbek_tts() 
+
+            # Check if lesson is prepared
+            stats = llm_service.get_lesson_statistics(lesson_id)
+            if "error" in stats:
+                print(f"WARNING: Lesson '{lesson_id}' not found. Run 'qa-prepare' first.")
+                return
+
+            print(f"OK: Lesson ready with {stats.get('num_documents', 'unknown')} documents")
+
+            # Voice Q&A loop
+            voice_qa_loop(llm_service, stt, tts, lesson_id)
+
+        except KeyboardInterrupt:
+            print("\n👋 Voice Q&A stopped!")
+        except Exception as e:
+            print(f"❌ Failed to start voice Q&A: {e}")
 
     elif command == "enroll":
         print("👤 Student Enrollment - Face Recognition")
@@ -258,7 +417,7 @@ def main():
         print(f"Unknown command: {command}")
         print("Run 'python main.py' without arguments to see all available commands")
 
-def live_transcription(model="hf"):
+def live_transcription(model="nemo"):
     """Live transcription from microphone using specified model"""
 
     # Audio parameters
@@ -511,6 +670,86 @@ def listen_for_answer(stt, timeout=5):
         audio.terminate()
 
     return ""
+
+def voice_qa_loop(llm_service, stt, tts, lesson_id):
+    """Voice-based Q&A loop combining STT and LLM"""
+    
+    # Audio parameters for questions
+    CHUNK = 1024
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 16000
+    QUESTION_TIMEOUT = 8  # seconds to listen for question
+
+    audio = pyaudio.PyAudio()
+    stream = audio.open(format=FORMAT, channels=CHANNELS, rate=RATE,
+                       input=True, frames_per_buffer=CHUNK)
+
+    print("\n🎤 Ready for voice questions! Speak your question...")
+
+    try:
+        while True:
+            print("\n🎤 Listening for question...", end="", flush=True)
+            
+            # Listen for question
+            frames = []
+            start_time = time.time()
+            voice_detected = False
+            
+            while time.time() - start_time < QUESTION_TIMEOUT:
+                data = stream.read(CHUNK, exception_on_overflow=False)
+                frames.append(data)
+                
+                # Simple voice detection
+                audio_chunk = np.frombuffer(data, dtype=np.int16).astype(np.float32) / 32768.0
+                if np.max(np.abs(audio_chunk)) > 0.05:  # Voice detected
+                    if not voice_detected:
+                        print(" (voice detected)", end="", flush=True)
+                        voice_detected = True
+            
+            if not frames:
+                print(" (timeout)")
+                continue
+                
+            print(" (processing)")
+            
+            # Transcribe the question
+            audio_data = np.frombuffer(b''.join(frames), dtype=np.int16).astype(np.float32) / 32768.0
+            stt_result = stt.transcribe_audio(audio_data, RATE)
+            question = stt_result.get('text', '').strip()
+            
+            if not question:
+                print("❌ Could not understand the question. Please try again.")
+                tts.speak_text("Savolingizni tushunmadim. Qaytadan ayting.")
+                continue
+            
+            print(f"❓ Question: {question}")
+            
+            # Get answer from LLM
+            print("🤔 Thinking...", end="", flush=True)
+            answer, found, docs = llm_service.answer_question(question, lesson_id, use_llm=True)
+            print(f"\r{' ' * 50}\r", end="")
+            
+            if found:
+                print(f"✅ Answer: {answer}")
+                # Speak the answer
+                try:
+                    tts.speak_text(answer)
+                except Exception as e:
+                    print(f"⚠️ TTS failed: {e}")
+            else:
+                print(f"❌ {answer}")
+                tts.speak_text("Kechirasiz, bu savolga javob topilmadi.")
+            
+            print("\n🎤 Ready for next question... (or press Ctrl+C to stop)")
+
+    except KeyboardInterrupt:
+        print("\n🛑 Stopping voice Q&A...")
+
+    finally:
+        stream.stop_stream()
+        stream.close()
+        audio.terminate()
 
 if __name__ == "__main__":
     main()

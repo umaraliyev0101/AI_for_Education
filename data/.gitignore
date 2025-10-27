@@ -1,4 +1,0 @@
-# Ignore all files in data/ except this .gitignore
-*
-!.gitignore
-!uzbek_xlsr_accuracy_report_xlsr_baseline.json

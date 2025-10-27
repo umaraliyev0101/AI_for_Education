@@ -4,7 +4,6 @@ AI Education Backend Server
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from backend.config import settings
 from backend.database import init_db
 import os
@@ -68,11 +67,6 @@ app.include_router(students.router, prefix="/api/students", tags=["Students"])
 app.include_router(lessons.router, prefix="/api/lessons", tags=["Lessons"])
 app.include_router(attendance.router, prefix="/api/attendance", tags=["Attendance"])
 app.include_router(qa.router, prefix="/api/qa", tags=["Q&A"])
-
-# Serve admin panel (static files)
-admin_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "admin")
-if os.path.exists(admin_path):
-    app.mount("/admin", StaticFiles(directory=admin_path, html=True), name="admin")
 
 
 if __name__ == "__main__":

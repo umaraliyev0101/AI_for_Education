@@ -92,6 +92,7 @@ async def create_lesson(
     Returns:
         Created lesson information
     """
+    
     new_lesson = Lesson(
         title=lesson_data.title,
         description=lesson_data.description,

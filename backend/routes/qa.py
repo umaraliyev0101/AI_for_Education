@@ -1,6 +1,6 @@
 """
 Q&A Session Routes
-Process questions and retrieve answers using NLP
+Process questions and retrieve answers using LLM (Llama-3.1-8B-Instruct-Uz)
 """
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
@@ -14,6 +14,34 @@ from backend.dependencies import get_current_user, require_teacher
 from backend.config import settings
 import os
 import json
+import logging
+
+# Import LLM QA Service
+try:
+    from utils.uzbek_llm_qa_service import create_uzbek_llm_qa_service
+    LLM_AVAILABLE = True
+    # Initialize LLM service (lazy loading)
+    _llm_service = None
+except ImportError as e:
+    logging.warning(f"LLM service not available: {e}")
+    LLM_AVAILABLE = False
+
+logger = logging.getLogger(__name__)
+
+router = APIRouter()
+
+
+def get_llm_service():
+    """Get or initialize the LLM service."""
+    global _llm_service
+    if _llm_service is None and LLM_AVAILABLE:
+        try:
+            _llm_service = create_uzbek_llm_qa_service()
+            logger.info("✅ LLM service initialized")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize LLM service: {e}")
+            _llm_service = None
+    return _llm_service
 
 router = APIRouter()
 
@@ -131,8 +159,7 @@ async def create_qa_session(
         Created Q&A session with answer
         
     Note:
-        This is a placeholder. Actual NLP processing will be integrated
-        with the NLP/QA service.
+        Uses Llama-3.1-8B-Instruct-Uz for answer generation with RAG
     """
     # Verify lesson exists
     lesson = db.query(Lesson).filter(Lesson.id == qa_data.lesson_id).first()
@@ -150,10 +177,49 @@ async def create_qa_session(
         transcription_confidence=qa_data.transcription_confidence
     )
     
-    # TODO: Integrate NLP/QA service here to get answer
-    # For now, mark as not found
-    new_qa.found_answer = False
-    new_qa.answer_text = "NLP service integration pending"
+    # Try to get answer using LLM
+    llm_service = get_llm_service()
+    if llm_service and lesson.materials_path:
+        try:
+            # Prepare lesson materials if not already done
+            materials_dir = lesson.materials_path
+            if os.path.exists(materials_dir):
+                file_paths = []
+                for root, dirs, files in os.walk(materials_dir):
+                    for file in files:
+                        if file.endswith(('.pdf', '.pptx', '.docx', '.txt', '.md')):
+                            file_paths.append(os.path.join(root, file))
+                
+                if file_paths:
+                    lesson_id_str = f"lesson_{qa_data.lesson_id}"
+                    success = llm_service.prepare_lesson_materials(file_paths, lesson_id_str)
+                    
+                    if success:
+                        # Generate answer
+                        answer, found, docs = llm_service.answer_question(
+                            qa_data.question_text, 
+                            lesson_id_str, 
+                            use_llm=True
+                        )
+                        new_qa.found_answer = found
+                        new_qa.answer_text = answer
+                        new_qa.retrieved_docs_count = len(docs)
+                    else:
+                        new_qa.found_answer = False
+                        new_qa.answer_text = "Dars materiallarini qayta ishlashda xatolik yuz berdi."
+                else:
+                    new_qa.found_answer = False
+                    new_qa.answer_text = "Dars uchun materiallar topilmadi."
+            else:
+                new_qa.found_answer = False
+                new_qa.answer_text = "Dars materiallarining yo'li mavjud emas."
+        except Exception as e:
+            logger.error(f"LLM processing error: {e}")
+            new_qa.found_answer = False
+            new_qa.answer_text = f"LLM xatolik: {str(e)}"
+    else:
+        new_qa.found_answer = False
+        new_qa.answer_text = "LLM service mavjud emas yoki dars materiallari yo'q."
     
     db.add(new_qa)
     db.commit()
@@ -170,7 +236,7 @@ async def ask_question_audio(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Ask a question via audio (STT + NLP processing)
+    Ask a question via audio (STT + LLM processing)
     
     Args:
         lesson_id: Lesson database ID
@@ -180,9 +246,6 @@ async def ask_question_audio(
         
     Returns:
         Q&A session with transcribed question and answer
-        
-    Note:
-        This is a placeholder. Actual STT + NLP integration pending.
     """
     # Verify lesson exists
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
@@ -207,15 +270,95 @@ async def ask_question_audio(
         content = await audio_file.read()
         f.write(content)
     
-    # TODO: Integrate STT service to transcribe audio
-    # TODO: Integrate NLP/QA service to get answer
-    # TODO: Integrate TTS service to generate audio answer
+    # Transcribe audio using STT
+    question_text = None
+    transcription_confidence = 0.0
     
-    # Placeholder response
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="STT + NLP service integration pending"
+    try:
+        # Import STT service
+        from stt_pipelines.uzbek_hf_pipeline import UzbekHFSTTPipeline
+        stt = UzbekHFSTTPipeline()
+        
+        # Transcribe
+        result = stt.transcribe_file(audio_path)
+        question_text = result.get('text', '').strip()
+        transcription_confidence = result.get('confidence', 0.0)
+        
+        if not question_text:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Could not transcribe audio - no speech detected"
+            )
+            
+    except ImportError:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="STT service not available"
+        )
+    except Exception as e:
+        logger.error(f"STT transcription error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Speech transcription failed: {str(e)}"
+        )
+    
+    # Create Q&A session with transcribed question
+    new_qa = QASession(
+        lesson_id=lesson_id,
+        question_text=question_text,
+        question_audio_path=audio_path,
+        transcription_confidence=transcription_confidence
     )
+    
+    # Generate answer using LLM
+    llm_service = get_llm_service()
+    if llm_service and lesson.materials_path:
+        try:
+            # Prepare lesson materials if needed
+            materials_dir = lesson.materials_path
+            if os.path.exists(materials_dir):
+                file_paths = []
+                for root, dirs, files in os.walk(materials_dir):
+                    for file in files:
+                        if file.endswith(('.pdf', '.pptx', '.docx', '.txt', '.md')):
+                            file_paths.append(os.path.join(root, file))
+                
+                if file_paths:
+                    lesson_id_str = f"lesson_{lesson_id}"
+                    success = llm_service.prepare_lesson_materials(file_paths, lesson_id_str)
+                    
+                    if success:
+                        # Generate answer
+                        answer, found, docs = llm_service.answer_question(
+                            question_text, 
+                            lesson_id_str, 
+                            use_llm=True
+                        )
+                        new_qa.found_answer = found
+                        new_qa.answer_text = answer
+                        new_qa.retrieved_docs_count = len(docs)
+                    else:
+                        new_qa.found_answer = False
+                        new_qa.answer_text = "Dars materiallarini qayta ishlashda xatolik yuz berdi."
+                else:
+                    new_qa.found_answer = False
+                    new_qa.answer_text = "Dars uchun materiallar topilmadi."
+            else:
+                new_qa.found_answer = False
+                new_qa.answer_text = "Dars materiallarining yo'li mavjud emas."
+        except Exception as e:
+            logger.error(f"LLM processing error: {e}")
+            new_qa.found_answer = False
+            new_qa.answer_text = f"LLM xatolik: {str(e)}"
+    else:
+        new_qa.found_answer = False
+        new_qa.answer_text = "LLM service mavjud emas yoki dars materiallari yo'q."
+    
+    db.add(new_qa)
+    db.commit()
+    db.refresh(new_qa)
+    
+    return new_qa
 
 
 @router.post("/process-lesson-materials/{lesson_id}")
@@ -234,10 +377,6 @@ async def process_lesson_materials(
         
     Returns:
         Success message with vector store path
-        
-    Note:
-        This is a placeholder. Actual materials processing and 
-        vector store creation will be integrated.
     """
     # Verify lesson exists
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
@@ -247,19 +386,68 @@ async def process_lesson_materials(
             detail=f"Lesson with ID {lesson_id} not found"
         )
     
-    if not lesson.materials_path:
+    if not lesson.materials_path or not os.path.exists(lesson.materials_path):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No materials uploaded for this lesson"
+            detail="No materials uploaded for this lesson or materials path does not exist"
         )
     
-    # TODO: Integrate materials processor and NLP service
-    # to create vector store from lesson materials
+    # Get LLM service
+    llm_service = get_llm_service()
+    if not llm_service:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="LLM service not available"
+        )
     
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Materials processing service integration pending"
-    )
+    try:
+        # Find all supported files in materials directory
+        file_paths = []
+        for root, dirs, files in os.walk(lesson.materials_path):
+            for file in files:
+                if file.endswith(('.pdf', '.pptx', '.docx', '.txt', '.md')):
+                    file_paths.append(os.path.join(root, file))
+        
+        if not file_paths:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No supported files found in materials directory"
+            )
+        
+        # Process materials and create vector store
+        lesson_id_str = f"lesson_{lesson_id}"
+        success = llm_service.prepare_lesson_materials(file_paths, lesson_id_str, force_recreate=True)
+        
+        if not success:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to process lesson materials"
+            )
+        
+        # Get statistics
+        stats = llm_service.get_lesson_statistics(lesson_id_str)
+        
+        # Optionally save vector store to disk
+        vector_store_path = os.path.join(settings.VECTOR_STORES_DIR, f"lesson_{lesson_id}")
+        os.makedirs(vector_store_path, exist_ok=True)
+        llm_service.save_vector_store(lesson_id_str, vector_store_path)
+        
+        return {
+            "message": "Lesson materials processed successfully",
+            "lesson_id": lesson_id,
+            "vector_store_path": vector_store_path,
+            "statistics": stats,
+            "files_processed": len(file_paths)
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Materials processing error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Materials processing failed: {str(e)}"
+        )
 
 
 @router.delete("/{qa_id}", status_code=status.HTTP_204_NO_CONTENT)

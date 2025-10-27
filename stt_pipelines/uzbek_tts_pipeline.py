@@ -66,7 +66,7 @@ class UzbekTTSPipeline:
         # Audio playback setup
         self.audio_backend = self._detect_audio_backend()
 
-        print(f"🗣️ Uzbek TTS initialized with voice: {voice} ({self.voice})")
+        print(f"[TTS] Uzbek TTS initialized with voice: {voice} ({self.voice})")
 
     def _detect_audio_backend(self) -> str:
         """Detect available audio playback backend."""
