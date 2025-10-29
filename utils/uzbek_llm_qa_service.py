@@ -40,7 +40,7 @@ class UzbekLLMQAService:
         embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
         vector_store_type: str = "faiss",
         device: str = "auto",
-        max_new_tokens: int = 512,
+        max_new_tokens: int = 256,
         temperature: float = 0.7,
         k_documents: int = 3
     ):
@@ -106,20 +106,28 @@ class UzbekLLMQAService:
                 # Configure quantization for memory efficiency
                 if self.device == "cuda":
                     quantization_config = BitsAndBytesConfig(
-                        load_in_4bit=True,
-                        bnb_4bit_compute_dtype=torch.float16,
-                        bnb_4bit_use_double_quant=True,
-                        bnb_4bit_quant_type="nf4"
+                        load_in_8bit=True,  # Changed to 8-bit for offloading support
+                        llm_int8_enable_fp32_cpu_offload=True,  # Moved here for 8-bit quantization
+                        bnb_8bit_compute_dtype=torch.float16,
+                        bnb_8bit_use_double_quant=True
+                    )
+                    self.model = AutoModelForCausalLM.from_pretrained(
+                        self.model_name,
+                        # load_in_8bit=True,
+                        quantization_config=quantization_config,
+                        # llm_int8_enable_fp32_cpu_offload=True,
+                        device_map="auto",
+                        torch_dtype=torch.float16
+                    )
+                else:  # CPU
+                    quantization_config = BitsAndBytesConfig(
+                        load_in_8bit=True,  # Use 8-bit quantization for CPU
+                        bnb_8bit_compute_dtype=torch.float16,
+                        bnb_8bit_use_double_quant=True
                     )
                     self.model = AutoModelForCausalLM.from_pretrained(
                         self.model_name,
                         quantization_config=quantization_config,
-                        device_map="auto",
-                        torch_dtype=torch.float16
-                    )
-                else:
-                    self.model = AutoModelForCausalLM.from_pretrained(
-                        self.model_name,
                         torch_dtype=torch.float32
                     )
 
@@ -269,21 +277,38 @@ class UzbekLLMQAService:
         Returns:
             Generated answer
         """
+        import time
+        start_time = time.time()
+        
         try:
+            print(f"[LLM] Preparing context for question: '{question[:50]}...'")
+            
             # Prepare context
             context = "\n\n".join([doc.page_content for doc in context_docs])
+            context_length = len(context.split())
+            
+            print(f"[LLM] Context prepared: {context_length} words from {len(context_docs)} documents")
+            print(f"[LLM] Starting inference with {self.model_name} on {self.device}...")
 
             if "flan-t5" in self.model_name.lower():
                 # Use T5-style prompt
                 prompt = f"Answer the question based on the context.\n\nContext: {context}\n\nQuestion: {question}\n\nAnswer:"
                 
+                print(f"[LLM] Using T5-style prompt (length: {len(prompt)} chars)")
+                
                 # Generate answer with T5
+                inference_start = time.time()
+                print(f"[LLM] {time.strftime('%H:%M:%S')} - Starting T5 inference...")
+                
                 outputs = self.pipe(
                     prompt,
                     max_length=self.max_new_tokens,
                     temperature=self.temperature,
                     do_sample=True
                 )
+                
+                inference_time = time.time() - inference_start
+                print(f"[LLM] {time.strftime('%H:%M:%S')} - T5 inference completed in {inference_time:.1f}s")
                 
                 answer = outputs[0]['generated_text'].strip()
             else:
@@ -298,26 +323,57 @@ Savol: {question}
 
 Javob:"""
 
-                # Generate answer
-                outputs = self.pipe(
-                    prompt,
-                    max_new_tokens=self.max_new_tokens,
-                    temperature=self.temperature,
-                    do_sample=True,
-                    pad_token_id=self.tokenizer.eos_token_id
-                )
+                prompt_length = len(prompt.split())
+                print(f"[LLM] Using Llama-style prompt (length: {prompt_length} words)")
+                
+                # Generate answer with progress monitoring
+                inference_start = time.time()
+                print(f"[LLM] {time.strftime('%H:%M:%S')} - Starting Llama inference...")
+                
+                # Start a progress monitoring thread
+                import threading
+                stop_progress = threading.Event()
+                
+                def progress_monitor():
+                    elapsed = 0
+                    while not stop_progress.is_set():
+                        time.sleep(30)  # Check every 30 seconds
+                        elapsed += 30
+                        print(f"[LLM] {time.strftime('%H:%M:%S')} - Still generating... ({elapsed}s elapsed)")
+                        if elapsed > 600:  # 10 minutes
+                            print(f"[LLM] {time.strftime('%H:%M:%S')} - WARNING: Generation taking very long (>10min)")
+                
+                progress_thread = threading.Thread(target=progress_monitor, daemon=True)
+                progress_thread.start()
+                
+                try:
+                    outputs = self.pipe(
+                        prompt,
+                        max_new_tokens=self.max_new_tokens,
+                        temperature=self.temperature,
+                        do_sample=True,
+                        pad_token_id=self.tokenizer.eos_token_id
+                    )
+                finally:
+                    stop_progress.set()
+                    progress_thread.join(timeout=1)
+                
+                inference_time = time.time() - inference_start
+                print(f"[LLM] {time.strftime('%H:%M:%S')} - Llama inference completed in {inference_time:.1f}s")
 
                 # Extract the generated answer
                 generated_text = outputs[0]['generated_text']
                 answer = generated_text[len(prompt):].strip()
 
-                # # Clean up the answer (remove any extra content after the answer)
-                # if "\n\n" in answer:
-                #     answer = answer.split("\n\n")[0]
+            total_time = time.time() - start_time
+            print(f"[LLM] Total generation time: {total_time:.1f}s")
+            print(f"[LLM] Generated answer length: {len(answer)} chars")
 
             return answer
 
         except Exception as e:
+            total_time = time.time() - start_time
+            print(f"[LLM] ERROR after {total_time:.1f}s: {e}")
             logger.error(f"❌ Failed to generate answer: {e}")
             return "Kechirasiz, javob generatsiya qilishda xatolik yuz berdi."
 
@@ -331,7 +387,13 @@ Javob:"""
         Returns:
             Generated answer
         """
+        import time
+        start_time = time.time()
+        
         try:
+            print(f"[LLM] Generating general knowledge answer for: '{question[:50]}...'")
+            print(f"[LLM] Starting inference with {self.model_name} on {self.device}...")
+
             # First, try some basic pattern matching for common questions
             # answer = self._try_basic_fallbacks(question)
             # if answer:
@@ -349,12 +411,20 @@ Javob:"""
                 
                 for prompt in prompts:
                     try:
+                        print(f"[LLM] Trying T5 prompt: '{prompt[:50]}...'")
+                        
+                        inference_start = time.time()
+                        print(f"[LLM] {time.strftime('%H:%M:%S')} - Starting T5 inference...")
+                        
                         outputs = self.pipe(
                             prompt,
                             max_length=self.max_new_tokens,
                             temperature=self.temperature,
                             do_sample=True
                         )
+                        
+                        inference_time = time.time() - inference_start
+                        print(f"[LLM] {time.strftime('%H:%M:%S')} - T5 inference completed in {inference_time:.1f}s")
                         
                         answer = outputs[0]['generated_text'].strip()
                         
@@ -363,11 +433,17 @@ Javob:"""
                             not self._is_repeating_question(question, answer) and 
                             not self._is_repetitive_text(answer) and
                             not self._is_irrelevant_answer(question, answer)):
+                            total_time = time.time() - start_time
+                            print(f"[LLM] Total generation time: {total_time:.1f}s")
+                            print(f"[LLM] Generated answer length: {len(answer)} chars")
                             return answer
-                    except:
+                    except Exception as e:
+                        print(f"[LLM] T5 prompt failed: {e}")
                         continue
                 
                 # If all prompts fail or generate repetitive text, return a generic response
+                total_time = time.time() - start_time
+                print(f"[LLM] All T5 prompts failed, total time: {total_time:.1f}s")
                 return "Kechirasiz, bu savolga umumiy bilimim yetarli emas. Dars materiallariga oid savollar bering."
             else:
                 # Use Llama/GPT-style prompt for general knowledge
@@ -378,14 +454,43 @@ Savol: {question}
 
 Javob:"""
 
-                # Generate answer
-                outputs = self.pipe(
-                    prompt,
-                    max_new_tokens=self.max_new_tokens,
-                    temperature=self.temperature,
-                    do_sample=True,
-                    pad_token_id=self.tokenizer.eos_token_id
-                )
+                prompt_length = len(prompt.split())
+                print(f"[LLM] Using Llama-style prompt (length: {prompt_length} words)")
+                
+                # Generate answer with progress monitoring
+                inference_start = time.time()
+                print(f"[LLM] {time.strftime('%H:%M:%S')} - Starting Llama inference...")
+                
+                # Start a progress monitoring thread
+                import threading
+                stop_progress = threading.Event()
+                
+                def progress_monitor():
+                    elapsed = 0
+                    while not stop_progress.is_set():
+                        time.sleep(30)  # Check every 30 seconds
+                        elapsed += 30
+                        print(f"[LLM] {time.strftime('%H:%M:%S')} - Still generating... ({elapsed}s elapsed)")
+                        if elapsed > 600:  # 10 minutes
+                            print(f"[LLM] {time.strftime('%H:%M:%S')} - WARNING: Generation taking very long (>10min)")
+                
+                progress_thread = threading.Thread(target=progress_monitor, daemon=True)
+                progress_thread.start()
+                
+                try:
+                    outputs = self.pipe(
+                        prompt,
+                        max_new_tokens=self.max_new_tokens,
+                        temperature=self.temperature,
+                        do_sample=True,
+                        pad_token_id=self.tokenizer.eos_token_id
+                    )
+                finally:
+                    stop_progress.set()
+                    progress_thread.join(timeout=1)
+                
+                inference_time = time.time() - inference_start
+                print(f"[LLM] {time.strftime('%H:%M:%S')} - Llama inference completed in {inference_time:.1f}s")
 
                 # Extract the generated answer
                 generated_text = outputs[0]['generated_text']
@@ -395,9 +500,15 @@ Javob:"""
                 # if "\n\n" in answer:
                 #     answer = answer.split("\n\n")[0]
 
+                total_time = time.time() - start_time
+                print(f"[LLM] Total generation time: {total_time:.1f}s")
+                print(f"[LLM] Generated answer length: {len(answer)} chars")
+
                 return answer
 
         except Exception as e:
+            total_time = time.time() - start_time
+            print(f"[LLM] ERROR after {total_time:.1f}s: {e}")
             logger.error(f"❌ Failed to generate general knowledge answer: {e}")
             return "Kechirasiz, javob generatsiya qilishda xatolik yuz berdi."
 

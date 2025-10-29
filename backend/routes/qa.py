@@ -144,6 +144,7 @@ async def get_qa_session(
 @router.post("/", response_model=QASessionResponse, status_code=status.HTTP_201_CREATED)
 async def create_qa_session(
     qa_data: QASessionCreate,
+    generate_audio: bool = False,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -152,15 +153,19 @@ async def create_qa_session(
     
     Args:
         qa_data: Q&A session data
+        generate_audio: Whether to generate TTS audio for the answer
         db: Database session
         current_user: Authenticated user
         
     Returns:
-        Created Q&A session with answer
+        Created Q&A session with answer and optional audio
         
     Note:
         Uses Llama-3.1-8B-Instruct-Uz for answer generation with RAG
     """
+    from backend.config import settings
+    import os
+    
     # Verify lesson exists
     lesson = db.query(Lesson).filter(Lesson.id == qa_data.lesson_id).first()
     if not lesson:
@@ -204,6 +209,21 @@ async def create_qa_session(
                         new_qa.found_answer = found
                         new_qa.answer_text = answer
                         new_qa.retrieved_docs_count = len(docs)
+                        
+                        # Generate TTS audio for answer if requested
+                        if generate_audio and answer:
+                            try:
+                                from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
+                                tts = create_uzbek_tts(voice="female_clear")
+                                
+                                audio_filename = f"qa_{new_qa.lesson_id}_answer_{hash(answer[:50])}.mp3"
+                                audio_path = os.path.join(settings.AUDIO_DIR, audio_filename)
+                                
+                                tts.speak_text(answer, save_to_file=audio_path)
+                                new_qa.answer_audio_path = audio_path
+                                
+                            except Exception as e:
+                                logger.error(f"TTS generation failed: {e}")
                     else:
                         new_qa.found_answer = False
                         new_qa.answer_text = "Dars materiallarini qayta ishlashda xatolik yuz berdi."

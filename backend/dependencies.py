@@ -91,3 +91,48 @@ def require_role(required_role: UserRole):
 require_admin = require_role(UserRole.ADMIN)
 require_teacher = require_role(UserRole.TEACHER)
 require_viewer = require_role(UserRole.VIEWER)
+
+
+async def get_current_user_ws(
+    token: str,
+    db: Session = Depends(get_db)
+) -> User:
+    """
+    Verify JWT token for WebSocket connections
+    Similar to get_current_user but for WebSocket query parameters
+    
+    Args:
+        token: JWT token from WebSocket query parameter
+        db: Database session
+        
+    Returns:
+        Authenticated user
+        
+    Raises:
+        HTTPException: If token is invalid or user not found
+    """
+    from fastapi import HTTPException, status
+    
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials"
+    )
+    
+    # Decode token
+    token_data: Optional[TokenData] = decode_access_token(token)
+    if token_data is None or token_data.username is None:
+        raise credentials_exception
+    
+    # Get user from database
+    user = db.query(User).filter(User.username == token_data.username).first()
+    if user is None:
+        raise credentials_exception
+    
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is disabled"
+        )
+    
+    return user
+

@@ -36,11 +36,27 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database on startup"""
+    """Initialize database and start scheduler on startup"""
     init_db()
+    
+    # Start lesson scheduler
+    from backend.services.lesson_session_service import get_lesson_session_service
+    lesson_service = get_lesson_session_service()
+    await lesson_service.start_scheduler()
+    
     print(f"✅ {settings.APP_NAME} v{settings.APP_VERSION} started")
     print(f"📊 Database: {settings.DATABASE_URL}")
     print(f"🔧 Debug mode: {settings.DEBUG}")
+    print(f"📅 Lesson scheduler: Active")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Cleanup on shutdown"""
+    from backend.services.lesson_session_service import get_lesson_session_service
+    lesson_service = get_lesson_session_service()
+    await lesson_service.stop_scheduler()
+    print("🛑 Lesson scheduler stopped")
 
 
 @app.get("/")
@@ -60,13 +76,14 @@ async def health_check():
 
 
 # Import and include routers
-from backend.routes import auth, students, lessons, attendance, qa
+from backend.routes import auth, students, lessons, attendance, qa, websocket
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(students.router, prefix="/api/students", tags=["Students"])
 app.include_router(lessons.router, prefix="/api/lessons", tags=["Lessons"])
 app.include_router(attendance.router, prefix="/api/attendance", tags=["Attendance"])
 app.include_router(qa.router, prefix="/api/qa", tags=["Q&A"])
+app.include_router(websocket.router, prefix="/api", tags=["WebSocket"])
 
 
 if __name__ == "__main__":

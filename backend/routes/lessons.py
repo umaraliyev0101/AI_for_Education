@@ -370,3 +370,104 @@ async def upload_lesson_presentation(
         "file_path": file_path,
         "lesson_id": lesson_id
     }
+
+
+@router.post("/{lesson_id}/process-presentation")
+async def process_presentation(
+    lesson_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+    """
+    Process presentation and generate audio for each slide
+    
+    Args:
+        lesson_id: Lesson database ID
+        db: Database session
+        current_user: Authenticated teacher/admin
+        
+    Returns:
+        Presentation data with slides and audio paths
+    """
+    from backend.services.presentation_service import get_presentation_service
+    
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    
+    if not lesson:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Lesson with ID {lesson_id} not found"
+        )
+    
+    if not lesson.presentation_path or not os.path.exists(lesson.presentation_path):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No presentation uploaded for this lesson"
+        )
+    
+    presentation_service = get_presentation_service()
+    
+    try:
+        presentation_data = await presentation_service.process_presentation(
+            lesson.presentation_path,
+            lesson_id
+        )
+        
+        if not presentation_data:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to process presentation"
+            )
+        
+        return {
+            "message": "Presentation processed successfully",
+            "lesson_id": lesson_id,
+            "total_slides": presentation_data['total_slides'],
+            "metadata_path": presentation_data.get('metadata_path'),
+            "slides": presentation_data['slides']
+        }
+        
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Presentation processing failed: {str(e)}"
+        )
+
+
+@router.get("/{lesson_id}/presentation")
+async def get_presentation_data(
+    lesson_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Get processed presentation data for a lesson
+    
+    Args:
+        lesson_id: Lesson database ID
+        db: Database session
+        current_user: Authenticated user
+        
+    Returns:
+        Presentation data with slides and audio
+    """
+    from backend.services.presentation_service import get_presentation_service
+    
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    
+    if not lesson:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Lesson with ID {lesson_id} not found"
+        )
+    
+    presentation_service = get_presentation_service()
+    presentation_data = presentation_service.load_presentation_metadata(lesson_id)
+    
+    if not presentation_data:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Presentation not processed yet"
+        )
+    
+    return presentation_data
