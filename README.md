@@ -1,59 +1,51 @@
-# AI in Education - Uzbek STT & Attendance System
+# 🎓 AI in Education - Complete Education Management System
 
-Complete AI-powered system for education featuring speech-to-text and automatic face recognition attendance for Uzbek schools.
+> **AI-powered education platform with Face Recognition Attendance, Speech-to-Text Q&A, Live Presentations, and Lesson Management for Uzbek schools**
 
-## 🎯 Features
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-### Speech-to-Text System
-- **High-Accuracy STT**: XLS-R model (15.07% WER) for Uzbek speech recognition
-- **Multiple Models**: XLS-R (primary), Whisper (backup), HF Pipeline (general)
-- **Live Transcription**: Real-time speech-to-text from microphone
-- **Text-to-Speech**: Natural Uzbek speech synthesis for educational content
-- **Interactive Teaching**: AI-powered lessons combining STT and TTS
-- **Accuracy Testing**: Comprehensive WER/CER metrics and reporting
+---
 
-### Face Recognition Attendance
-- **Automatic Attendance**: FaceNet-based recognition at entrance camera
-- **Student Enrollment**: Easy webcam or image-based enrollment
-- **SQLite Database**: Local storage for students and attendance records
-- **Real-time Processing**: ~100ms recognition per frame
-- **Attendance Reports**: Daily, weekly, monthly statistics by class
-- **Privacy-Focused**: Local processing, no cloud dependency
+## 🌟 Features
 
-## 📁 Project Structure
+### 🎯 **Core Capabilities**
 
-```
-AI_in_Education/
-├── main.py                    # Main CLI entry point
-├── requirements.txt           # Python dependencies
-├── README.md                  # This file
-│
-├── stt_pipelines/            # Speech-to-Text modules
-│   ├── uzbek_xlsr_pipeline.py      # XLS-R (primary, 15% WER)
-│   ├── uzbek_whisper_pipeline.py   # Whisper (backup, 30% WER)
-│   ├── uzbek_hf_pipeline.py        # HuggingFace ASR
-│   └── uzbek_tts_pipeline.py       # Text-to-Speech
-│
-├── face_recognition/         # Attendance system
-│   ├── face_recognition_db.py      # SQLite database
-│   ├── face_enrollment.py          # Student enrollment
-│   └── face_attendance.py          # Real-time attendance
-│
-├── utils/                    # Utilities
-│   ├── uzbek_text_postprocessor.py
-│   └── uzbek_accuracy_testing_framework.py
-│
-├── docs/                     # Documentation
-│   ├── FACE_RECOGNITION_README.md
-│   ├── COMPLETE_SYSTEM_DOCS.md
-│   └── PROJECT_STRUCTURE.md
-│
-└── data/                     # Data files & reports
-    ├── students.db           # SQLite database (runtime)
-    └── *.json                # Accuracy reports
-```
+- **👤 Face Recognition Attendance** - Automatic attendance using FaceNet
+- **🎤 Speech-to-Text Q&A** - Uzbek speech recognition with XLS-R model
+- **📊 Live Presentations** - WebSocket-based presentation delivery with TTS
+- **📚 Lesson Management** - Complete CRUD for lessons, students, and materials
+- **🔐 Role-Based Access Control** - Admin, Teacher, and Viewer roles
+- **📈 Real-time Analytics** - Attendance tracking and Q&A monitoring
+- **🗣️ Text-to-Speech** - Natural Uzbek speech synthesis
+- **🤖 AI-Powered Q&A** - RAG-based question answering with LLM
+
+---
+
+## 📋 Table of Contents
+
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [Features Overview](#-features-overview)
+- [API Documentation](#-api-documentation)
+- [User Roles & Permissions](#-user-roles--permissions)
+- [Installation](#-installation)
+- [Configuration](#-configuration)
+- [Usage Examples](#-usage-examples)
+- [Testing](#-testing)
+- [Troubleshooting](#-troubleshooting)
+- [Contributing](#-contributing)
+
+---
 
 ## 🚀 Quick Start
+
+### Prerequisites
+- Python 3.8+
+- PostgreSQL or SQLite
+- Webcam (for face recognition)
+- CUDA-capable GPU (optional, for faster processing)
 
 ### Installation
 
@@ -62,182 +54,632 @@ AI_in_Education/
 git clone https://github.com/umaraliyev0101/AI_for_Education.git
 cd AI_in_Education
 
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
 # Install dependencies
 pip install -r requirements.txt
+
+# Initialize database
+python backend/init_db.py
+
+# Start backend server
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### STT Usage
+### First Login
+
+```bash
+# Default admin credentials
+Username: admin
+Password: admin123
+
+# Access API: http://localhost:8000
+# API Docs: http://localhost:8000/docs
+```
+
+---
+
+## 📁 Project Structure
+
+```
+AI_in_Education/
+├── backend/                      # FastAPI Backend
+│   ├── main.py                  # Main application entry point
+│   ├── config.py                # Configuration settings
+│   ├── database.py              # Database connection
+│   ├── auth.py                  # JWT authentication
+│   ├── dependencies.py          # Access control dependencies
+│   │
+│   ├── models/                  # SQLAlchemy models
+│   │   ├── user.py             # User model (Admin/Teacher/Viewer)
+│   │   ├── student.py          # Student model
+│   │   ├── lesson.py           # Lesson model
+│   │   ├── attendance.py       # Attendance records
+│   │   └── qa_session.py       # Q&A sessions
+│   │
+│   ├── routes/                  # API endpoints
+│   │   ├── auth.py             # Authentication endpoints
+│   │   ├── students.py         # Student CRUD
+│   │   ├── lessons.py          # Lesson management
+│   │   ├── attendance.py       # Attendance tracking
+│   │   ├── qa.py               # Q&A system
+│   │   └── websocket.py        # WebSocket for real-time
+│   │
+│   ├── schemas/                 # Pydantic schemas
+│   │   ├── user.py
+│   │   ├── student.py
+│   │   ├── lesson.py
+│   │   ├── attendance.py
+│   │   └── qa_session.py
+│   │
+│   └── services/                # Business logic
+│       ├── lesson_session_service.py
+│       └── presentation_service.py
+│
+├── face_recognition/            # Face recognition system
+│   ├── face_enrollment.py      # Student face enrollment
+│   ├── face_attendance.py      # Attendance tracking
+│   └── face_recognition_db.py  # Face database
+│
+├── stt_pipelines/               # Speech-to-Text pipelines
+│   ├── uzbek_xlsr_pipeline.py  # XLS-R STT (primary, 15% WER)
+│   ├── uzbek_whisper_pipeline.py
+│   ├── uzbek_hf_pipeline.py
+│   └── uzbek_tts_pipeline.py   # Text-to-Speech
+│
+├── utils/                       # Utilities
+│   ├── uzbek_llm_qa_service.py # RAG-based Q&A
+│   ├── uzbek_materials_processor.py
+│   └── uzbek_text_postprocessor.py
+│
+├── uploads/                     # User uploads
+│   ├── faces/                  # Student face images
+│   ├── materials/              # Lesson materials
+│   ├── presentations/          # Presentation files
+│   ├── slides/                 # Generated slide images
+│   └── audio/                  # Audio files
+│
+├── vector_stores/               # Vector databases for RAG
+│
+├── requirements.txt             # Python dependencies
+└── README.md                   # This file
+```
+
+---
+
+## 🎯 Features Overview
+
+### 1. **Face Recognition Attendance** 👤
+
+- **Automatic Check-in**: Students recognized via webcam
+- **High Accuracy**: 99.3% recognition rate with FaceNet
+- **Fast Processing**: ~100ms per frame
+- **Multiple Methods**: Auto-scan, manual scan, manual entry
+- **Reports**: Daily/weekly/monthly attendance analytics
+
+**Key Files:**
+- `face_recognition/face_attendance.py`
+- `backend/routes/attendance.py`
+
+### 2. **Speech-to-Text Q&A** 🎤
+
+- **Uzbek Language Support**: Native Uzbek speech recognition
+- **High Accuracy**: 15% WER with XLS-R model
+- **Multiple Input**: Text or audio questions
+- **AI Answers**: RAG-based responses using lesson materials
+- **Confidence Scores**: Transcription and answer relevance
+
+**Key Files:**
+- `stt_pipelines/uzbek_xlsr_pipeline.py`
+- `utils/uzbek_llm_qa_service.py`
+- `backend/routes/qa.py`
+
+### 3. **Live Presentations** 📊
+
+- **Real-time Delivery**: WebSocket-based streaming
+- **Auto TTS**: Text-to-speech for each slide
+- **Slide Navigation**: Next/previous/pause controls
+- **Progress Tracking**: Real-time slide progress
+- **Format Support**: PPTX and PDF
+
+**Key Files:**
+- `backend/services/presentation_service.py`
+- `backend/routes/websocket.py`
+
+### 4. **Lesson Management** 📚
+
+- **Complete CRUD**: Create, read, update, delete lessons
+- **Material Upload**: PDF, DOCX, TXT for Q&A
+- **Presentation Upload**: PPTX, PDF for delivery
+- **Status Tracking**: Scheduled → In Progress → Completed
+- **Auto-scheduling**: Lessons start/end automatically
+
+**Key Files:**
+- `backend/routes/lessons.py`
+- `backend/services/lesson_session_service.py`
+
+### 5. **Student Management** 👥
+
+- **Student Records**: Store student information
+- **Face Enrollment**: Easy face registration
+- **Attendance History**: Track student presence
+- **Active/Inactive**: Student status management
+
+**Key Files:**
+- `backend/routes/students.py`
+- `backend/models/student.py`
+
+---
+
+## 🔌 API Documentation
+
+### Base URL
+```
+http://localhost:8000
+```
+
+### Authentication
+All endpoints (except login) require JWT token:
+```bash
+Authorization: Bearer <your_jwt_token>
+```
+
+### Key Endpoints
+
+#### **Authentication**
+```
+POST   /api/auth/login          # Login (form-data: username, password)
+GET    /api/auth/me             # Get current user
+POST   /api/auth/logout         # Logout
+```
+
+#### **Students**
+```
+GET    /api/students/           # List all students
+GET    /api/students/{id}       # Get student by ID
+POST   /api/students/           # Create student (Teacher+)
+PUT    /api/students/{id}       # Update student (Teacher+)
+DELETE /api/students/{id}       # Delete student (Admin only)
+POST   /api/students/{id}/enroll-face  # Enroll face (Teacher+)
+```
+
+#### **Lessons**
+```
+GET    /api/lessons/            # List all lessons
+GET    /api/lessons/{id}        # Get lesson by ID
+POST   /api/lessons/            # Create lesson (Teacher+)
+PUT    /api/lessons/{id}        # Update lesson (Teacher+)
+DELETE /api/lessons/{id}        # Delete lesson (Teacher+)
+POST   /api/lessons/{id}/start  # Start lesson (Teacher+)
+POST   /api/lessons/{id}/end    # End lesson (Teacher+)
+POST   /api/lessons/{id}/upload-materials  # Upload materials (Teacher+)
+POST   /api/lessons/{id}/presentation      # Upload presentation (Teacher+)
+POST   /api/lessons/{id}/presentation/process  # Process presentation (Teacher+)
+GET    /api/lessons/{id}/presentation      # Get presentation data
+```
+
+#### **Attendance**
+```
+GET    /api/attendance/         # List attendance records
+GET    /api/attendance/lesson/{id}   # Get attendance for lesson
+GET    /api/attendance/student/{id}  # Get attendance for student
+POST   /api/attendance/         # Mark attendance manually (Teacher+)
+POST   /api/attendance/scan     # Scan face for attendance (Teacher+)
+POST   /api/attendance/auto-scan/{id}  # Auto-scan attendance (Teacher+)
+DELETE /api/attendance/{id}     # Delete attendance (Teacher+)
+```
+
+#### **Q&A Sessions**
+```
+GET    /api/qa/                 # List Q&A sessions
+GET    /api/qa/lesson/{id}      # Get Q&A for lesson
+GET    /api/qa/{id}             # Get Q&A session by ID
+POST   /api/qa/                 # Ask question (text)
+POST   /api/qa/ask-audio        # Ask question (audio)
+POST   /api/qa/process-lesson-materials/{id}  # Process materials (Teacher+)
+DELETE /api/qa/{id}             # Delete Q&A (Teacher+)
+```
+
+#### **WebSocket**
+```
+WS     /api/ws/lesson/{id}?token=<jwt>  # Real-time lesson updates
+```
+
+### Interactive API Docs
+Visit `http://localhost:8000/docs` for Swagger UI documentation.
+
+---
+
+## 🔐 User Roles & Permissions
+
+### Role Hierarchy
+
+```
+ADMIN (Level 2)
+  ├── Full system access
+  ├── Delete students
+  └── All teacher permissions
+  
+TEACHER (Level 1)
+  ├── Create/Update/Delete lessons
+  ├── Create/Update students
+  ├── Mark attendance
+  ├── Upload materials & presentations
+  └── Process lesson materials
+  
+VIEWER (Level 0)
+  ├── View students, lessons, attendance, Q&A
+  └── Ask questions (participate in Q&A)
+```
+
+### Permission Matrix
+
+| Operation | Admin | Teacher | Viewer |
+|-----------|-------|---------|--------|
+| **View Data** | ✅ | ✅ | ✅ |
+| **Create Students** | ✅ | ✅ | ❌ |
+| **Update Students** | ✅ | ✅ | ❌ |
+| **Delete Students** | ✅ | ❌ | ❌ |
+| **Manage Lessons** | ✅ | ✅ | ❌ |
+| **Mark Attendance** | ✅ | ✅ | ❌ |
+| **Ask Questions** | ✅ | ✅ | ✅ |
+| **Delete Q&A** | ✅ | ✅ | ❌ |
+
+---
+
+## ⚙️ Configuration
+
+### Environment Variables
+
+Create `.env` file:
+
+```env
+# Database
+DATABASE_URL=sqlite:///./ai_education.db
+
+# Security
+SECRET_KEY=your-secret-key-here
+ACCESS_TOKEN_EXPIRE_DAYS=30
+
+# Application
+APP_NAME=AI Education System
+DEBUG=True
+
+# Directories
+UPLOAD_DIR=./uploads
+FACE_IMAGES_DIR=./uploads/faces
+MATERIALS_DIR=./uploads/materials
+PRESENTATIONS_DIR=./uploads/presentations
+AUDIO_DIR=./uploads/audio
+VECTOR_STORES_DIR=./vector_stores
+
+# CORS
+CORS_ORIGINS=["http://localhost:3000", "http://localhost:8000"]
+```
+
+### Database Configuration
+
+**SQLite (Default - Development):**
+```python
+DATABASE_URL=sqlite:///./ai_education.db
+```
+
+**PostgreSQL (Production):**
+```python
+DATABASE_URL=postgresql://user:password@localhost/ai_education
+```
+
+---
+
+## 💻 Usage Examples
+
+### Python Client
 
 ```python
-from stt_pipelines.uzbek_xlsr_pipeline import create_uzbek_xlsr_stt
+import requests
 
-# Create STT instance
-stt = create_uzbek_xlsr_stt()
+# Login
+response = requests.post(
+    "http://localhost:8000/api/auth/login",
+    data={"username": "teacher", "password": "teacher123"}
+)
+token = response.json()["access_token"]
 
-# Transcribe audio file
-result = stt.transcribe_file("audio.wav")
-print(result["text"])
+# Headers for authenticated requests
+headers = {"Authorization": f"Bearer {token}"}
+
+# Create a student
+student_data = {
+    "student_id": "ST001",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "is_active": True
+}
+response = requests.post(
+    "http://localhost:8000/api/students/",
+    json=student_data,
+    headers=headers
+)
+
+# Create a lesson
+lesson_data = {
+    "title": "Algebra Basics",
+    "description": "Introduction to algebra",
+    "date": "2025-11-01T08:00:00",
+    "duration_minutes": 90,
+    "subject": "Mathematics"
+}
+response = requests.post(
+    "http://localhost:8000/api/lessons/",
+    json=lesson_data,
+    headers=headers
+)
+
+# Upload presentation
+lesson_id = response.json()["id"]
+with open("presentation.pptx", "rb") as f:
+    files = {"file": f}
+    response = requests.post(
+        f"http://localhost:8000/api/lessons/{lesson_id}/presentation",
+        files=files,
+        headers=headers
+    )
+
+# Start lesson
+response = requests.post(
+    f"http://localhost:8000/api/lessons/{lesson_id}/start",
+    headers=headers
+)
+
+# Ask a question
+question_data = {
+    "lesson_id": lesson_id,
+    "question_text": "What is algebra?"
+}
+response = requests.post(
+    "http://localhost:8000/api/qa/",
+    json=question_data,
+    headers=headers
+)
 ```
 
-### Command Line Usage
+### cURL Examples
 
-**STT Commands:**
 ```bash
-# Run accuracy tests
-python main.py test
+# Login
+curl -X POST http://localhost:8000/api/auth/login \
+  -F "username=teacher" \
+  -F "password=teacher123"
 
-# Transcribe audio file
-python main.py transcribe audio.wav xlsr
+# Get students
+curl -X GET http://localhost:8000/api/students/ \
+  -H "Authorization: Bearer <your_token>"
 
-# Live transcription from microphone
-python main.py live
-
-# Text-to-speech
-python main.py speak "Salom, bolalar!"
-
-# Interactive teaching mode
-python main.py teach
+# Create lesson
+curl -X POST http://localhost:8000/api/lessons/ \
+  -H "Authorization: Bearer <your_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Math Class",
+    "date": "2025-11-01T08:00:00",
+    "duration_minutes": 90
+  }'
 ```
 
-**Attendance Commands:**
+---
+
+## 🧪 Testing
+
+### Run Tests
+
 ```bash
-# Enroll new student
-python main.py enroll
+# Test backend setup
+python test_backend_setup.py
 
-# Start entrance camera
-python main.py attendance
+# Test CUDA availability
+python test_cuda.py
 
-# View attendance report
-python main.py report
+# Test Q&A system
+python test_qa_system.py
 
-# List all students
-python main.py students
+# Test progress tracking
+python test_progress.py
 ```
 
-### Face Recognition Setup
+### Manual Testing
 
-```python
-from face_recognition.face_enrollment import FaceEnrollmentSystem
-from face_recognition.face_recognition_db import FaceRecognitionDB
+```bash
+# Start server in test mode
+uvicorn backend.main:app --reload
 
-# Enroll student
-enrollment = FaceEnrollmentSystem()
-db = FaceRecognitionDB()
+# Access API docs
+# http://localhost:8000/docs
 
-student_id, name, class_name, encoding = enrollment.enroll_student_interactive()
-db.add_student(student_id, name, class_name, encoding)
+# Test endpoints using Swagger UI
 ```
 
-## 📊 Model Performance
+---
 
-| Model | WER | CER | Language | Use Case |
-|-------|-----|-----|----------|----------|
-| XLS-R | 15.07% | 3.08% | Uzbek | Primary STT |
-| Whisper | ~30-35% | ~8-10% | Uzbek | Backup STT |
-| FaceNet | 99.3% | - | - | Face Recognition |
+## 🐛 Troubleshooting
 
-## 📚 Documentation
+### Common Issues
 
-- **[Complete System Docs](docs/COMPLETE_SYSTEM_DOCS.md)**: Full technical documentation
-- **[Face Recognition Guide](docs/FACE_RECOGNITION_README.md)**: Attendance system usage
-- **[Project Structure](docs/PROJECT_STRUCTURE.md)**: Detailed file organization
+**1. Database Connection Error**
+```bash
+# Reinitialize database
+python backend/init_db.py
+```
 
-## 🔧 Requirements
+**2. Face Recognition Not Working**
+```bash
+# Check camera access
+python -c "import cv2; print(cv2.VideoCapture(0).isOpened())"
 
-- Python 3.8+
-- PyTorch 2.0+
-- Transformers 4.30+
-- OpenCV 4.8+
-- facenet-pytorch
-- SQLite3 (included with Python)
+# Reinstall face recognition
+pip install facenet-pytorch opencv-python
+```
 
-## 🎓 Use Cases
+**3. STT Model Download Fails**
+```bash
+# Download manually
+from transformers import Wav2Vec2ForCTC
+model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-xls-r-300m")
+```
 
-1. **Classroom Attendance**: Automatic student attendance via entrance camera
-2. **Uzbek Language Learning**: Interactive STT/TTS lessons
-3. **Speech Recognition**: Transcribe Uzbek audio files
-4. **Attendance Analytics**: Track student attendance patterns
-5. **Educational Research**: Measure STT accuracy for Uzbek
+**4. CUDA Not Available**
+```bash
+# Check PyTorch CUDA
+python -c "import torch; print(torch.cuda.is_available())"
+
+# Reinstall PyTorch with CUDA
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
+
+**5. Permission Denied (403)**
+- Check your user role
+- Verify JWT token is valid
+- Ensure you're using correct credentials
+
+---
+
+## 📊 Performance
+
+### Model Performance
+
+| Model | Metric | Value | Use Case |
+|-------|--------|-------|----------|
+| XLS-R | WER | 15.07% | Uzbek STT |
+| XLS-R | CER | 3.08% | Uzbek STT |
+| Whisper | WER | ~30-35% | Backup STT |
+| FaceNet | Accuracy | 99.3% | Face Recognition |
+| FLAN-T5 | - | Lightweight | Q&A (Testing) |
+
+### System Requirements
+
+**Minimum:**
+- CPU: 4 cores
+- RAM: 8 GB
+- Storage: 10 GB
+- GPU: Optional
+
+**Recommended:**
+- CPU: 8 cores
+- RAM: 16 GB
+- Storage: 50 GB
+- GPU: NVIDIA with 4GB+ VRAM
+
+---
+
+## 🔧 Development
+
+### Project Setup for Development
+
+```bash
+# Clone with all branches
+git clone https://github.com/umaraliyev0101/AI_for_Education.git
+cd AI_in_Education
+
+# Install dev dependencies
+pip install -r requirements.txt
+pip install pytest black flake8 mypy
+
+# Run code formatter
+black .
+
+# Run linter
+flake8 backend/
+
+# Run type checker
+mypy backend/
+```
+
+### Adding New Features
+
+1. Create feature branch
+2. Add models in `backend/models/`
+3. Add schemas in `backend/schemas/`
+4. Add routes in `backend/routes/`
+5. Update `backend/main.py`
+6. Write tests
+7. Submit PR
+
+---
+
+## 📈 Roadmap
+
+- [x] Face recognition attendance
+- [x] Speech-to-text Q&A
+- [x] Live presentations with TTS
+- [x] Role-based access control
+- [x] Real-time WebSocket updates
+- [ ] Mobile app (React Native)
+- [ ] Multi-language support (Russian, English)
+- [ ] Advanced analytics dashboard
+- [ ] Parent portal
+- [ ] Grade management
+- [ ] Homework submission
+- [ ] Video conferencing integration
+
+---
 
 ## 🤝 Contributing
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Code Style
+- Follow PEP 8 for Python code
+- Use type hints
+- Write docstrings for functions/classes
+- Add tests for new features
+
+---
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
 
 ## 👥 Authors
 
-- **Umar Aliyev** - [GitHub](https://github.com/umaraliyev0101)
+**Umar Aliyev**
+- GitHub: [@umaraliyev0101](https://github.com/umaraliyev0101)
+- Repository: [AI_for_Education](https://github.com/umaraliyev0101/AI_for_Education)
+
+---
 
 ## 🙏 Acknowledgments
 
-- XLS-R model by Meta AI
-- Whisper model by OpenAI
-- FaceNet by Google
-- Uzbek speech data contributors
-python main.py interactive
-```
+- **Meta AI** - XLS-R speech recognition model
+- **OpenAI** - Whisper model
+- **Google** - FaceNet face recognition
+- **Hugging Face** - Transformers library
+- **FastAPI** - Modern web framework
+- **Uzbek speech data contributors**
 
-## Project Structure
+---
 
-```
-├── main.py                          # Main entry point
-├── uzbek_whisper_pipeline.py        # Core Whisper STT pipeline
-├── uzbek_tts_pipeline.py           # Text-to-speech pipeline
-├── uzbek_accuracy_testing_framework.py  # Testing and metrics
-├── uzbek_text_postprocessor.py      # Text post-processing
-├── uzbek_audio_preprocessor.py      # Audio preprocessing
-├── uzbek_pronunciation_dictionary.py # Pronunciation guide
-├── requirements.txt                 # Python dependencies
-└── docs/                           # Documentation
-```
+## 📞 Support
 
-## Performance
+For issues and questions:
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/umaraliyev0101/AI_for_Education/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/umaraliyev0101/AI_for_Education/discussions)
+- 📧 **Email**: umaraliyev0101@gmail.com
 
-- **Word Error Rate (WER)**: ~5%
-- **Character Error Rate (CER)**: ~2%
-- **Processing**: Real-time capable on modern hardware
+---
 
-## API Reference
+## ⭐ Star History
 
-### UzbekWhisperSTT
+If you find this project useful, please consider giving it a star! ⭐
 
-```python
-class UzbekWhisperSTT:
-    def transcribe_audio(audio_data, sample_rate=16000) -> Dict
-    def transcribe_file(file_path) -> Dict
-    def get_model_info() -> Dict
-```
+---
 
-### UzbekTTSPipeline
-
-```python
-class UzbekTTSPipeline:
-    def speak_text(text: str, save_to_file=None) -> bool
-    def generate_speech(text: str) -> bytes
-    def get_available_voices() -> Dict[str, str]
-    def test_tts() -> bool
-```
-
-### UzbekAccuracyTester
-
-```python
-class UzbekAccuracyTester:
-    def test_text_accuracy(test_cases, session_name=None) -> UzbekAccuracyReport
-    def save_report(report, output_file=None)
-    def print_summary(report)
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests: `python main.py test`
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details
+**Made with ❤️ for Uzbek Education**

@@ -228,7 +228,7 @@ async def enroll_student_face(
         )
     
     # Validate file type
-    if not face_image.content_type.startswith("image/"):
+    if not face_image.content_type or not face_image.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="File must be an image"
