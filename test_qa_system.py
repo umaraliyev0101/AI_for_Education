@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Test QA System
-Comprehensive testing script for the Uzbek LLM QA System with Llama-3.1-8B-Instruct-Uz
+Comprehensive testing script for the Uzbek LLM QA System with FLAN-T5 (lightweight model)
 """
 
 import os

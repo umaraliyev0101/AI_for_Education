@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
 Uzbek LLM QA Service
-Integrates Llama-3.1-8B-Instruct-Uz for question answering with RAG (Retrieval-Augmented Generation)
+Integrates FLAN-T5 for question answering with RAG (Retrieval-Augmented Generation)
+
+Note: Model can be changed in backend/llm_config.py
 """
 
 import os
@@ -30,14 +32,14 @@ logger = logging.getLogger(__name__)
 
 class UzbekLLMQAService:
     """
-    Uzbek Language Question Answering Service using Llama-3.1-8B-Instruct-Uz
+    Uzbek Language Question Answering Service using FLAN-T5
     with Retrieval-Augmented Generation (RAG)
     """
 
     def __init__(
         self,
-        model_name: str = "behbudiy/Llama-3.1-8B-Instruct-Uz",  # TODO: Replace with actual Uzbek Llama model when available
-        embedding_model: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2",
+        model_name: str = None,  # If None, loads from backend/llm_config.py
+        embedding_model: str = None,  # If None, loads from backend/llm_config.py
         vector_store_type: str = "faiss",
         device: str = "auto",
         max_new_tokens: int = 256,
@@ -48,14 +50,28 @@ class UzbekLLMQAService:
         Initialize the Uzbek LLM QA Service.
 
         Args:
-            model_name: HuggingFace model name for Llama-3.1-8B-Instruct-Uz
-            embedding_model: Model for text embeddings
+            model_name: HuggingFace model name (if None, loads from llm_config.py)
+            embedding_model: Model for text embeddings (if None, loads from llm_config.py)
             vector_store_type: Type of vector store ('faiss' or 'chroma')
             device: Device to run models on ('auto', 'cpu', 'cuda')
             max_new_tokens: Maximum tokens to generate
             temperature: Sampling temperature for generation
             k_documents: Number of documents to retrieve for context
         """
+        # Load from config if not provided
+        if model_name is None or embedding_model is None:
+            try:
+                from backend.llm_config import get_llm_config
+                config = get_llm_config()
+                model_name = model_name or config["model_name"]
+                embedding_model = embedding_model or config["embedding_model"]
+                logger.info(f"Loaded model configuration from llm_config.py")
+            except ImportError:
+                # Fallback to default if config not found
+                model_name = model_name or "google/flan-t5-base"
+                embedding_model = embedding_model or "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+                logger.warning("llm_config.py not found, using default models")
+        
         self.model_name = model_name
         self.embedding_model_name = embedding_model
         self.vector_store_type = vector_store_type
@@ -914,14 +930,17 @@ Javob:"""
 
 
 def create_uzbek_llm_qa_service(
-    model_name: str = "behbudiy/Llama-3.1-8B-Instruct-Uz",  # TODO: Replace with actual Uzbek Llama model when available
+    model_name: str = None,  # If None, loads from backend/llm_config.py
     device: str = "auto"
 ) -> UzbekLLMQAService:
     """
     Create an instance of UzbekLLMQAService with default settings.
+    
+    Model configuration is loaded from backend/llm_config.py
+    To change the model, edit the CURRENT_LLM_MODEL in that file.
 
     Args:
-        model_name: LLM model name
+        model_name: LLM model name (if None, uses config from llm_config.py)
         device: Device to run on
 
     Returns:
@@ -937,13 +956,26 @@ def create_uzbek_llm_qa_service(
 
 if __name__ == "__main__":
     # Example usage
-    print("Uzbek LLM QA Service tayyor!")
-    print("Model: Llama-3.1-8B-Instruct-Uz")
+    print("=" * 70)
+    print("🤖 Uzbek LLM QA Service")
+    print("=" * 70)
+    
+    # Show current configuration
+    try:
+        from backend.llm_config import print_config
+        print_config()
+    except ImportError:
+        print("⚠️  backend/llm_config.py not found, using defaults")
 
     # Test model loading
+    print("\n🔄 Initializing service...")
     try:
         service = create_uzbek_llm_qa_service()
         info = service.get_model_info()
-        print(f"✅ Service initialized: {info['llm_model']}")
+        print(f"✅ Service initialized successfully!")
+        print(f"   Model: {info['llm_model']}")
+        print(f"   Device: {info['device']}")
+        print(f"   Embedding: {info['embedding_model']}")
     except Exception as e:
         print(f"❌ Service initialization failed: {e}")
+        print("💡 Tip: Check if all dependencies are installed (pip install -r requirements.txt)")

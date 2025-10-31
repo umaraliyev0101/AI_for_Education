@@ -22,8 +22,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
     
-    # CORS
-    CORS_ORIGINS: list = ["http://localhost:3000", "http://localhost:8000"]
+    # CORS - Allow all origins for development (update for production)
+    CORS_ORIGINS: list = ["*"]  # Allow all origins for testing
     
     # File Storage
     UPLOAD_DIR: str = "./uploads"

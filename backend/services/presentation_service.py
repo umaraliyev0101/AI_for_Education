@@ -12,6 +12,8 @@ from typing import List, Dict, Optional, Any
 from pathlib import Path
 import json
 import asyncio
+from PIL import Image
+import io
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +32,22 @@ except ImportError:
     PDF_AVAILABLE = False
     logger.warning("PyPDF2 not available")
 
+# For PPTX to image conversion on Windows
+try:
+    import comtypes.client
+    COMTYPES_AVAILABLE = True
+except ImportError:
+    COMTYPES_AVAILABLE = False
+    logger.warning("⚠️ comtypes not available - PPTX image conversion may be limited")
+
+# For PDF to image conversion
+try:
+    from pdf2image import convert_from_path
+    PDF2IMAGE_AVAILABLE = True
+except ImportError:
+    PDF2IMAGE_AVAILABLE = False
+    logger.warning("⚠️ pdf2image not available - PDF image conversion disabled")
+
 try:
     from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
     TTS_AVAILABLE = True
@@ -41,9 +59,15 @@ except ImportError:
 class PresentationService:
     """Service for processing presentations and generating audio"""
     
-    def __init__(self, audio_output_dir: str = "./uploads/audio/presentations"):
+    def __init__(
+        self, 
+        audio_output_dir: str = "./uploads/audio/presentations",
+        slides_output_dir: str = "./uploads/slides"
+    ):
         self.audio_output_dir = audio_output_dir
+        self.slides_output_dir = slides_output_dir
         os.makedirs(audio_output_dir, exist_ok=True)
+        os.makedirs(slides_output_dir, exist_ok=True)
         
         # Initialize TTS
         self.tts = None
@@ -53,6 +77,122 @@ class PresentationService:
                 logger.info("✅ TTS initialized for presentations")
             except Exception as e:
                 logger.error(f"❌ Failed to initialize TTS: {e}")
+    
+    def _convert_pptx_to_images(self, pptx_path: str, lesson_id: int) -> List[str]:
+        """
+        Convert PPTX slides to PNG images using PowerPoint COM on Windows
+        
+        Returns:
+            List of image file paths
+        """
+        # Create output directory for this lesson
+        lesson_slides_dir = os.path.join(self.slides_output_dir, f"lesson_{lesson_id}")
+        os.makedirs(lesson_slides_dir, exist_ok=True)
+        
+        # ✅ FIX: Check if images already exist
+        existing_images = []
+        for file in os.listdir(lesson_slides_dir):
+            if file.startswith('slide_') and file.endswith('.png'):
+                rel_path = f"uploads/slides/lesson_{lesson_id}/{file}"
+                existing_images.append((int(file.split('_')[1].split('.')[0]), rel_path))
+        
+        if existing_images:
+            # Sort by slide number and return paths
+            existing_images.sort(key=lambda x: x[0])
+            image_paths = [path for _, path in existing_images]
+            logger.info(f"✅ Found {len(image_paths)} existing slide images")
+            return image_paths
+        
+        if not COMTYPES_AVAILABLE:
+            logger.error("❌ comtypes not available for PPTX conversion")
+            return []
+        
+        try:
+            # Convert to absolute path
+            abs_pptx_path = os.path.abspath(pptx_path)
+            abs_output_dir = os.path.abspath(lesson_slides_dir)
+            
+            # Initialize PowerPoint COM
+            powerpoint = comtypes.client.CreateObject("Powerpoint.Application")
+            
+            # ✅ FIX: For PowerPoint 2016+, we CAN'T hide the window completely
+            # But we can minimize it and disable alerts
+            powerpoint.Visible = 1  # Must be 1 for PowerPoint 2016+
+            powerpoint.DisplayAlerts = 0  # Disable alerts
+            powerpoint.WindowState = 2  # ppWindowMinimized
+            
+            # Open presentation
+            presentation = powerpoint.Presentations.Open(
+                abs_pptx_path,
+                ReadOnly=True,
+                WithWindow=False
+            )
+            
+            image_paths = []
+            
+            # Export each slide as PNG
+            for i in range(1, presentation.Slides.Count + 1):
+                image_filename = f"slide_{i}.png"
+                image_path = os.path.join(abs_output_dir, image_filename)
+                
+                # Export slide (2 = ppSaveAsPNG)
+                presentation.Slides(i).Export(image_path, "PNG")
+                
+                # Store relative path
+                rel_path = f"uploads/slides/lesson_{lesson_id}/{image_filename}"
+                image_paths.append(rel_path)
+                
+                logger.info(f"✅ Exported slide {i} to {image_filename}")
+            
+            # Close presentation
+            presentation.Close()
+            powerpoint.Quit()
+            
+            return image_paths
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to convert PPTX to images: {e}")
+            return []
+    
+    def _convert_pdf_to_images(self, pdf_path: str, lesson_id: int) -> List[str]:
+        """
+        Convert PDF pages to PNG images
+        
+        Returns:
+            List of image file paths
+        """
+        if not PDF2IMAGE_AVAILABLE:
+            logger.error("❌ pdf2image not available for PDF conversion")
+            return []
+        
+        try:
+            # Create output directory for this lesson
+            lesson_slides_dir = os.path.join(self.slides_output_dir, f"lesson_{lesson_id}")
+            os.makedirs(lesson_slides_dir, exist_ok=True)
+            
+            # Convert PDF to images
+            images = convert_from_path(pdf_path, dpi=150)
+            
+            image_paths = []
+            
+            for i, image in enumerate(images, start=1):
+                image_filename = f"slide_{i}.png"
+                image_path = os.path.join(lesson_slides_dir, image_filename)
+                
+                # Save image
+                image.save(image_path, 'PNG')
+                
+                # Store relative path
+                rel_path = f"uploads/slides/lesson_{lesson_id}/{image_filename}"
+                image_paths.append(rel_path)
+                
+                logger.info(f"✅ Exported page {i} to {image_filename}")
+            
+            return image_paths
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to convert PDF to images: {e}")
+            return []
     
     async def process_presentation(self, presentation_path: str, lesson_id: int) -> Optional[Dict[str, Any]]:
         """
@@ -80,9 +220,50 @@ class PresentationService:
             logger.error(f"❌ Failed to process presentation: {e}")
             return None
     
+    async def process_presentation_with_progress(
+        self, 
+        presentation_path: str, 
+        lesson_id: int,
+        progress_callback=None
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Process presentation with real-time progress updates
+        
+        Args:
+            presentation_path: Path to presentation file
+            lesson_id: Lesson database ID
+            progress_callback: Async function(current, total, text) for progress updates
+            
+        Returns:
+            Dictionary with slides and audio paths
+        """
+        try:
+            file_ext = Path(presentation_path).suffix.lower()
+            
+            if file_ext == '.pptx' and PPTX_AVAILABLE:
+                return await self._process_pptx_with_progress(
+                    presentation_path, lesson_id, progress_callback
+                )
+            elif file_ext == '.pdf' and PDF_AVAILABLE:
+                return await self._process_pdf_with_progress(
+                    presentation_path, lesson_id, progress_callback
+                )
+            else:
+                logger.error(f"❌ Unsupported file format: {file_ext}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"❌ Failed to process presentation: {e}")
+            return None
+    
     async def _process_pptx(self, pptx_path: str, lesson_id: int) -> Dict[str, Any]:
-        """Extract text and generate audio from PPTX"""
+        """Extract text, generate audio, and create slide images from PPTX"""
         prs = Presentation(pptx_path)
+        
+        # Convert slides to images first
+        logger.info(f"🖼️ Converting PPTX to images...")
+        image_paths = self._convert_pptx_to_images(pptx_path, lesson_id)
+        
         slides_data = []
         
         for idx, slide in enumerate(prs.slides):
@@ -106,10 +287,14 @@ class PresentationService:
                 slide_number
             )
             
+            # Get image path for this slide
+            image_path = image_paths[idx] if idx < len(image_paths) else None
+            
             slides_data.append({
                 'slide_number': slide_number,
                 'text': slide_text,
                 'audio_path': audio_path,
+                'image_path': image_path,  # ← NEW: Include slide image
                 'duration_estimate': self._estimate_audio_duration(slide_text)
             })
             
@@ -136,8 +321,87 @@ class PresentationService:
         logger.info(f"✅ Processed {len(slides_data)} slides for lesson {lesson_id}")
         return presentation_data
     
+    async def _process_pptx_with_progress(
+        self, 
+        pptx_path: str, 
+        lesson_id: int,
+        progress_callback=None
+    ) -> Dict[str, Any]:
+        """Extract text, generate audio, create images with progress updates"""
+        prs = Presentation(pptx_path)
+        total_slides = len(prs.slides)
+        
+        # Convert slides to images first
+        logger.info(f"🖼️ Converting PPTX to images...")
+        image_paths = self._convert_pptx_to_images(pptx_path, lesson_id)
+        
+        slides_data = []
+        
+        for idx, slide in enumerate(prs.slides):
+            slide_number = idx + 1
+            
+            # Extract text from slide
+            text_content = []
+            for shape in slide.shapes:
+                if hasattr(shape, "text") and shape.text.strip():
+                    text_content.append(shape.text.strip())
+            
+            slide_text = "\n".join(text_content)
+            
+            if not slide_text:
+                slide_text = f"Slayd {slide_number}"
+            
+            # ✅ NEW: Send progress update
+            if progress_callback:
+                await progress_callback(slide_number, total_slides, slide_text)
+            
+            # Generate audio for slide
+            audio_path = await self._generate_slide_audio(
+                slide_text, 
+                lesson_id, 
+                slide_number
+            )
+            
+            # Get image path for this slide
+            image_path = image_paths[idx] if idx < len(image_paths) else None
+            
+            slides_data.append({
+                'slide_number': slide_number,
+                'text': slide_text,
+                'audio_path': audio_path,
+                'image_path': image_path,
+                'duration_estimate': self._estimate_audio_duration(slide_text)
+            })
+            
+            logger.info(f"✅ Processed slide {slide_number}/{total_slides}")
+        
+        # Save presentation metadata
+        presentation_data = {
+            'lesson_id': lesson_id,
+            'total_slides': len(slides_data),
+            'slides': slides_data,
+            'processed_at': str(asyncio.get_event_loop().time())
+        }
+        
+        # Save metadata to JSON
+        metadata_path = os.path.join(
+            self.audio_output_dir,
+            f"lesson_{lesson_id}_presentation_metadata.json"
+        )
+        with open(metadata_path, 'w', encoding='utf-8') as f:
+            json.dump(presentation_data, f, ensure_ascii=False, indent=2)
+        
+        presentation_data['metadata_path'] = metadata_path
+        
+        logger.info(f"✅ Processed {len(slides_data)} slides for lesson {lesson_id}")
+        return presentation_data
+    
     async def _process_pdf(self, pdf_path: str, lesson_id: int) -> Dict[str, Any]:
-        """Extract text and generate audio from PDF"""
+        """Extract text, generate audio, and create page images from PDF"""
+        # Convert PDF pages to images first
+        logger.info(f"🖼️ Converting PDF to images...")
+        image_paths = self._convert_pdf_to_images(pdf_path, lesson_id)
+        
         with open(pdf_path, 'rb') as file:
             pdf_reader = PyPDF2.PdfReader(file)
             slides_data = []
@@ -156,14 +420,86 @@ class PresentationService:
                     page_num + 1
                 )
                 
+                # Get image path for this page
+                image_path = image_paths[page_num] if page_num < len(image_paths) else None
+                
                 slides_data.append({
                     'slide_number': page_num + 1,
                     'text': page_text,
                     'audio_path': audio_path,
+                    'image_path': image_path,  # ← NEW: Include page image
                     'duration_estimate': self._estimate_audio_duration(page_text)
                 })
                 
                 logger.info(f"✅ Processed page {page_num + 1}/{len(pdf_reader.pages)}")
+        
+        # Save presentation metadata
+        presentation_data = {
+            'lesson_id': lesson_id,
+            'total_slides': len(slides_data),
+            'slides': slides_data,
+            'processed_at': str(asyncio.get_event_loop().time())
+        }
+        
+        # Save metadata to JSON
+        metadata_path = os.path.join(
+            self.audio_output_dir,
+            f"lesson_{lesson_id}_presentation_metadata.json"
+        )
+        with open(metadata_path, 'w', encoding='utf-8') as f:
+            json.dump(presentation_data, f, ensure_ascii=False, indent=2)
+        
+        presentation_data['metadata_path'] = metadata_path
+        
+        logger.info(f"✅ Processed {len(slides_data)} pages for lesson {lesson_id}")
+        return presentation_data
+    
+    async def _process_pdf_with_progress(
+        self, 
+        pdf_path: str, 
+        lesson_id: int,
+        progress_callback=None
+    ) -> Dict[str, Any]:
+        """Extract text, generate audio, create images with progress updates"""
+        # Convert PDF pages to images first
+        logger.info(f"🖼️ Converting PDF to images...")
+        image_paths = self._convert_pdf_to_images(pdf_path, lesson_id)
+        
+        with open(pdf_path, 'rb') as file:
+            pdf_reader = PyPDF2.PdfReader(file)
+            total_pages = len(pdf_reader.pages)
+            slides_data = []
+            
+            for page_num in range(total_pages):
+                page = pdf_reader.pages[page_num]
+                page_text = page.extract_text().strip()
+                
+                if not page_text:
+                    page_text = f"Sahifa {page_num + 1}"
+                
+                # ✅ NEW: Send progress update
+                if progress_callback:
+                    await progress_callback(page_num + 1, total_pages, page_text)
+                
+                # Generate audio for page
+                audio_path = await self._generate_slide_audio(
+                    page_text,
+                    lesson_id,
+                    page_num + 1
+                )
+                
+                # Get image path for this page
+                image_path = image_paths[page_num] if page_num < len(image_paths) else None
+                
+                slides_data.append({
+                    'slide_number': page_num + 1,
+                    'text': page_text,
+                    'audio_path': audio_path,
+                    'image_path': image_path,
+                    'duration_estimate': self._estimate_audio_duration(page_text)
+                })
+                
+                logger.info(f"✅ Processed page {page_num + 1}/{total_pages}")
         
         # Save presentation metadata
         presentation_data = {
@@ -232,7 +568,20 @@ class PresentationService:
         if os.path.exists(metadata_path):
             try:
                 with open(metadata_path, 'r', encoding='utf-8') as f:
-                    return json.load(f)
+                    data = json.load(f)
+                    
+                    # ✅ FIX: Ensure all paths have leading slash for frontend
+                    if 'slides' in data:
+                        for slide in data['slides']:
+                            # Fix image_path
+                            if slide.get('image_path') and not slide['image_path'].startswith('/'):
+                                slide['image_path'] = '/' + slide['image_path']
+                            
+                            # Fix audio_path
+                            if slide.get('audio_path') and not slide['audio_path'].startswith('/'):
+                                slide['audio_path'] = '/' + slide['audio_path']
+                    
+                    return data
             except Exception as e:
                 logger.error(f"❌ Failed to load metadata: {e}")
         

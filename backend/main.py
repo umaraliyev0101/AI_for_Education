@@ -4,6 +4,7 @@ AI Education Backend Server
 """
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from backend.config import settings
 from backend.database import init_db
 import os
@@ -15,6 +16,8 @@ os.makedirs(settings.MATERIALS_DIR, exist_ok=True)
 os.makedirs(settings.PRESENTATIONS_DIR, exist_ok=True)
 os.makedirs(settings.AUDIO_DIR, exist_ok=True)
 os.makedirs(settings.VECTOR_STORES_DIR, exist_ok=True)
+os.makedirs("uploads/slides", exist_ok=True)  # For presentation slide images
+os.makedirs("uploads/audio/presentations", exist_ok=True)  # For TTS audio
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -33,6 +36,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files - CRITICAL: This allows frontend to access uploaded files
+app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -48,6 +54,7 @@ async def startup_event():
     print(f"📊 Database: {settings.DATABASE_URL}")
     print(f"🔧 Debug mode: {settings.DEBUG}")
     print(f"📅 Lesson scheduler: Active")
+    print(f"📁 Static files: /uploads mounted")
 
 
 @app.on_event("shutdown")

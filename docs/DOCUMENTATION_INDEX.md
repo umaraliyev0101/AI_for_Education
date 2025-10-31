@@ -44,6 +44,13 @@
 - Installation options
 - Package sizes and download times
 
+📄 **[MODEL_CONFIGURATION.md](MODEL_CONFIGURATION.md)** ⭐ NEW!
+- **How to change LLM models**
+- Model comparison & recommendations
+- Testing vs Production models
+- Performance & system requirements
+- Quick model switching guide
+
 ---
 
 ### 3. Frontend Integration Guides
@@ -93,7 +100,7 @@
 
 ## 🧪 Testing & Utilities
 
-📄 **[test_backend_setup.py](test_backend_setup.py)**
+📄 **[test_backend_setup.py](../test_backend_setup.py)**
 - Automated installation verification
 - Check all dependencies
 - Validate package versions
@@ -103,6 +110,22 @@
 ```bash
 python test_backend_setup.py
 ```
+
+---
+
+## 🤖 Model Configuration
+
+📄 **[backend/llm_config.py](../backend/llm_config.py)**
+- Central configuration file for LLM models
+- Easy model switching
+- Performance tuning parameters
+- **Edit this file to change models!**
+
+📄 **[MODEL_CONFIGURATION.md](MODEL_CONFIGURATION.md)**
+- Complete guide to model selection
+- Comparison of all available models
+- System requirements per model
+- Troubleshooting guide
 
 ---
 
@@ -324,6 +347,7 @@ AI_in_Education/
 
 | Looking for... | Check... |
 |---------------|----------|
+| **Model switching** | **MODEL_CONFIGURATION.md** ⭐ |
 | WebSocket | FRONTEND_QUICK_REFERENCE.md |
 | API endpoints | FRONTEND_INTEGRATION_GUIDE.md |
 | Code examples | FRONTEND_INTEGRATION_GUIDE.md |

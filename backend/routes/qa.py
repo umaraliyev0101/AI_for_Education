@@ -1,6 +1,6 @@
 """
 Q&A Session Routes
-Process questions and retrieve answers using LLM (Llama-3.1-8B-Instruct-Uz)
+Process questions and retrieve answers using LLM (FLAN-T5 for lightweight testing)
 """
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
@@ -161,7 +161,7 @@ async def create_qa_session(
         Created Q&A session with answer and optional audio
         
     Note:
-        Uses Llama-3.1-8B-Instruct-Uz for answer generation with RAG
+        Uses FLAN-T5 (lightweight model) for answer generation with RAG
     """
     from backend.config import settings
     import os

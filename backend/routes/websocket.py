@@ -233,28 +233,34 @@ async def handle_start_presentation(lesson_id: int, lesson, session_service, pre
     """Handle presentation phase start"""
     await session_service.start_presentation_phase(lesson_id)
     
-    # Load presentation data
+    # ✅ FIX: Load presentation data (should already be processed via API endpoint)
     presentation_data = presentation_service.load_presentation_metadata(lesson_id)
     
     if not presentation_data:
-        # Process presentation if not already done
-        if lesson.presentation_path:
-            presentation_data = await presentation_service.process_presentation(
-                lesson.presentation_path,
-                lesson_id
-            )
+        # ❌ Presentation not processed yet - send error instead of auto-processing
+        await manager.broadcast_to_lesson(lesson_id, {
+            "type": "error",
+            "message": "Presentation not processed yet. Please upload and process the presentation first.",
+            "timestamp": datetime.now().isoformat()
+        })
+        logger.warning(f"⚠️ Attempted to start unprocessed presentation for lesson {lesson_id}")
+        return
     
     if presentation_data:
-        # Send first slide
-        first_slide = presentation_data['slides'][0]
+        # Send ALL presentation data including all slides
         session_service.update_session_state(lesson_id, {'current_slide': 1})
         
         await manager.broadcast_to_lesson(lesson_id, {
             "type": "presentation_started",
+            "lesson_id": lesson_id,
+            "lesson_title": lesson.title,
             "total_slides": presentation_data['total_slides'],
-            "current_slide": first_slide,
+            "slides": presentation_data['slides'],  # ← All slides with image_path, audio_path, text
+            "current_slide_number": 1,
             "timestamp": datetime.now().isoformat()
         })
+        
+        logger.info(f"📊 Presentation started for lesson {lesson_id} with {presentation_data['total_slides']} slides")
     else:
         await manager.broadcast_to_lesson(lesson_id, {
             "type": "error",

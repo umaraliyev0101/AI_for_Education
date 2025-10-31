@@ -2,6 +2,7 @@
 Lesson Management Routes
 CRUD operations for lessons
 """
+import os
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -12,7 +13,6 @@ from backend.models.user import User
 from backend.schemas.lesson import LessonCreate, LessonUpdate, LessonResponse
 from backend.dependencies import require_teacher, get_current_user
 from backend.config import settings
-import os
 
 router = APIRouter()
 
@@ -316,24 +316,24 @@ async def upload_lesson_materials(
     }
 
 
-@router.post("/{lesson_id}/upload-presentation")
-async def upload_lesson_presentation(
+@router.post("/{lesson_id}/presentation")
+async def upload_presentation(
     lesson_id: int,
-    presentation_file: UploadFile = File(...),
+    file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_teacher)
 ):
     """
-    Upload lesson presentation (PPTX, PDF)
+    Upload lesson presentation (PPTX, PDF) - Main endpoint
     
     Args:
         lesson_id: Lesson database ID
-        presentation_file: Presentation file
+        file: Presentation file (PPTX or PDF)
         db: Database session
         current_user: Authenticated teacher/admin
         
     Returns:
-        Success message with file path
+        Success message with filename
     """
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
     
@@ -344,42 +344,70 @@ async def upload_lesson_presentation(
         )
     
     # Validate file type
-    allowed_extensions = [".pptx", ".pdf"]
-    file_ext = os.path.splitext(presentation_file.filename)[1].lower()
-    
-    if file_ext not in allowed_extensions:
+    if not file.filename.endswith(('.pptx', '.pdf')):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"File type not supported. Allowed: {', '.join(allowed_extensions)}"
+            detail="Only PPTX and PDF files are supported"
         )
     
+    # ✅ FIX: Use absolute path with os.path.join properly
+    presentations_dir = os.path.abspath(settings.PRESENTATIONS_DIR)
+    os.makedirs(presentations_dir, exist_ok=True)
+    
     # Save presentation file
+    file_ext = os.path.splitext(file.filename)[1].lower()
     filename = f"lesson_{lesson_id}_presentation{file_ext}"
-    file_path = os.path.join(settings.PRESENTATIONS_DIR, filename)
+    file_path = os.path.join(presentations_dir, filename)
     
     with open(file_path, "wb") as f:
-        content = await presentation_file.read()
+        content = await file.read()
         f.write(content)
     
-    lesson.presentation_path = file_path
+    # Store absolute path in database
+    lesson.presentation_path = os.path.abspath(file_path)
     
     db.commit()
     
     return {
         "message": "Presentation uploaded successfully",
-        "file_path": file_path,
-        "lesson_id": lesson_id
+        "filename": filename,
+        "lesson_id": lesson_id,
+        "file_path": lesson.presentation_path
     }
 
 
-@router.post("/{lesson_id}/process-presentation")
-async def process_presentation(
+@router.post("/{lesson_id}/upload-presentation")
+async def upload_lesson_presentation(
+    lesson_id: int,
+    presentation_file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+    """
+    Upload lesson presentation (PPTX, PDF) - Legacy endpoint (alias)
+    
+    Args:
+        lesson_id: Lesson database ID
+        presentation_file: Presentation file
+        db: Database session
+        current_user: Authenticated teacher/admin
+        
+    Returns:
+        Success message with file path
+    """
+    # Call the main endpoint
+    return await upload_presentation(lesson_id, presentation_file, db, current_user)
+
+
+@router.post("/{lesson_id}/presentation/process")
+async def process_presentation_endpoint(
     lesson_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_teacher)
 ):
     """
-    Process presentation and generate audio for each slide
+    Process presentation and generate slide images + audio
+    Sends real-time progress updates via WebSocket
     
     Args:
         lesson_id: Lesson database ID
@@ -387,9 +415,10 @@ async def process_presentation(
         current_user: Authenticated teacher/admin
         
     Returns:
-        Presentation data with slides and audio paths
+        Processing status and presentation data
     """
-    from backend.services.presentation_service import get_presentation_service
+    from backend.services.presentation_service import PresentationService
+    from backend.routes.websocket import manager
     
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
     
@@ -399,18 +428,49 @@ async def process_presentation(
             detail=f"Lesson with ID {lesson_id} not found"
         )
     
-    if not lesson.presentation_path or not os.path.exists(lesson.presentation_path):
+    # ✅ FIX: Get absolute path and check existence properly
+    presentation_path = lesson.presentation_path
+    if not presentation_path:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="No presentation uploaded for this lesson"
         )
     
-    presentation_service = get_presentation_service()
+    # Convert to absolute path if relative
+    if not os.path.isabs(presentation_path):
+        presentation_path = os.path.abspath(presentation_path)
+    
+    if not os.path.exists(presentation_path):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Presentation file not found: {presentation_path}"
+        )
+    
+    # ✅ NEW: Send processing started message via WebSocket
+    await manager.broadcast_to_lesson(lesson_id, {
+        "type": "presentation_processing_started",
+        "lesson_id": lesson_id,
+        "message": "Processing presentation...",
+        "timestamp": datetime.now().isoformat()
+    })
+    
+    presentation_service = PresentationService()
     
     try:
-        presentation_data = await presentation_service.process_presentation(
-            lesson.presentation_path,
-            lesson_id
+        # Process with progress callback
+        presentation_data = await presentation_service.process_presentation_with_progress(
+            presentation_path,
+            lesson_id,
+            progress_callback=lambda current, total, slide_text: 
+                manager.broadcast_to_lesson(lesson_id, {
+                    "type": "presentation_processing_progress",
+                    "lesson_id": lesson_id,
+                    "current_slide": current,
+                    "total_slides": total,
+                    "slide_text": slide_text[:50] + "..." if len(slide_text) > 50 else slide_text,
+                    "progress_percent": int((current / total) * 100),
+                    "timestamp": datetime.now().isoformat()
+                })
         )
         
         if not presentation_data:
@@ -419,19 +479,47 @@ async def process_presentation(
                 detail="Failed to process presentation"
             )
         
+        # ✅ NEW: Send processing completed message
+        await manager.broadcast_to_lesson(lesson_id, {
+            "type": "presentation_processing_completed",
+            "lesson_id": lesson_id,
+            "total_slides": presentation_data['total_slides'],
+            "message": "Presentation ready!",
+            "timestamp": datetime.now().isoformat()
+        })
+        
         return {
             "message": "Presentation processed successfully",
             "lesson_id": lesson_id,
             "total_slides": presentation_data['total_slides'],
-            "metadata_path": presentation_data.get('metadata_path'),
             "slides": presentation_data['slides']
         }
         
     except Exception as e:
+        # ✅ NEW: Send error message via WebSocket
+        await manager.broadcast_to_lesson(lesson_id, {
+            "type": "presentation_processing_error",
+            "lesson_id": lesson_id,
+            "error": str(e),
+            "timestamp": datetime.now().isoformat()
+        })
+        
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Presentation processing failed: {str(e)}"
         )
+
+
+@router.post("/{lesson_id}/process-presentation")
+async def process_presentation_legacy(
+    lesson_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+    """
+    Process presentation - Legacy endpoint (alias)
+    """
+    return await process_presentation_endpoint(lesson_id, db, current_user)
 
 
 @router.get("/{lesson_id}/presentation")
@@ -449,9 +537,9 @@ async def get_presentation_data(
         current_user: Authenticated user
         
     Returns:
-        Presentation data with slides and audio
+        Presentation data with slides, images, and audio
     """
-    from backend.services.presentation_service import get_presentation_service
+    from backend.services.presentation_service import PresentationService
     
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
     
@@ -461,13 +549,13 @@ async def get_presentation_data(
             detail=f"Lesson with ID {lesson_id} not found"
         )
     
-    presentation_service = get_presentation_service()
+    presentation_service = PresentationService()
     presentation_data = presentation_service.load_presentation_metadata(lesson_id)
     
     if not presentation_data:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Presentation not processed yet"
+            detail="Presentation not processed yet. Please upload and process first."
         )
     
     return presentation_data

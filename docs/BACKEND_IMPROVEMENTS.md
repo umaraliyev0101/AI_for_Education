@@ -180,7 +180,7 @@ ws://localhost:8000/api/ws/lesson/{lesson_id}?token=<jwt_token>
 - ✅ **TTS audio responses** - Generates audio narration for answers
 - ✅ **Text and audio questions** - Supports both input methods
 - ✅ **Pause/resume integration** - Pauses presentation to answer questions
-- ✅ **LLM-powered answers** - Uses Llama-3.1-8B-Instruct-Uz with RAG
+- ✅ **LLM-powered answers** - Uses FLAN-T5 (lightweight ~250MB) with RAG
 
 #### Enhanced Endpoint:
 ```
