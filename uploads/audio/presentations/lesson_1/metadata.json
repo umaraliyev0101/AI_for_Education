@@ -1,140 +1,63 @@
 {
   "lesson_id": 1,
-  "total_slides": 19,
+  "total_slides": 8,
   "slides": [
     {
       "slide_number": 1,
-      "text": "18 дан 1слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nTovar va pul bozorida \nmakroiqtisodiy \nmuvozanat. Hicks\n -\nHansen modeli: IS\n -\nLM",
+      "text": "Tarixiy xotirasiz kelajak yo’q !",
       "audio_path": "/uploads/audio/presentations/lesson_1/slide_1.mp3",
       "image_path": "uploads/slides/lesson_1/slide_1.png",
-      "duration_estimate": 10.8
+      "duration_estimate": 2.0
     },
     {
       "slide_number": 2,
-      "text": "18 дан 2слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nIS –LM модели –товарвапулбозорларида\nмакроиқтисодий мувозанат шартларининг таҳлили\nТоварбозори Пулбозори\nIS –LM моделитоварвапулбозорларида\nмувозанатни таъминлайдиган фоизставкаси билан\nдаромад бирикмасини аниқлашга имконият беради . Бу\nмоделькўпроқиқтисодиетни қисқамуддатли даврда\nтаҳлилқилишучунқўлланилади . IS  -инвестициялар\n(investment) –жамғармалар (savings). LM –\nликвидлилик афзаллиги (liquidity)  -пул(money)",
+      "text": "Mavzu: “Tarixiy xotirasiz kelajak yo’q ”\nReja:\nI Kirish \nII Asosiy qism \n1. O’zlikni anglash tarix saboqlari \n2.Komil insonni tarbiyalashda tarixning roli.\n3.Ma’rifat va ta’lim-tarbiya jamiyat hayotidagi o’rni.\nIII Xulosa\nIV Foydalanilgan adabiyotlar: “Yuksak ma’naviyat yengilmas kuch ” ,“O’zbekiston tarixi” ,“Tarixiy xotirasiz kelajak yo’q”",
       "audio_path": "/uploads/audio/presentations/lesson_1/slide_2.mp3",
       "image_path": "uploads/slides/lesson_1/slide_2.png",
-      "duration_estimate": 21.6
-    },
-    {
-      "slide_number": 3,
-      "text": "18 дан 3слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nIS-LM моделининг асосийтенгламалари\nIS:  \nY = C + I + G + Xn–миллий ҳисобларнинг асосий\nайнияти\nC = a + b (Y -T) –истеъмол функцияси , \nбуерда T = Ta+ tY\nI  = e –dR–инвестициялар функцияси\nXn= g -m’Y-hR–софэкспортфункцияси\nLM:\nM/P = kY–hR–пулгабўлганталабфункцияси",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_3.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_3.png",
-      "duration_estimate": 22.8
-    },
-    {
-      "slide_number": 4,
-      "text": "18 дан 4слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nIS \nэгри\nчизи\nғ\nи\nТоварбозоридаги мувозанат эгричизиғи –\nбуэгричизиқмиллий ҳисобларнинг\nасосийайнияти , истеъмол , инвестиция ва\nсофэкспортфункциялари шартларини\nқондирадиган даромад вафоиз\nставкасининг барчаўзаробирикмаларини\nкўрсатади ваунингҳарбирнуқтасида\nинвестициялар важамғармалар бир\nбиригатенгбўлади\nЖамғарма\n функцияси\nS\nS2\nS1\nY1Y2Y\nИнвестиция\n функцияси\n IS \nэгри\nчизи\n\nғи\nR                                                                R     \nR1                                                                                    \nR2\nI1I2 I                                                          Y1Y2Y",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_4.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_4.png",
-      "duration_estimate": 25.6
-    },
-    {
-      "slide_number": 5,
-      "text": "18 дан 5слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nКейнс\nкесишмаси\n ор\nқ\nали\nIS \nэгри\nчизиғининг\nчи\nқ\nарилиши\nКейнс\nкесишмаси\nE\nY2      Y1\nИнвестиция\n функцияси\n IS \nэгри\nчизи\n\nғи\nR                                      R     \nR2                                                                                    \nR1\nI1I2 I                                          Y2Y1Y",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_5.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_5.png",
       "duration_estimate": 17.6
     },
     {
+      "slide_number": 3,
+      "text": "Mustaqillikka erishganimizdan so‘ng mamlakatimizda barcha sohani isloh qilishga kirishildi. Lekin islohotlar o‘tkazish uchun avval biz aslida kimligimizni barchaga anglatish, undan tashqari bu haqda endigina yetuklik ostonasiga qadam qo‘yayotgan yoshlarimizga ma’lumot berish zarurati yuzaga keldi. Fanlar tizimida muhim o‘rin egallagan tarix bo‘yicha darsliklarimizda esa necha ming yillik o‘tmishga ega diyorimiz tarixi sho’rolar davrida soxtalashtirilganligi uchun aytarli haqiqiy ma’lumotlar mavjud emas edi.",
+      "audio_path": "/uploads/audio/presentations/lesson_1/slide_3.mp3",
+      "image_path": "uploads/slides/lesson_1/slide_3.png",
+      "duration_estimate": 24.0
+    },
+    {
+      "slide_number": 4,
+      "text": "Buni inobatga olgan mamlakatimiz Prezidenti Islom Abdug‘aniyevich Karimov galdagi asarlarini aynan shu og‘riqli nuqtaga qaratdilar va buning hosilasi o‘laroq, “Tarixiy xotirasiz kelajak yo‘q” asari dunyoga keldi. Bu kitob aholiga asl tariximizni hikoya qilmaydi, balki o‘sha tarixni yaratish kerakligi haqida zaruriy ko’rsatmalar beradi.",
+      "audio_path": "/uploads/audio/presentations/lesson_1/slide_4.mp3",
+      "image_path": "uploads/slides/lesson_1/slide_4.png",
+      "duration_estimate": 16.8
+    },
+    {
+      "slide_number": 5,
+      "text": "Muhtaram Prezidentimiz  “O‘zlikni anglash tarixni bilishdan boshlanadi”, deb bejiz aytmaganlar. Zero, o‘tmish kelajakni belgilab beradigan haqiqiy oyna vazifasini o‘taydi. Atoqli adibimiz Abdulla Qodiriy o‘zining “O‘tkan kunlar” asari epigrafida ham “Moziyga qaytib ish ko‘rmoq xayrlidir”, deganlar. “O‘zbekiston Respublikasi Konstitutsiyasi”ning 1-moddasida ( Birinchi bo‘lim. Asosiy prinsiplar. I bob) “O‘zbekiston- suveren demokratik respublika. Davlatning “O‘zbekiston Respublikasi” va “O‘zbekiston” degan nomlari bir ma’noni anglatadi”, deyilgan. Lekin shu nomga erishgunimizga qadar yurtimiz boshidan o‘tgan kunlarni haqqoniy hikoya qilib beradigan birorta kitobning yo‘qligi biz yuqorida ta’kidlagan asarning yaralishiga ta’mal toshini qo‘ydi.",
+      "audio_path": "/uploads/audio/presentations/lesson_1/slide_5.mp3",
+      "image_path": "uploads/slides/lesson_1/slide_5.png",
+      "duration_estimate": 34.0
+    },
+    {
       "slide_number": 6,
-      "text": "18 дан 6слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nIS \nэгри\nчизи\nғи\nнинг\nY\nга\nнисбатан\n алгебраик\nтенгламаси\nm  t)-b(1-1R   n) (d\nm  t)-b(1-1bTa\nm  t)-b(1-11G\nm  t)-b(1-1g   e  a Y\nТœғри\nбоғлиқликТескари\nбоғлиқликТескари\nбоғлиқликДавлатбюджет\nмультипликаториСолиқ\nмультипликатори\nИзоҳ: a, b, d, e, g, n, m’коэффициентларнинг қиймати IS \nмоделининг асосийтенгламаларидан келибчиқади\nа–автоном истеъмол , b –истеъмолга меъерий мойиллик ,  d –\nфоизставкасига инвестицияларнинг сезувчанлик коэффициенти , e –\nавтоном инвестиция , g -автоном экспорт , t –солиš ставкаси , m’-\nимпортга меъёрий мойиллик",
+      "text": "Yurtning nomini ko‘tarish, uning moziydagi yuksak o‘rnini qayta tiklash endigina erishilgan mustaqilligimiz oldiga qo‘yilgan sharafli va mas’uliyatli vazifa edi. Esingizda bo‘lsa, ma’rifatparvar jadidlarimizdan biri  Mahmudxo‘ja Behbudiy “ Qabilasining ismini va yetti otasining otini bilmaydurg’onlarni “qul”- “marquq” derlar”, deb yozgandi bir maqolasida.",
       "audio_path": "/uploads/audio/presentations/lesson_1/slide_6.mp3",
       "image_path": "uploads/slides/lesson_1/slide_6.png",
-      "duration_estimate": 35.2
+      "duration_estimate": 16.4
     },
     {
       "slide_number": 7,
-      "text": "18 дан 7слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nIS \nэгри\nчизи\nғи\nнинг\nқ\nиялик\nдаражаси\nŠия Тик\nd, n, b\nt, m’Yr\nd, n, b\nt, m’Yr\nIsIs",
+      "text": "Atoqli adib Chingiz Aytmatov esa tarjimayi holida “Bizning ovulimizda yetti otasini bilish odatiga qat’iy rioya qilinardi. Shu sababdan o‘zimizdan oldin o‘tgan yetti ajdodimizni bilish muqaddas burch ekanligi bolalikdanoq ongimizga singdirilardi” deb eslaydi. Lekin shunday holatlar bo‘ladiki, bu narsaga amal qilishga hamisha ham erishish mumkin emas. Bunga misol qilib mustabid tuzum hukmron bo‘lgan davrni, u keltirgan fojialarni olishimiz mumkin.",
       "audio_path": "/uploads/audio/presentations/lesson_1/slide_7.mp3",
       "image_path": "uploads/slides/lesson_1/slide_7.png",
-      "duration_estimate": 14.0
+      "duration_estimate": 23.2
     },
     {
       "slide_number": 8,
-      "text": "18 дан 8слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nYR\nIs\nIs2Is3Чекловчи\n T GРағбатлантирувчи\n T GБюджет -солиқсиесатидаги œзгаришлар IS \nэгричизиғининг ҳаракати билан\nтасвирланади",
+      "text": "XULOSA\nYuqoridagi mulohazalardan tabiiy ravishda shunday savol tug`iladi: xo’sh, O’zbekistonning, o’zbek xalqining bugun keng ommaga etkazishga arziydigan haqqoniy tarixi yaratildimi-yo’qmi? Sovet davrida yozilgan tarixni men tarix sanamayman. O’zgalar yozib bergan tarixni o’qitishga mutlaqo qarshiman. Mustamlakachi o’ziga qaram bo’lgan xalq haqida qachon xolis, adolatli fikr aytgan? Ular bor kuch-g`ayratlarini Turkistonning o’tmishini kamsitishga, bizni tariximizdan judo qilishga sarflaganlar. Tarixdan judo bo’lish nimaligini yaxshi bilsangiz kerak. Inson uchun tarixidan judo bo’lish - hayotdan judo bo’lish demakdir",
       "audio_path": "/uploads/audio/presentations/lesson_1/slide_8.mp3",
       "image_path": "uploads/slides/lesson_1/slide_8.png",
-      "duration_estimate": 12.0
-    },
-    {
-      "slide_number": 9,
-      "text": "18 дан 9слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nLM эгричизиғи\nR R\nRLMR1\nMd1       Md2\nМ/РY1Y2Y LM эгричизиғи–пулбозоридаги мувозанат\nэгричизиғи–пулгабœлганталабунинг\nтаклифига тенгбœлганнуқталарнинг\nгеометрик ўрни.",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_9.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_9.png",
-      "duration_estimate": 12.0
-    },
-    {
-      "slide_number": 10,
-      "text": "18 дан 10слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nLM эгичизиғининг алгебраик тенгламаси\nФоизставкасига (R )нисбатан\nДаромадга (Y) нисбатан\nhRM\nhkYR1\nkhR\nkPMY1\nБуерда: k –даромад динамикасига пулгабўлган\nталабнинг сезувчанлиги ,\nh  -фоизставкасининг динамикасига пулгабўлган\nталабнинг сезувчанлиги",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_10.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_10.png",
-      "duration_estimate": 16.8
-    },
-    {
-      "slide_number": 11,
-      "text": "18 дан 11слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nLM эгичизиғининг қияликдаражаси\nh\nkYr\nYr\nLMLM\nh\nkŠия Тик",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_11.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_11.png",
-      "duration_estimate": 9.6
-    },
-    {
-      "slide_number": 12,
-      "text": "18 дан 12слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nR\nЧекловчи\nsMРағбатлантирув\nчи\nsMПул-кредитсиесатидаги ўзгаришлар LM эгри\nчзиғининг ҳаракати билантасвирланади",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_12.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_12.png",
-      "duration_estimate": 10.0
-    },
-    {
-      "slide_number": 13,
-      "text": "18 дан 13слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nIS\n-\nLM \nмоделидаги\n мувозанат\nYR\nY*R*IS\nELM\nИккалабозордаги мувозанатга эришиш учунфоиз\nставкаси вадаромад даражаси миқдорларининг\nфақатгина биттабирикмаси бўлишимумкинIS-LM моделитоварвапулбозорларидаги фоиз\nставкасини вадаромад даражасини бирвақтда\nмувозанатга эришишини белгилаб беради",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_13.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_13.png",
-      "duration_estimate": 17.2
-    },
-    {
-      "slide_number": 14,
-      "text": "18 дан 14слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nЕпиқиқтисодиетда ўзгармас нархлар шароитида\nдаромад вафоизставкасининг ўзгаришига\nмакроиқтисодий сиесатнинг таъсири\nРағбатлантирувчи\nбюджет -солиқсиёсатиРағбатлантирувчи пул-\nкредитсиёсати\nДаромад\nДаромад\nФоиз\nставкаси\n Фоиз\nставкаси\nR\nR1\nR2\nY1Y2R\nR2\nR1\nY1Y2",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_14.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_14.png",
-      "duration_estimate": 16.8
-    },
-    {
-      "slide_number": 15,
-      "text": "18 дан 15слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nСи\nқ\nиб\nчи\nқ\nариш\nсамараси\nБуиқтисодий ҳодисада давлатхаражатларнинг ўсишихусусий\nинвестициялар васофэкспортни сиқибчиқаради\nR\nMs=constR\nR2\nR1\nY1Y* Y2AB\npMMs\nСиқиб\nсиқариш\n Y XnI R Md Y C Y)T( G",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_15.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_15.png",
-      "duration_estimate": 18.4
-    },
-    {
-      "slide_number": 16,
-      "text": "18 дан 16слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nМакроиқтисодий сиёсатнинг нисбий\nсамарадорлиги\nРағбатлантирувчи бюджет -солиқсиёсати\nТаъсирқилувчи\nомиллар\nСиқиб чиқариш\nсамараси\nқанчали\nкамбўлса , \nсиесат шунчали\nсамаралироқ\nбўлади\nМоделдаги\n эгри\nчизиқларнинг\nшакллари\nIS эгри чизи  ғи\nнисбатан тик, \nLM эгри чизиғ и\nэсақияроқ бўладиЧизмадаги тасвири\nr\nR2\nR1\nY1Y2",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_16.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_16.png",
-      "duration_estimate": 22.0
-    },
-    {
-      "slide_number": 17,
-      "text": "18 дан 17слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nМакрои\n š\nтисодий\n сиёсатнинг\n нисбий\nсамарадорлиги\nРағбатлантирувчи пул-кредитсиёсати\nТаъсир\nš\nилувчи\nомиллар\nПулмассасининг\nкœпайиши вафоиз\nставкаси\nпасайиши нинг\nинвестициялар\nамдасофэкспорт\nдинамикасига\nрағбатлантирувчи\nтаъсири қанчали\nкучлибўлса,\nпул-кредитсиёсати\nшунчали самарали\nбулади\nМоделдаги\n эгри\nчизи\nš\nларнинг\nшакллари\nLM эгричизии\nнисбатан тик,\nIS эгричизии\nэсаšияроš бœладиЧизмадаги тасвири\nR\nR1\nR2\nY1Y2",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_17.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_17.png",
-      "duration_estimate": 24.8
-    },
-    {
-      "slide_number": 18,
-      "text": "18 дан 18слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nЁпиқиқтисодиётда ўзгарувчан нархлар шароитида\nдаромад вафоизставкасининг ўзгаришига\nмакроиқтисодий сиёсатнинг таъсирэтиши (узоқ\nмуддатли даврда )\nСиёсатнинг\nйўналишиНархлар Даромад (ишлаб\nчиқаришнинг\nпотенциал ҳажми )Фоиз\nставкаси\nРағбатлантирувчи\nбюджет -солиқ\nсиёсати=\nРағбатлантирувчи\nпул-кредит\nсиёсати= =",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_18.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_18.png",
-      "duration_estimate": 18.0
-    },
-    {
-      "slide_number": 19,
-      "text": "18 дан 19слайд\n11 \nМавзу\n. \nУмумий\n макроиктисодий\n мувозанат\n . \nIS \n–\nLM\nмодели\nЭЪТИБОРИНГИЗ\nУЧУНРАҲМАТ !",
-      "audio_path": "/uploads/audio/presentations/lesson_1/slide_19.mp3",
-      "image_path": "uploads/slides/lesson_1/slide_19.png",
-      "duration_estimate": 6.8
+      "duration_estimate": 29.2
     }
   ],
-  "processed_at": "11484.2472092"
+  "processed_at": "3362.2280798"
 }

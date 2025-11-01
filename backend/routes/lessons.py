@@ -3,6 +3,8 @@ Lesson Management Routes
 CRUD operations for lessons
 """
 import os
+import shutil
+import glob
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.orm import Session
 from typing import List, Optional
@@ -156,7 +158,14 @@ async def delete_lesson(
     current_user: User = Depends(require_teacher)
 ):
     """
-    Delete a lesson (Teacher or Admin)
+    Delete a lesson and all associated files (Teacher or Admin)
+    
+    This will delete:
+    - Presentation files (PPTX/PDF)
+    - Slide images
+    - Audio files (TTS for slides and Q&A recordings)
+    - Materials files
+    - Vector stores
     
     Args:
         lesson_id: Lesson database ID
@@ -166,6 +175,8 @@ async def delete_lesson(
     Returns:
         No content
     """
+    from backend.models.qa_session import QASession
+    
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
     
     if not lesson:
@@ -174,8 +185,106 @@ async def delete_lesson(
             detail=f"Lesson with ID {lesson_id} not found"
         )
     
+    # Delete all associated files before deleting the lesson record
+    files_deleted = []
+    errors = []
+    
+    try:
+        # 1. Delete presentation files (PPTX/PDF)
+        presentations_dir = os.path.abspath(settings.PRESENTATIONS_DIR)
+        presentation_patterns = [
+            os.path.join(presentations_dir, f"lesson_{lesson_id}_presentation.*")
+        ]
+        for pattern in presentation_patterns:
+            for file_path in glob.glob(pattern):
+                try:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        files_deleted.append(file_path)
+                except Exception as e:
+                    errors.append(f"Failed to delete {file_path}: {str(e)}")
+        
+        # 2. Delete slide images directory
+        slides_dir = os.path.join(os.path.abspath(settings.UPLOAD_DIR), "slides", f"lesson_{lesson_id}")
+        if os.path.exists(slides_dir):
+            try:
+                shutil.rmtree(slides_dir)
+                files_deleted.append(f"{slides_dir}/ (directory)")
+            except Exception as e:
+                errors.append(f"Failed to delete slides directory {slides_dir}: {str(e)}")
+        
+        # 3. Delete audio files directory (TTS for slides)
+        audio_presentations_dir = os.path.join(os.path.abspath(settings.AUDIO_DIR), "presentations", f"lesson_{lesson_id}")
+        if os.path.exists(audio_presentations_dir):
+            try:
+                shutil.rmtree(audio_presentations_dir)
+                files_deleted.append(f"{audio_presentations_dir}/ (directory)")
+            except Exception as e:
+                errors.append(f"Failed to delete audio directory {audio_presentations_dir}: {str(e)}")
+        
+        # 4. Delete materials files
+        materials_dir = os.path.abspath(settings.MATERIALS_DIR)
+        materials_patterns = [
+            os.path.join(materials_dir, f"lesson_{lesson_id}_materials.*")
+        ]
+        for pattern in materials_patterns:
+            for file_path in glob.glob(pattern):
+                try:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        files_deleted.append(file_path)
+                except Exception as e:
+                    errors.append(f"Failed to delete {file_path}: {str(e)}")
+        
+        # 5. Delete vector stores
+        vector_stores_dir = os.path.abspath(settings.VECTOR_STORES_DIR)
+        lesson_vector_store = os.path.join(vector_stores_dir, "lesson_materials", str(lesson_id))
+        if os.path.exists(lesson_vector_store):
+            try:
+                shutil.rmtree(lesson_vector_store)
+                files_deleted.append(f"{lesson_vector_store}/ (directory)")
+            except Exception as e:
+                errors.append(f"Failed to delete vector store {lesson_vector_store}: {str(e)}")
+        
+        # 6. Delete Q&A audio recordings associated with this lesson
+        qa_sessions = db.query(QASession).filter(QASession.lesson_id == lesson_id).all()
+        audio_dir = os.path.abspath(settings.AUDIO_DIR)
+        for qa in qa_sessions:
+            # Delete question audio
+            question_audio_pattern = os.path.join(audio_dir, f"question_{qa.id}_question.*")
+            for file_path in glob.glob(question_audio_pattern):
+                try:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        files_deleted.append(file_path)
+                except Exception as e:
+                    errors.append(f"Failed to delete {file_path}: {str(e)}")
+            
+            # Delete answer audio if exists
+            answer_audio_pattern = os.path.join(audio_dir, f"question_{qa.id}_answer.*")
+            for file_path in glob.glob(answer_audio_pattern):
+                try:
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        files_deleted.append(file_path)
+                except Exception as e:
+                    errors.append(f"Failed to delete {file_path}: {str(e)}")
+        
+    except Exception as e:
+        # Log the error but continue with database deletion
+        errors.append(f"Unexpected error during file cleanup: {str(e)}")
+    
+    # Delete the lesson from database (cascade will delete related records)
     db.delete(lesson)
     db.commit()
+    
+    # Log the cleanup results
+    if files_deleted:
+        print(f"✅ Deleted {len(files_deleted)} files/directories for lesson {lesson_id}")
+    if errors:
+        print(f"⚠️  Encountered {len(errors)} errors during cleanup:")
+        for error in errors:
+            print(f"   - {error}")
     
     return None
 
