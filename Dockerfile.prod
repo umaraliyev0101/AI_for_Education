@@ -1,0 +1,67 @@
+# Production Dockerfile with optimizations
+FROM python:3.11-slim as builder
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    g++ \
+    make \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /build
+
+# Copy requirements and install
+COPY requirements.txt backend_requirements.txt ./
+RUN pip install --no-cache-dir --user -r backend_requirements.txt && \
+    pip install --no-cache-dir --user -r requirements.txt
+
+# Production stage
+FROM python:3.11-slim
+
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y \
+    libsndfile1 \
+    ffmpeg \
+    portaudio19-dev \
+    && rm -rf /var/lib/apt/lists/* \
+    && apt-get clean
+
+# Create non-root user
+RUN useradd -m -u 1000 appuser
+
+WORKDIR /app
+
+# Copy Python packages from builder
+COPY --from=builder /root/.local /home/appuser/.local
+
+# Copy application code
+COPY --chown=appuser:appuser . .
+
+# Create necessary directories
+RUN mkdir -p \
+    uploads/audio \
+    uploads/faces \
+    uploads/materials \
+    uploads/presentations \
+    uploads/slides \
+    vector_stores/lesson_materials \
+    lesson_materials \
+    sample_materials \
+    && chown -R appuser:appuser /app
+
+# Switch to non-root user
+USER appuser
+
+# Add local bin to PATH
+ENV PATH=/home/appuser/.local/bin:$PATH
+
+# Expose port
+EXPOSE 8001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" || exit 1
+
+# Use production startup script
+RUN chmod +x start.sh
+CMD ["./start.sh"]

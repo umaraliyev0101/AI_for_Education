@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  # Main application service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ai_education_app
+    ports:
+      - "8001:8001"
+    environment:
+      # Database
+      - DATABASE_URL=sqlite:///./ai_education.db
+      
+      # JWT Settings
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - ALGORITHM=HS256
+      - ACCESS_TOKEN_EXPIRE_MINUTES=43200
+      
+      # Application Settings
+      - UPLOADS_DIR=/app/uploads
+      - MATERIALS_DIR=/app/uploads/materials
+      - PRESENTATIONS_DIR=/app/uploads/presentations
+      - FACES_DIR=/app/uploads/faces
+      - AUDIO_DIR=/app/uploads/audio
+      - SLIDES_DIR=/app/uploads/slides
+      - VECTOR_STORES_DIR=/app/vector_stores
+      
+      # CORS Settings
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8000
+    
+    volumes:
+      # Persist uploads and database
+      - ./uploads:/app/uploads
+      - ./vector_stores:/app/vector_stores
+      - ./ai_education.db:/app/ai_education.db
+      - ./lesson_materials:/app/lesson_materials
+      - ./sample_materials:/app/sample_materials
+    
+    restart: unless-stopped
+    
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8001/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Nginx reverse proxy (uncomment if needed)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: ai_education_nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/nginx/ssl:ro
+  #   depends_on:
+  #     - app
+  #   restart: unless-stopped
+
+networks:
+  default:
+    name: ai_education_network

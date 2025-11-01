@@ -3,6 +3,7 @@
 # FastAPI and dependencies
 fastapi>=0.104.0
 uvicorn[standard]>=0.24.0
+gunicorn>=21.2.0
 python-multipart>=0.0.6
 websockets>=12.0
 
@@ -54,3 +55,7 @@ accelerate>=0.20.0
 
 # Task Scheduling (for lesson auto-start)
 apscheduler>=3.10.4
+
+# Testing
+requests>=2.31.0
+

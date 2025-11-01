@@ -1,0 +1,92 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation
+*.md
+docs/
+!README.md
+
+# Test files
+test_*.py
+tests/
+*.test.js
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Node (if any frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Environment files (don't copy, use docker-compose env vars)
+.env
+.env.*
+
+# Large model files (download separately if needed)
+*.pt
+*.pth
+*.bin
+*.onnx
+
+# Database files (will be created in container)
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Cache
+.cache/
+*.cache
