@@ -1,28 +1,111 @@
 # Production Dockerfile with optimizations
-FROM python:3.11-slim as builder
+FROM python:3.11-slim AS builder
+
+# Set environment variables for pip
+ENV PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_DEFAULT_TIMEOUT=100
 
 # Install build dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     g++ \
     make \
+    libffi-dev \
+    libssl-dev \
+    libpq-dev \
+    python3-dev \
+    git \
+    wget \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /build
 
-# Copy requirements and install
-COPY requirements.txt backend_requirements.txt ./
-RUN pip install --no-cache-dir --user -r backend_requirements.txt && \
-    pip install --no-cache-dir --user -r requirements.txt
+# Copy requirements (includes all dependencies)
+COPY requirements.txt ./
+
+# Upgrade pip and install build tools
+RUN pip install --upgrade pip setuptools wheel
+
+# Install dependencies in stages to avoid memory issues on GitHub Actions
+# First install lightweight packages
+RUN pip install --no-cache-dir --user \
+    numpy \
+    scipy \
+    Pillow \
+    python-multipart \
+    python-dotenv \
+    python-dateutil \
+    aiofiles
+
+# Install FastAPI and related packages
+RUN pip install --no-cache-dir --user \
+    fastapi>=0.104.0 \
+    uvicorn[standard]>=0.24.0 \
+    gunicorn>=21.2.0 \
+    pydantic>=2.4.0 \
+    pydantic-settings>=2.0.0 \
+    websockets>=12.0
+
+# Install database packages
+RUN pip install --no-cache-dir --user \
+    sqlalchemy>=2.0.0 \
+    alembic>=1.12.0
+
+# Install auth packages
+RUN pip install --no-cache-dir --user \
+    python-jose[cryptography]>=3.3.0 \
+    passlib[bcrypt]>=1.7.4
+
+# Install PyTorch (CPU version for smaller size and faster build)
+RUN pip install --no-cache-dir --user torch --index-url https://download.pytorch.org/whl/cpu
+
+# Install remaining ML packages
+RUN pip install --no-cache-dir --user \
+    transformers \
+    accelerate>=0.20.0 \
+    sentence-transformers>=2.2.0
+
+# Install document processing
+RUN pip install --no-cache-dir --user \
+    PyPDF2>=3.0.0 \
+    python-pptx>=0.6.21 \
+    python-docx>=1.1.0
+
+# Install LangChain and vector stores
+RUN pip install --no-cache-dir --user \
+    langchain>=0.1.0 \
+    langchain-community>=0.0.20 \
+    faiss-cpu>=1.7.0 \
+    chromadb>=0.4.0
+
+# Install remaining packages
+RUN pip install --no-cache-dir --user \
+    librosa \
+    soundfile \
+    edge-tts>=6.1.0 \
+    opencv-python-headless \
+    facenet-pytorch \
+    apscheduler>=3.10.4 \
+    requests>=2.31.0 \
+    jiwer \
+    datasets
 
 # Production stage
 FROM python:3.11-slim
 
 # Install runtime dependencies only
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libsndfile1 \
     ffmpeg \
     portaudio19-dev \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
@@ -63,5 +146,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" || exit 1
 
 # Use production startup script
+USER root
 RUN chmod +x start.sh
+USER appuser
+
 CMD ["./start.sh"]
