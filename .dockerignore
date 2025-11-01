@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Database (will be created in container)
+*.db
+*.db-shm
+*.db-wal
+
+# Uploads (will be mounted as volume)
+uploads/
+vector_stores/
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Model cache
+.cache/
+huggingface/
