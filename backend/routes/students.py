@@ -169,6 +169,169 @@ async def update_student(
     return student
 
 
+@router.post("/{student_id}/enroll-face-multi", response_model=StudentResponse)
+async def enroll_student_face_multi(
+    student_id: int,
+    face_images: List[UploadFile] = File(...),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+    """
+    Enroll student's face using multiple images for better accuracy (Teacher or Admin)
+    
+    Args:
+        student_id: Student database ID
+        face_images: List of face image files (3-5 recommended)
+        db: Database session
+        current_user: Authenticated teacher/admin
+        
+    Returns:
+        Updated student information
+    """
+    from backend.services.face_recognition_service import get_face_recognition_service
+    
+    student = db.query(Student).filter(Student.id == student_id).first()
+    
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Student with ID {student_id} not found"
+        )
+    
+    if not face_images or len(face_images) < 1:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="At least one face image is required"
+        )
+    
+    # Ensure face images directory exists
+    os.makedirs(settings.FACE_IMAGES_DIR, exist_ok=True)
+    
+    # Save all images
+    image_paths = []
+    try:
+        for i, face_image in enumerate(face_images):
+            # Validate file type
+            if not face_image.content_type or not face_image.content_type.startswith("image/"):
+                continue
+            
+            image_filename = f"student_{student.student_id}_{i+1}_{face_image.filename}"
+            image_path = os.path.join(settings.FACE_IMAGES_DIR, image_filename)
+            
+            with open(image_path, "wb") as f:
+                content = await face_image.read()
+                f.write(content)
+            
+            image_paths.append(image_path)
+        
+        if not image_paths:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No valid image files provided"
+            )
+        
+        # Use face recognition service for multi-image enrollment
+        face_service = get_face_recognition_service(db)
+        success, message = face_service.enroll_student_from_multiple_images(student_id, image_paths)
+        
+        if not success:
+            # Clean up image files if enrollment failed
+            for path in image_paths:
+                if os.path.exists(path):
+                    os.remove(path)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=message
+            )
+        
+        # Refresh student data
+        db.refresh(student)
+        return student
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Clean up image files on error
+        for path in image_paths:
+            if os.path.exists(path):
+                os.remove(path)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Multi-image enrollment failed: {str(e)}"
+        )
+
+
+@router.get("/{student_id}/enrollment-status")
+async def get_enrollment_status(
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """
+    Check student's face enrollment status
+    
+    Args:
+        student_id: Student database ID
+        db: Database session
+        current_user: Authenticated user
+        
+    Returns:
+        Enrollment status information
+    """
+    from backend.services.face_recognition_service import get_face_recognition_service
+    
+    student = db.query(Student).filter(Student.id == student_id).first()
+    
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Student with ID {student_id} not found"
+        )
+    
+    face_service = get_face_recognition_service(db)
+    is_valid, message = face_service.validate_face_encoding(student_id)
+    
+    return {
+        "student_id": student.student_id,
+        "name": student.name,
+        "enrolled": student.face_encoding is not None,
+        "face_image_path": student.face_image_path,
+        "encoding_valid": is_valid,
+        "validation_message": message
+    }
+
+
+@router.delete("/{student_id}/enrollment", status_code=status.HTTP_200_OK)
+async def delete_student_enrollment(
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+    """
+    Delete student's face enrollment (Teacher or Admin)
+    
+    Args:
+        student_id: Student database ID
+        db: Database session
+        current_user: Authenticated teacher/admin
+        
+    Returns:
+        Success message
+    """
+    from backend.services.face_recognition_service import get_face_recognition_service
+    
+    face_service = get_face_recognition_service(db)
+    success, message = face_service.delete_student_enrollment(student_id)
+    
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=message
+        )
+    
+    return {"message": message}
+
+
 @router.delete("/{student_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_student(
     student_id: int,
@@ -193,6 +356,15 @@ async def delete_student(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Student with ID {student_id} not found"
         )
+    
+    # Clean up face image if exists
+    if hasattr(student, 'face_image_path'):
+        face_image_path = student.face_image_path
+        if face_image_path is not None and os.path.exists(str(face_image_path)):
+            try:
+                os.remove(str(face_image_path))
+            except Exception:
+                pass
     
     db.delete(student)
     db.commit()
@@ -219,6 +391,8 @@ async def enroll_student_face(
     Returns:
         Updated student information
     """
+    from backend.services.face_recognition_service import get_face_recognition_service
+    
     student = db.query(Student).filter(Student.id == student_id).first()
     
     if not student:
@@ -234,19 +408,42 @@ async def enroll_student_face(
             detail="File must be an image"
         )
     
+    # Ensure face images directory exists
+    os.makedirs(settings.FACE_IMAGES_DIR, exist_ok=True)
+    
     # Save face image
     image_filename = f"student_{student.student_id}_{face_image.filename}"
     image_path = os.path.join(settings.FACE_IMAGES_DIR, image_filename)
     
-    with open(image_path, "wb") as f:
-        content = await face_image.read()
-        f.write(content)
-    
-    student.face_image_path = image_path
-    
-    # Note: Face encoding will be generated by face recognition service
-    # This is a placeholder - actual encoding will be done by the service
-    db.commit()
-    db.refresh(student)
-    
-    return student
+    try:
+        with open(image_path, "wb") as f:
+            content = await face_image.read()
+            f.write(content)
+        
+        # Use face recognition service to generate and store encoding
+        face_service = get_face_recognition_service(db)
+        success, message = face_service.enroll_student_from_image(student_id, image_path)
+        
+        if not success:
+            # Clean up image file if enrollment failed
+            if os.path.exists(image_path):
+                os.remove(image_path)
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=message
+            )
+        
+        # Refresh student data
+        db.refresh(student)
+        return student
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        # Clean up image file on error
+        if os.path.exists(image_path):
+            os.remove(image_path)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Enrollment failed: {str(e)}"
+        )

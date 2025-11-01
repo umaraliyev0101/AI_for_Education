@@ -98,7 +98,11 @@ class FaceRecognitionAttendance:
             # Check if below threshold
             if min_distance < self.threshold:
                 student_id = self.student_ids[min_index]
-                confidence = 1.0 - (min_distance / 2.0)  # Convert distance to confidence
+                # Convert distance to confidence (0-1 range)
+                # Distance typically ranges from 0 (perfect match) to ~1.4 (different faces)
+                # Use exponential decay for better confidence scores
+                confidence = np.exp(-min_distance * 2.0)
+                confidence = max(0.0, min(1.0, confidence))  # Clamp to [0, 1]
                 return student_id, confidence
             
             return None, 0.0

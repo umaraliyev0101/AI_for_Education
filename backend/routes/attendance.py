@@ -387,11 +387,13 @@ async def auto_scan_attendance(
                     db.add(new_attendance)
                     db.commit()
                 
-                # Encode student photo
+                # Encode student photo (use face_image_path from Student model)
                 photo_base64 = None
-                if student.photo_path and os.path.exists(student.photo_path):
-                    with open(student.photo_path, 'rb') as f:
-                        photo_base64 = base64.b64encode(f.read()).decode('utf-8')
+                if hasattr(student, 'face_image_path'):
+                    img_path = student.face_image_path
+                    if img_path is not None and os.path.exists(str(img_path)):
+                        with open(str(img_path), 'rb') as f:
+                            photo_base64 = base64.b64encode(f.read()).decode('utf-8')
                 
                 recognized_students.append({
                     'student_id': student.student_id,
