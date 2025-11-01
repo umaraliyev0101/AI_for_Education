@@ -177,6 +177,150 @@ async def mark_attendance(
     return new_attendance
 
 
+@router.post("/manual", response_model=AttendanceResponse, status_code=status.HTTP_201_CREATED)
+async def mark_attendance_manual(
+    student_id: int,
+    lesson_id: int,
+    notes: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+    """
+    Mark attendance manually with simple parameters (Teacher or Admin)
+    
+    Args:
+        student_id: Student database ID
+        lesson_id: Lesson database ID
+        notes: Optional notes about the attendance
+        db: Database session
+        current_user: Authenticated teacher/admin
+        
+    Returns:
+        Created attendance record
+    """
+    # Verify student exists
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Student with ID {student_id} not found"
+        )
+    
+    # Verify lesson exists
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Lesson with ID {lesson_id} not found"
+        )
+    
+    # Check if attendance already marked
+    existing_attendance = db.query(Attendance).filter(
+        Attendance.student_id == student_id,
+        Attendance.lesson_id == lesson_id
+    ).first()
+    
+    if existing_attendance:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Attendance already marked for {student.name} in this lesson"
+        )
+    
+    # Create attendance record
+    new_attendance = Attendance(
+        student_id=student_id,
+        lesson_id=lesson_id,
+        recognition_confidence=None,
+        entry_method="manual",
+        notes=notes or f"Manually marked by {current_user.username}"
+    )
+    
+    db.add(new_attendance)
+    db.commit()
+    db.refresh(new_attendance)
+    
+    return new_attendance
+
+
+@router.post("/manual/bulk", status_code=status.HTTP_201_CREATED)
+async def mark_attendance_bulk(
+    lesson_id: int,
+    student_ids: List[int],
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+    """
+    Mark attendance for multiple students at once (Teacher or Admin)
+    
+    Args:
+        lesson_id: Lesson database ID
+        student_ids: List of student database IDs
+        db: Database session
+        current_user: Authenticated teacher/admin
+        
+    Returns:
+        Summary of marked attendance
+    """
+    # Verify lesson exists
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Lesson with ID {lesson_id} not found"
+        )
+    
+    marked = []
+    already_marked = []
+    not_found = []
+    
+    for student_id in student_ids:
+        # Check if student exists
+        student = db.query(Student).filter(Student.id == student_id).first()
+        if not student:
+            not_found.append(student_id)
+            continue
+        
+        # Check if attendance already marked
+        existing = db.query(Attendance).filter(
+            Attendance.student_id == student_id,
+            Attendance.lesson_id == lesson_id
+        ).first()
+        
+        if existing:
+            already_marked.append({
+                "student_id": student_id,
+                "name": student.name
+            })
+            continue
+        
+        # Create attendance record
+        new_attendance = Attendance(
+            student_id=student_id,
+            lesson_id=lesson_id,
+            recognition_confidence=None,
+            entry_method="manual_bulk",
+            notes=f"Bulk marked by {current_user.username}"
+        )
+        
+        db.add(new_attendance)
+        marked.append({
+            "student_id": student_id,
+            "name": student.name
+        })
+    
+    db.commit()
+    
+    return {
+        "lesson_id": lesson_id,
+        "marked_count": len(marked),
+        "marked": marked,
+        "already_marked_count": len(already_marked),
+        "already_marked": already_marked,
+        "not_found_count": len(not_found),
+        "not_found": not_found
+    }
+
+
 @router.post("/scan", response_model=AttendanceResponse)
 async def scan_face_attendance(
     lesson_id: int = Query(..., description="Lesson ID for attendance"),
