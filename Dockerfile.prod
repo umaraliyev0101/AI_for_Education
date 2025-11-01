@@ -132,11 +132,16 @@ RUN mkdir -p \
     sample_materials \
     && chown -R appuser:appuser /app
 
+# Make start.sh executable (as root)
+RUN chmod +x start.sh
+
 # Switch to non-root user
 USER appuser
 
-# Add local bin to PATH
-ENV PATH=/home/appuser/.local/bin:$PATH
+# Add local bin to PATH and set PYTHONPATH
+ENV PATH=/home/appuser/.local/bin:$PATH \
+    PYTHONPATH=/app:$PYTHONPATH \
+    PYTHONUNBUFFERED=1
 
 # Expose port
 EXPOSE 8001
@@ -145,9 +150,5 @@ EXPOSE 8001
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:8001/health')" || exit 1
 
-# Use production startup script
-USER root
-RUN chmod +x start.sh
-USER appuser
-
+# Run with startup script
 CMD ["./start.sh"]
