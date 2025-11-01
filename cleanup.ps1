@@ -29,6 +29,9 @@ $filesToRemove = @(
     "GHCR_QUICKSTART.md",
     "QUICKSTART.md",
     "SERVER_SETUP.md",
+    "SIMPLE_DEPLOY.md",
+    "CLEANUP_GUIDE.md",
+    "READY_TO_DEPLOY.md",
     
     # Documentation - Troubleshooting
     "ERROR_503_QUICKFIX.md",
@@ -44,6 +47,7 @@ $filesToRemove = @(
     # Scripts - Deployment
     "deploy-to-ghcr.ps1",
     "deploy-to-ghcr.sh",
+    "diagnose.sh",
     
     # Scripts - Testing
     "test_deployment.ps1",
@@ -52,33 +56,36 @@ $filesToRemove = @(
     
     # Scripts - Development
     "start.ps1",
+    "start.sh",
     
-    # Docker - Development
+    # Docker Files - ALL (friend will handle)
     "Dockerfile",
+    "Dockerfile.prod",
     "docker-compose.yml",
+    "docker-compose.prod.yml",
+    "docker-compose.watchtower.yml",
+    ".dockerignore",
+    "nginx.conf",
     
-    # Tests (optional - comment out if you want to keep)
+    # Tests
     "test_backend_setup.py",
     "test_qa_system.py",
     
     # Duplicates
     "main.py",
-    "backend_requirements.txt"
+    "backend_requirements.txt",
+    
+    # GitHub Actions (friend will handle CI/CD)
+    ".github/workflows/docker-build.yml"
 )
 
 # Files to keep (essential)
 $keepFiles = @(
-    "Dockerfile.prod",
-    "docker-compose.prod.yml",
-    "docker-compose.watchtower.yml",
-    "diagnose.sh",
-    "start.sh",
-    "nginx.conf",
     "requirements.txt",
     "pyproject.toml",
     "README.md",
-    ".dockerignore",
-    ".gitignore"
+    ".gitignore",
+    ".env.example"
 )
 
 Write-Host "🔍 Files to remove:" -ForegroundColor Yellow
