@@ -1,83 +1,64 @@
-# 🎓 AI in Education - Complete Education Management System
+# 🎓 AI Education Platform
 
-> **AI-powered education platform with Face Recognition Attendance, Speech-to-Text Q&A, Live Presentations, and Lesson Management for Uzbek schools**
+> AI-powered education platform with Face Recognition Attendance, Speech-to-Text Q&A, Live Presentations, and Lesson Management for Uzbek schools
 
-[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
-[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104+-green.svg)](https://fastapi.tiangolo.com/)
 
 ---
 
 ## 🌟 Features
 
-### 🎯 **Core Capabilities**
-
-- **👤 Face Recognition Attendance** - Automatic attendance using FaceNet
-- **🎤 Speech-to-Text Q&A** - Uzbek speech recognition with XLS-R model
-- **📊 Live Presentations** - WebSocket-based presentation delivery with TTS
-- **📚 Lesson Management** - Complete CRUD for lessons, students, and materials
-- **🔐 Role-Based Access Control** - Admin, Teacher, and Viewer roles
-- **📈 Real-time Analytics** - Attendance tracking and Q&A monitoring
-- **🗣️ Text-to-Speech** - Natural Uzbek speech synthesis
-- **🤖 AI-Powered Q&A** - RAG-based question answering with LLM
+- 👤 **Face Recognition Attendance** - Automatic attendance using FaceNet
+- 🎤 **Speech-to-Text Q&A** - Uzbek speech recognition with XLS-R model  
+- 📊 **Live Presentations** - WebSocket-based presentation delivery with TTS
+- 📚 **Lesson Management** - Complete CRUD for lessons, students, and materials
+- 🔐 **Role-Based Access Control** - Admin, Teacher, and Viewer roles
+- 🤖 **AI-Powered Q&A** - RAG-based question answering with LLM
 
 ---
 
-## 📋 Table of Contents
-
-- [Quick Start](#-quick-start)
-- [Project Structure](#-project-structure)
-- [Features Overview](#-features-overview)
-- [API Documentation](#-api-documentation)
-- [User Roles & Permissions](#-user-roles--permissions)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Usage Examples](#-usage-examples)
-- [Testing](#-testing)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
-
----
-
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
-- Python 3.8+
-- PostgreSQL or SQLite
+- Python 3.11+
 - Webcam (for face recognition)
-- CUDA-capable GPU (optional, for faster processing)
+- 8GB+ RAM recommended
 
-### Installation
+### Local Development
 
 ```bash
 # Clone repository
 git clone https://github.com/umaraliyev0101/AI_for_Education.git
-cd AI_in_Education
+cd AI_for_Education
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
 
+# Copy environment template
+cp .env.example .env
+# Edit .env and set SECRET_KEY
+
 # Initialize database
 python backend/init_db.py
 
-# Start backend server
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000
+# Start development server
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8001
 ```
 
 ### First Login
 
-```bash
-# Default admin credentials
-Username: admin
-Password: admin123
+Default admin credentials:
+- Username: `admin`
+- Password: `admin123`
 
-# Access API: http://localhost:8000
-# API Docs: http://localhost:8000/docs
-```
+Access:
+- API: http://localhost:8001
+- API Docs: http://localhost:8001/docs
 
 ---
 
@@ -331,45 +312,15 @@ VIEWER (Level 0)
 
 ## ⚙️ Configuration
 
-### Environment Variables
-
-Create `.env` file:
+Copy `.env.example` to `.env` and update:
 
 ```env
-# Database
+SECRET_KEY=your-secret-key-here-minimum-32-characters
 DATABASE_URL=sqlite:///./ai_education.db
-
-# Security
-SECRET_KEY=your-secret-key-here
-ACCESS_TOKEN_EXPIRE_DAYS=30
-
-# Application
-APP_NAME=AI Education System
-DEBUG=True
-
-# Directories
-UPLOAD_DIR=./uploads
-FACE_IMAGES_DIR=./uploads/faces
-MATERIALS_DIR=./uploads/materials
-PRESENTATIONS_DIR=./uploads/presentations
-AUDIO_DIR=./uploads/audio
-VECTOR_STORES_DIR=./vector_stores
-
-# CORS
-CORS_ORIGINS=["http://localhost:3000", "http://localhost:8000"]
+ALLOWED_ORIGINS=http://localhost:3000
 ```
 
-### Database Configuration
-
-**SQLite (Default - Development):**
-```python
-DATABASE_URL=sqlite:///./ai_education.db
-```
-
-**PostgreSQL (Production):**
-```python
-DATABASE_URL=postgresql://user:password@localhost/ai_education
-```
+See `.env.example` for all available options.
 
 ---
 
@@ -472,32 +423,13 @@ curl -X POST http://localhost:8000/api/lessons/ \
 
 ## 🧪 Testing
 
-### Run Tests
-
+Use the interactive API documentation:
 ```bash
-# Test backend setup
-python test_backend_setup.py
-
-# Test CUDA availability
-python test_cuda.py
-
-# Test Q&A system
-python test_qa_system.py
-
-# Test progress tracking
-python test_progress.py
-```
-
-### Manual Testing
-
-```bash
-# Start server in test mode
+# Start server
 uvicorn backend.main:app --reload
 
-# Access API docs
-# http://localhost:8000/docs
-
-# Test endpoints using Swagger UI
+# Open browser
+http://localhost:8001/docs
 ```
 
 ---
@@ -574,53 +506,13 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 ## 🔧 Development
 
-### Project Setup for Development
-
 ```bash
-# Clone with all branches
-git clone https://github.com/umaraliyev0101/AI_for_Education.git
-cd AI_in_Education
-
-# Install dev dependencies
+# Install dependencies
 pip install -r requirements.txt
-pip install pytest black flake8 mypy
 
-# Run code formatter
-black .
-
-# Run linter
-flake8 backend/
-
-# Run type checker
-mypy backend/
+# Run development server
+uvicorn backend.main:app --reload --port 8001
 ```
-
-### Adding New Features
-
-1. Create feature branch
-2. Add models in `backend/models/`
-3. Add schemas in `backend/schemas/`
-4. Add routes in `backend/routes/`
-5. Update `backend/main.py`
-6. Write tests
-7. Submit PR
-
----
-
-## 📈 Roadmap
-
-- [x] Face recognition attendance
-- [x] Speech-to-text Q&A
-- [x] Live presentations with TTS
-- [x] Role-based access control
-- [x] Real-time WebSocket updates
-- [ ] Mobile app (React Native)
-- [ ] Multi-language support (Russian, English)
-- [ ] Advanced analytics dashboard
-- [ ] Parent portal
-- [ ] Grade management
-- [ ] Homework submission
-- [ ] Video conferencing integration
 
 ---
 
@@ -667,18 +559,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 📞 Support
+## 📞 Contact
 
-For issues and questions:
-- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/umaraliyev0101/AI_for_Education/issues)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/umaraliyev0101/AI_for_Education/discussions)
-- 📧 **Email**: umaraliyev0101@gmail.com
-
----
-
-## ⭐ Star History
-
-If you find this project useful, please consider giving it a star! ⭐
+- GitHub: [@umaraliyev0101](https://github.com/umaraliyev0101)
+- Issues: [GitHub Issues](https://github.com/umaraliyev0101/AI_for_Education/issues)
 
 ---
 
