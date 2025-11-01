@@ -10,10 +10,11 @@ WebSocket endpoints for:
 """
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 import json
 import logging
-from datetime import datetime
+from datetime import datetime, date
+from decimal import Decimal
 
 from backend.database import get_db
 from backend.models.lesson import Lesson
@@ -35,6 +36,39 @@ class ConnectionManager:
         # {lesson_id: {connection_id: websocket}}
         self.active_connections: Dict[int, Dict[str, WebSocket]] = {}
         self.connection_counter = 0
+    
+    def _serialize_data(self, data: Any) -> Any:
+        """
+        Recursively convert non-JSON-serializable objects to JSON-compatible types
+        
+        Handles:
+        - datetime/date objects → ISO format strings
+        - Decimal objects → float
+        - SQLAlchemy models → dict (via __dict__)
+        - bytes → decode to string
+        """
+        if isinstance(data, dict):
+            return {key: self._serialize_data(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [self._serialize_data(item) for item in data]
+        elif isinstance(data, (datetime, date)):
+            return data.isoformat()  # Convert datetime/date to ISO string
+        elif isinstance(data, Decimal):
+            return float(data)  # Convert Decimal to float
+        elif isinstance(data, bytes):
+            try:
+                return data.decode('utf-8')  # Try to decode bytes
+            except:
+                return str(data)  # Fallback to string representation
+        elif hasattr(data, '__dict__') and not isinstance(data, type):
+            # Handle SQLAlchemy models and other objects with __dict__
+            obj_dict = {}
+            for key, value in data.__dict__.items():
+                if not key.startswith('_'):  # Skip private attributes like _sa_instance_state
+                    obj_dict[key] = self._serialize_data(value)
+            return obj_dict
+        else:
+            return data
     
     async def connect(self, websocket: WebSocket, lesson_id: int) -> str:
         """Connect a client to a lesson room"""
@@ -65,17 +99,22 @@ class ConnectionManager:
     async def send_personal_message(self, message: dict, websocket: WebSocket):
         """Send a message to a specific connection"""
         try:
-            await websocket.send_json(message)
+            # Serialize the message before sending to handle datetime objects
+            serialized_message = self._serialize_data(message)
+            await websocket.send_json(serialized_message)
         except Exception as e:
             logger.error(f"❌ Failed to send personal message: {e}")
     
     async def broadcast_to_lesson(self, lesson_id: int, message: dict):
         """Broadcast a message to all connections in a lesson room"""
         if lesson_id in self.active_connections:
+            # Serialize the message once before broadcasting
+            serialized_message = self._serialize_data(message)
+            
             disconnected = []
             for connection_id, websocket in self.active_connections[lesson_id].items():
                 try:
-                    await websocket.send_json(message)
+                    await websocket.send_json(serialized_message)
                 except Exception as e:
                     logger.error(f"❌ Failed to send to {connection_id}: {e}")
                     disconnected.append(connection_id)

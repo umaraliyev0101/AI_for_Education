@@ -2,7 +2,7 @@
 Attendance Management Routes
 Face recognition attendance tracking
 """
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -179,7 +179,7 @@ async def mark_attendance(
 
 @router.post("/scan", response_model=AttendanceResponse)
 async def scan_face_attendance(
-    lesson_id: int,
+    lesson_id: int = Query(..., description="Lesson ID for attendance"),
     face_image: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_teacher)
@@ -188,7 +188,7 @@ async def scan_face_attendance(
     Scan face for attendance (Face Recognition)
     
     Args:
-        lesson_id: Lesson database ID
+        lesson_id: Lesson database ID (query parameter)
         face_image: Face image from camera
         db: Database session
         current_user: Authenticated teacher/admin
@@ -210,8 +210,8 @@ async def scan_face_attendance(
             detail=f"Lesson with ID {lesson_id} not found"
         )
     
-    # Validate file type
-    if not face_image.content_type.startswith("image/"):
+    # Validate file type - add null check
+    if not face_image.content_type or not face_image.content_type.startswith("image/"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="File must be an image"

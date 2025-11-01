@@ -115,16 +115,16 @@ class PresentationService:
             # Initialize PowerPoint COM
             powerpoint = comtypes.client.CreateObject("Powerpoint.Application")
             
-            # ✅ FIX: For PowerPoint 2016+, we CAN'T hide the window completely
-            # But we can minimize it and disable alerts
-            powerpoint.Visible = 1  # Must be 1 for PowerPoint 2016+
-            powerpoint.DisplayAlerts = 0  # Disable alerts
-            powerpoint.WindowState = 2  # ppWindowMinimized
+            # ✅ FIX: Try to keep PowerPoint hidden as much as possible
+            # Note: PowerPoint 2016+ may still show briefly during export
+            powerpoint.Visible = 0  # Try to hide (may not work in all versions)
+            powerpoint.DisplayAlerts = 0  # Disable all alerts/dialogs
             
-            # Open presentation
+            # Open presentation without displaying window
             presentation = powerpoint.Presentations.Open(
                 abs_pptx_path,
                 ReadOnly=True,
+                Untitled=False,
                 WithWindow=False
             )
             
@@ -308,11 +308,11 @@ class PresentationService:
             'processed_at': str(asyncio.get_event_loop().time())
         }
         
-        # Save metadata to JSON
-        metadata_path = os.path.join(
-            self.audio_output_dir,
-            f"lesson_{lesson_id}_presentation_metadata.json"
-        )
+        # Save metadata to JSON inside lesson folder
+        lesson_audio_dir = os.path.join(self.audio_output_dir, f"lesson_{lesson_id}")
+        os.makedirs(lesson_audio_dir, exist_ok=True)
+        
+        metadata_path = os.path.join(lesson_audio_dir, "metadata.json")
         with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump(presentation_data, f, ensure_ascii=False, indent=2)
         
@@ -383,11 +383,11 @@ class PresentationService:
             'processed_at': str(asyncio.get_event_loop().time())
         }
         
-        # Save metadata to JSON
-        metadata_path = os.path.join(
-            self.audio_output_dir,
-            f"lesson_{lesson_id}_presentation_metadata.json"
-        )
+        # Save metadata to JSON inside lesson folder
+        lesson_audio_dir = os.path.join(self.audio_output_dir, f"lesson_{lesson_id}")
+        os.makedirs(lesson_audio_dir, exist_ok=True)
+        
+        metadata_path = os.path.join(lesson_audio_dir, "metadata.json")
         with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump(presentation_data, f, ensure_ascii=False, indent=2)
         
@@ -441,11 +441,11 @@ class PresentationService:
             'processed_at': str(asyncio.get_event_loop().time())
         }
         
-        # Save metadata to JSON
-        metadata_path = os.path.join(
-            self.audio_output_dir,
-            f"lesson_{lesson_id}_presentation_metadata.json"
-        )
+        # Save metadata to JSON inside lesson folder
+        lesson_audio_dir = os.path.join(self.audio_output_dir, f"lesson_{lesson_id}")
+        os.makedirs(lesson_audio_dir, exist_ok=True)
+        
+        metadata_path = os.path.join(lesson_audio_dir, "metadata.json")
         with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump(presentation_data, f, ensure_ascii=False, indent=2)
         
@@ -509,11 +509,11 @@ class PresentationService:
             'processed_at': str(asyncio.get_event_loop().time())
         }
         
-        # Save metadata to JSON
-        metadata_path = os.path.join(
-            self.audio_output_dir,
-            f"lesson_{lesson_id}_presentation_metadata.json"
-        )
+        # Save metadata to JSON inside lesson folder
+        lesson_audio_dir = os.path.join(self.audio_output_dir, f"lesson_{lesson_id}")
+        os.makedirs(lesson_audio_dir, exist_ok=True)
+        
+        metadata_path = os.path.join(lesson_audio_dir, "metadata.json")
         with open(metadata_path, 'w', encoding='utf-8') as f:
             json.dump(presentation_data, f, ensure_ascii=False, indent=2)
         
@@ -529,9 +529,13 @@ class PresentationService:
             return None
         
         try:
-            # Create audio file path
-            audio_filename = f"lesson_{lesson_id}_slide_{slide_number}.mp3"
-            audio_path = os.path.join(self.audio_output_dir, audio_filename)
+            # Create lesson-specific audio directory
+            lesson_audio_dir = os.path.join(self.audio_output_dir, f"lesson_{lesson_id}")
+            os.makedirs(lesson_audio_dir, exist_ok=True)
+            
+            # Create audio file path with simpler naming
+            audio_filename = f"slide_{slide_number}.mp3"
+            audio_path = os.path.join(lesson_audio_dir, audio_filename)
             
             # Generate speech (run in executor to avoid blocking)
             loop = asyncio.get_event_loop()
@@ -542,7 +546,8 @@ class PresentationService:
             
             if os.path.exists(audio_path):
                 logger.info(f"✅ Generated audio for slide {slide_number}")
-                return audio_path
+                # Return relative path with leading slash for frontend
+                return f"/uploads/audio/presentations/lesson_{lesson_id}/{audio_filename}"
             else:
                 logger.error(f"❌ Audio file not created for slide {slide_number}")
                 return None
@@ -560,10 +565,16 @@ class PresentationService:
     
     def load_presentation_metadata(self, lesson_id: int) -> Optional[Dict[str, Any]]:
         """Load previously processed presentation metadata"""
-        metadata_path = os.path.join(
-            self.audio_output_dir,
-            f"lesson_{lesson_id}_presentation_metadata.json"
-        )
+        # Try new location first (inside lesson folder)
+        lesson_audio_dir = os.path.join(self.audio_output_dir, f"lesson_{lesson_id}")
+        metadata_path = os.path.join(lesson_audio_dir, "metadata.json")
+        
+        # Fallback to old location for backward compatibility
+        if not os.path.exists(metadata_path):
+            metadata_path = os.path.join(
+                self.audio_output_dir,
+                f"lesson_{lesson_id}_presentation_metadata.json"
+            )
         
         if os.path.exists(metadata_path):
             try:

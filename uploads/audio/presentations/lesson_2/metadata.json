@@ -1,0 +1,42 @@
+{
+  "lesson_id": 2,
+  "total_slides": 5,
+  "slides": [
+    {
+      "slide_number": 1,
+      "text": "Application Software\na.pradeep@newuzbekistanuniversity.uz",
+      "audio_path": "/uploads/audio/presentations/lesson_2/slide_1.mp3",
+      "image_path": "/uploads/slides/lesson_2/slide_1.png",
+      "duration_estimate": 1.2
+    },
+    {
+      "slide_number": 2,
+      "text": "Lesson Overview\nUnderstanding Types of Application Software\nExamples and Use Cases of Application Software\nExploring the Software Lifecycle in Software Engineering\nComparing Development Processes: Waterfall and Incremental\nAnalysis, Design, Implementation, and Testing Phases\nEmphasising Quality and Approaches at Each Stage\na.pradeep@newuzbekistanuniversity.uz",
+      "audio_path": "/uploads/audio/presentations/lesson_2/slide_2.mp3",
+      "image_path": "/uploads/slides/lesson_2/slide_2.png",
+      "duration_estimate": 16.4
+    },
+    {
+      "slide_number": 3,
+      "text": "Application Software\nSomething that was not defined in the von Neumann model is software engineering, which is the design and writing of structured programs. \nToday it is not acceptable just to write a program that does a task: the program must follow strict rules and principles.\na.pradeep@newuzbekistanuniversity.uz",
+      "audio_path": "/uploads/audio/presentations/lesson_2/slide_3.mp3",
+      "image_path": "/uploads/slides/lesson_2/slide_3.png",
+      "duration_estimate": 18.8
+    },
+    {
+      "slide_number": 4,
+      "text": "Application Software\nApplication software consists of programs designed to make users more productive and/or assist with personal tasks\n\nTo make business activities more efficient\nTo assist with graphics and multimedia projects\nTo support home, personal, and educational tasks\nTo facilitate communications\na.pradeep@newuzbekistanuniversity.uz",
+      "audio_path": "/uploads/audio/presentations/lesson_2/slide_4.mp3",
+      "image_path": "/uploads/slides/lesson_2/slide_4.png",
+      "duration_estimate": 16.8
+    },
+    {
+      "slide_number": 5,
+      "text": "Types of Application Softwares\nName some applications that are used for         (2 min)\n\nBusiness\nGraphics and Multimedia\nHome/Personal/ Educational\nCommunication\na.pradeep@newuzbekistanuniversity.uz",
+      "audio_path": "/uploads/audio/presentations/lesson_2/slide_5.mp3",
+      "image_path": "/uploads/slides/lesson_2/slide_5.png",
+      "duration_estimate": 8.4
+    }
+  ],
+  "processed_at": "102596.8901563"
+}
