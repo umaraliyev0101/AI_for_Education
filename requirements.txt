@@ -21,7 +21,7 @@ edge-tts>=6.1.0
 pygame
 
 # NLP
-spacy
+# spacy
 
 # Face Recognition
 facenet-pytorch
