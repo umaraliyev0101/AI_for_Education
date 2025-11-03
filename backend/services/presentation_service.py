@@ -89,12 +89,17 @@ class PresentationService:
         lesson_slides_dir = os.path.join(self.slides_output_dir, f"lesson_{lesson_id}")
         os.makedirs(lesson_slides_dir, exist_ok=True)
         
-        # ✅ FIX: Check if images already exist
+        logger.info(f"🖼️  Slide directory: {os.path.abspath(lesson_slides_dir)}")
+        
+        # ✅ Check if images already exist
         existing_images = []
-        for file in os.listdir(lesson_slides_dir):
-            if file.startswith('slide_') and file.endswith('.png'):
-                rel_path = f"uploads/slides/lesson_{lesson_id}/{file}"
-                existing_images.append((int(file.split('_')[1].split('.')[0]), rel_path))
+        try:
+            for file in os.listdir(lesson_slides_dir):
+                if file.startswith('slide_') and file.endswith('.png'):
+                    rel_path = f"uploads/slides/lesson_{lesson_id}/{file}"
+                    existing_images.append((int(file.split('_')[1].split('.')[0]), rel_path))
+        except Exception as e:
+            logger.warning(f"⚠️  Error checking existing images: {e}")
         
         if existing_images:
             # Sort by slide number and return paths
@@ -105,22 +110,39 @@ class PresentationService:
         
         if not COMTYPES_AVAILABLE:
             logger.error("❌ comtypes not available for PPTX conversion")
+            logger.error("💡 Install comtypes: pip install comtypes")
+            logger.error("💡 Make sure Microsoft PowerPoint is installed on this system")
             return []
         
         try:
+            logger.info(f"🚀 Starting PowerPoint COM automation for {pptx_path}")
+            
             # Convert to absolute path
             abs_pptx_path = os.path.abspath(pptx_path)
             abs_output_dir = os.path.abspath(lesson_slides_dir)
             
+            logger.info(f"📂 Input: {abs_pptx_path}")
+            logger.info(f"📂 Output: {abs_output_dir}")
+            
+            # Verify input file exists
+            if not os.path.exists(abs_pptx_path):
+                logger.error(f"❌ Input file not found: {abs_pptx_path}")
+                return []
+            
             # Initialize PowerPoint COM
+            logger.info("🔌 Creating PowerPoint COM object...")
             powerpoint = comtypes.client.CreateObject("Powerpoint.Application")
             
-            # ✅ FIX: Try to keep PowerPoint hidden as much as possible
-            # Note: PowerPoint 2016+ may still show briefly during export
-            powerpoint.Visible = 0  # Try to hide (may not work in all versions)
-            powerpoint.DisplayAlerts = 0  # Disable all alerts/dialogs
+            # ✅ Configure PowerPoint for automation
+            # Note: PowerPoint 2016+ does NOT allow hiding via Visible=0
+            # The window will appear briefly during export - this is normal
+            try:
+                powerpoint.DisplayAlerts = 0  # Disable all alerts/dialogs (ppAlertsNone)
+            except Exception as e:
+                logger.warning(f"⚠️  Could not set DisplayAlerts: {e}")
             
-            # Open presentation without displaying window
+            logger.info("📖 Opening presentation...")
+            # Open presentation without displaying window (WithWindow=False)
             presentation = powerpoint.Presentations.Open(
                 abs_pptx_path,
                 ReadOnly=True,
@@ -128,30 +150,46 @@ class PresentationService:
                 WithWindow=False
             )
             
+            slide_count = presentation.Slides.Count
+            logger.info(f"📊 Found {slide_count} slides to export")
+            
             image_paths = []
             
             # Export each slide as PNG
-            for i in range(1, presentation.Slides.Count + 1):
+            for i in range(1, slide_count + 1):
                 image_filename = f"slide_{i}.png"
                 image_path = os.path.join(abs_output_dir, image_filename)
+                
+                logger.info(f"🖼️  Exporting slide {i}/{slide_count}...")
                 
                 # Export slide (2 = ppSaveAsPNG)
                 presentation.Slides(i).Export(image_path, "PNG")
                 
-                # Store relative path
-                rel_path = f"uploads/slides/lesson_{lesson_id}/{image_filename}"
-                image_paths.append(rel_path)
-                
-                logger.info(f"✅ Exported slide {i} to {image_filename}")
+                # Verify file was created
+                if os.path.exists(image_path):
+                    # Store relative path
+                    rel_path = f"uploads/slides/lesson_{lesson_id}/{image_filename}"
+                    image_paths.append(rel_path)
+                    logger.info(f"✅ Exported slide {i} to {image_filename} ({os.path.getsize(image_path)} bytes)")
+                else:
+                    logger.error(f"❌ Failed to export slide {i} - file not created")
             
             # Close presentation
+            logger.info("🔒 Closing presentation...")
             presentation.Close()
+            
+            logger.info("🔌 Quitting PowerPoint...")
             powerpoint.Quit()
             
+            logger.info(f"✅ Successfully exported {len(image_paths)} slides")
             return image_paths
             
         except Exception as e:
             logger.error(f"❌ Failed to convert PPTX to images: {e}")
+            logger.error(f"❌ Error type: {type(e).__name__}")
+            logger.error(f"❌ Error details: {str(e)}")
+            import traceback
+            logger.error(f"❌ Traceback:\n{traceback.format_exc()}")
             return []
     
     def _convert_pdf_to_images(self, pdf_path: str, lesson_id: int) -> List[str]:
@@ -537,11 +575,12 @@ class PresentationService:
             audio_filename = f"slide_{slide_number}.mp3"
             audio_path = os.path.join(lesson_audio_dir, audio_filename)
             
-            # Generate speech (run in executor to avoid blocking)
+            # Generate speech WITHOUT playing (run in executor to avoid blocking)
+            # play_audio=False prevents the audio from playing during batch processing
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(
                 None,
-                lambda: self.tts.speak_text(text, save_to_file=audio_path)
+                lambda: self.tts.speak_text(text, save_to_file=audio_path, play_audio=False)
             )
             
             if os.path.exists(audio_path):

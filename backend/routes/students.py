@@ -38,38 +38,12 @@ async def list_students(
     Returns:
         List of students
     """
-    query = db.query(Student).order_by(Student.name)
+    query = db.query(Student)
     
     if is_active is not None:
         query = query.filter(Student.is_active == is_active)
     
     students = query.offset(skip).limit(limit).all()
-    return students
-
-
-@router.get("/all", response_model=List[StudentResponse])
-async def get_all_students(
-    is_active: Optional[bool] = True,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    """
-    Get all students without pagination (for dropdowns, attendance lists, etc.)
-    
-    Args:
-        is_active: Filter by active status (default: True)
-        db: Database session
-        current_user: Authenticated user
-        
-    Returns:
-        List of all students
-    """
-    query = db.query(Student).order_by(Student.name)
-    
-    if is_active is not None:
-        query = query.filter(Student.is_active == is_active)
-    
-    students = query.all()
     return students
 
 

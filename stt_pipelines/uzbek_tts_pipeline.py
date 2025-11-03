@@ -46,7 +46,7 @@ class UzbekTTSPipeline:
         "male_clear": "uz-UZ-SardorNeural",    # Clear male voice
     }
 
-    def __init__(self, voice: str = "female_clear", rate: str = "+0%", volume: str = "+0%"):
+    def __init__(self, voice: str = "male_clear", rate: str = "+0%", volume: str = "+0%"):
         """
         Initialize Uzbek TTS Pipeline.
 
@@ -58,7 +58,7 @@ class UzbekTTSPipeline:
         if not EDGE_TTS_AVAILABLE:
             raise ImportError("edge-tts is required. Install with: pip install edge-tts")
 
-        self.voice = self.UZBEK_VOICES.get(voice, self.UZBEK_VOICES["female_clear"])
+        self.voice = self.UZBEK_VOICES.get(voice, self.UZBEK_VOICES["male_clear"])
         self.rate = rate
         self.volume = volume
         self.communicate = None
@@ -119,13 +119,14 @@ class UzbekTTSPipeline:
             print(f"❌ TTS generation failed: {e}")
             return b""
 
-    def speak_text(self, text: str, save_to_file: Optional[str] = None) -> bool:
+    def speak_text(self, text: str, save_to_file: Optional[str] = None, play_audio: bool = False) -> bool:
         """
-        Convert text to speech and play it.
+        Convert text to speech and optionally play it.
 
         Args:
             text: Text to speak
             save_to_file: Optional path to save audio file
+            play_audio: Whether to play the audio (default: True). Set to False when batch processing.
 
         Returns:
             True if successful, False otherwise
@@ -144,9 +145,17 @@ class UzbekTTSPipeline:
                 with open(save_to_file, 'wb') as f:
                     f.write(audio_data)
                 print(f"💾 Audio saved to: {save_to_file}")
+                
+                # If saving to file, don't play audio (for batch processing)
+                # This prevents delays when processing presentations
+                if not play_audio:
+                    return True
 
-            # Play audio
-            return self._play_audio(audio_data)
+            # Play audio only if requested
+            if play_audio:
+                return self._play_audio(audio_data)
+            
+            return True
 
         except Exception as e:
             print(f"❌ Speech generation failed: {e}")
@@ -259,7 +268,7 @@ class UzbekTTSPipeline:
         return self.speak_text(test_text)
 
 
-def create_uzbek_tts(voice: str = "female_clear") -> UzbekTTSPipeline:
+def create_uzbek_tts(voice: str = "male_clear") -> UzbekTTSPipeline:
     """
     Create and initialize Uzbek TTS pipeline.
 
