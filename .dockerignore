@@ -7,6 +7,7 @@ __pycache__/
 *.egg-info/
 dist/
 build/
+<<<<<<< HEAD
 *.egg
 .pytest_cache/
 .coverage
@@ -18,21 +19,56 @@ ENV/
 env/
 
 # IDEs
+=======
+.pytest_cache/
+.coverage
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+>>>>>>> 9d3194643313e828d1a935b9119966e8df07bda4
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+<<<<<<< HEAD
 .DS_Store
+=======
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+
+# Database (will be created in container)
+*.db
+*.db-shm
+*.db-wal
+
+# Uploads (will be mounted as volume)
+uploads/
+vector_stores/
+>>>>>>> 9d3194643313e828d1a935b9119966e8df07bda4
 
 # Git
 .git/
 .gitignore
+<<<<<<< HEAD
 .gitattributes
+=======
+>>>>>>> 9d3194643313e828d1a935b9119966e8df07bda4
 
 # Documentation
 *.md
 docs/
+<<<<<<< HEAD
 !README.md
 
 # Test files
@@ -90,3 +126,9 @@ yarn-error.log
 # Cache
 .cache/
 *.cache
+=======
+
+# Model cache
+.cache/
+huggingface/
+>>>>>>> 9d3194643313e828d1a935b9119966e8df07bda4

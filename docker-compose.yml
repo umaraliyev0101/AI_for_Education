@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+<<<<<<< HEAD
   # Main application service
   app:
     build:
@@ -64,3 +65,42 @@ services:
 networks:
   default:
     name: ai_education_network
+=======
+  ai-education:
+    build: .
+    container_name: ai_education_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production-minimum-32-chars}
+      - DEBUG=${DEBUG:-False}
+      - DATABASE_URL=sqlite:///./ai_education.db
+      - ALLOWED_ORIGINS=*
+    volumes:
+      # Persist database
+      - ./ai_education.db:/app/ai_education.db
+      # Persist uploads
+      - ./uploads:/app/uploads
+      # Persist vector stores
+      - ./vector_stores:/app/vector_stores
+      # Model cache (to avoid re-downloading models)
+      - huggingface_cache:/root/.cache/huggingface
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+volumes:
+  huggingface_cache:
+    driver: local
+>>>>>>> 9d3194643313e828d1a935b9119966e8df07bda4
