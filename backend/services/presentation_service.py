@@ -73,7 +73,7 @@ class PresentationService:
         self.tts = None
         if TTS_AVAILABLE:
             try:
-                self.tts = create_uzbek_tts(voice="female_clear")
+                self.tts = create_uzbek_tts(voice="male_clear")
                 logger.info("✅ TTS initialized for presentations")
             except Exception as e:
                 logger.error(f"❌ Failed to initialize TTS: {e}")

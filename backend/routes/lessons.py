@@ -156,7 +156,16 @@ async def delete_lesson(
     current_user: User = Depends(require_teacher)
 ):
     """
-    Delete a lesson (Teacher or Admin)
+    Delete a lesson and all related materials (Teacher or Admin)
+    
+    Deletes:
+    - Lesson database record
+    - Uploaded presentation file
+    - Uploaded materials file
+    - Generated slide images
+    - Generated audio files
+    - Vector store files
+    - Presentation metadata
     
     Args:
         lesson_id: Lesson database ID
@@ -166,6 +175,8 @@ async def delete_lesson(
     Returns:
         No content
     """
+    import shutil
+    
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
     
     if not lesson:
@@ -174,6 +185,52 @@ async def delete_lesson(
             detail=f"Lesson with ID {lesson_id} not found"
         )
     
+    # Get file paths as strings
+    presentation_path = str(lesson.presentation_path) if lesson.presentation_path else None
+    materials_path = str(lesson.materials_path) if lesson.materials_path else None
+    vector_store_path = str(lesson.vector_store_path) if lesson.vector_store_path else None
+    
+    # Clean up presentation file
+    if presentation_path and os.path.exists(presentation_path):
+        try:
+            os.remove(presentation_path)
+        except Exception as e:
+            print(f"Warning: Failed to delete presentation file: {e}")
+    
+    # Clean up materials file
+    if materials_path and os.path.exists(materials_path):
+        try:
+            os.remove(materials_path)
+        except Exception as e:
+            print(f"Warning: Failed to delete materials file: {e}")
+    
+    # Clean up vector store directory
+    if vector_store_path and os.path.exists(vector_store_path):
+        try:
+            # Remove the entire vector store directory
+            vector_store_dir = os.path.dirname(vector_store_path)
+            if os.path.exists(vector_store_dir):
+                shutil.rmtree(vector_store_dir)
+        except Exception as e:
+            print(f"Warning: Failed to delete vector store: {e}")
+    
+    # Clean up slide images (./uploads/slides/lesson_{lesson_id}/)
+    slides_dir = os.path.join("./uploads/slides", f"lesson_{lesson_id}")
+    if os.path.exists(slides_dir):
+        try:
+            shutil.rmtree(slides_dir)
+        except Exception as e:
+            print(f"Warning: Failed to delete slides directory: {e}")
+    
+    # Clean up audio files (./uploads/audio/presentations/lesson_{lesson_id}/)
+    audio_dir = os.path.join("./uploads/audio/presentations", f"lesson_{lesson_id}")
+    if os.path.exists(audio_dir):
+        try:
+            shutil.rmtree(audio_dir)
+        except Exception as e:
+            print(f"Warning: Failed to delete audio directory: {e}")
+    
+    # Delete the lesson from database (cascade will delete related records)
     db.delete(lesson)
     db.commit()
     
@@ -457,20 +514,23 @@ async def process_presentation_endpoint(
     presentation_service = PresentationService()
     
     try:
+        # Define async progress callback
+        async def send_progress(current: int, total: int, slide_text: str):
+            await manager.broadcast_to_lesson(lesson_id, {
+                "type": "presentation_processing_progress",
+                "lesson_id": lesson_id,
+                "current_slide": current,
+                "total_slides": total,
+                "slide_text": slide_text[:50] + "..." if len(slide_text) > 50 else slide_text,
+                "progress_percent": int((current / total) * 100),
+                "timestamp": datetime.now().isoformat()
+            })
+        
         # Process with progress callback
         presentation_data = await presentation_service.process_presentation_with_progress(
             presentation_path,
             lesson_id,
-            progress_callback=lambda current, total, slide_text: 
-                manager.broadcast_to_lesson(lesson_id, {
-                    "type": "presentation_processing_progress",
-                    "lesson_id": lesson_id,
-                    "current_slide": current,
-                    "total_slides": total,
-                    "slide_text": slide_text[:50] + "..." if len(slide_text) > 50 else slide_text,
-                    "progress_percent": int((current / total) * 100),
-                    "timestamp": datetime.now().isoformat()
-                })
+            progress_callback=send_progress
         )
         
         if not presentation_data:

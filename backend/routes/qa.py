@@ -214,7 +214,7 @@ async def create_qa_session(
                         if generate_audio and answer:
                             try:
                                 from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
-                                tts = create_uzbek_tts(voice="female_clear")
+                                tts = create_uzbek_tts(voice="male_clear")
                                 
                                 audio_filename = f"qa_{new_qa.lesson_id}_answer_{hash(answer[:50])}.mp3"
                                 audio_path = os.path.join(settings.AUDIO_DIR, audio_filename)

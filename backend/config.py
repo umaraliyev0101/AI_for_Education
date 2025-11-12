@@ -36,7 +36,7 @@ class Settings(BaseSettings):
     # AI Models
     STT_MODEL: str = "lucio/xls-r-uzbek-cv8"
     EMBEDDING_MODEL: str = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-    TTS_VOICE: str = "uz-UZ-MadinaNeural"
+    TTS_VOICE: str = "uz-UZ-SardorNeural"
     
     # Processing
     MAX_UPLOAD_SIZE: int = 50 * 1024 * 1024  # 50MB
