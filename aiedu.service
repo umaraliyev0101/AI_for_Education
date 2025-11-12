@@ -1,0 +1,115 @@
+# ============================================================================
+# Systemd Service Configuration for AI Education Platform
+# ============================================================================
+# Place this file in: /etc/systemd/system/aiedu.service
+# 
+# Enable: sudo systemctl enable aiedu
+# Start: sudo systemctl start aiedu
+# Status: sudo systemctl status aiedu
+# Logs: sudo journalctl -u aiedu -f
+
+[Unit]
+Description=AI Education Platform - FastAPI Backend
+Documentation=https://github.com/umaraliyev0101/AI_for_Education
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=notify
+
+# User and group
+User=aiedu
+Group=aiedu
+
+# Working directory
+WorkingDirectory=/home/aiedu/AI_for_Education
+
+# Environment
+Environment="PATH=/home/aiedu/AI_for_Education/venv/bin:/usr/local/bin:/usr/bin:/bin"
+Environment="PYTHONPATH=/home/aiedu/AI_for_Education"
+Environment="PYTHONUNBUFFERED=1"
+
+# Read additional environment variables from file
+EnvironmentFile=-/home/aiedu/AI_for_Education/.env
+
+# Main process
+ExecStart=/home/aiedu/AI_for_Education/venv/bin/gunicorn \
+    backend.main:app \
+    --workers 4 \
+    --worker-class uvicorn.workers.UvicornWorker \
+    --bind 0.0.0.0:8001 \
+    --timeout 300 \
+    --keepalive 5 \
+    --max-requests 1000 \
+    --max-requests-jitter 50 \
+    --access-logfile /home/aiedu/AI_for_Education/logs/access.log \
+    --error-logfile /home/aiedu/AI_for_Education/logs/error.log \
+    --log-level info \
+    --capture-output \
+    --enable-stdio-inheritance
+
+# Restart policy
+Restart=always
+RestartSec=3
+StartLimitBurst=5
+StartLimitInterval=60
+
+# Security
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/home/aiedu/AI_for_Education/uploads
+ReadWritePaths=/home/aiedu/AI_for_Education/vector_stores
+ReadWritePaths=/home/aiedu/AI_for_Education/logs
+ReadWritePaths=/home/aiedu/AI_for_Education/ai_education.db
+
+# Resource limits
+LimitNOFILE=65535
+LimitNPROC=4096
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=aiedu
+
+# Process management
+KillMode=mixed
+KillSignal=SIGTERM
+TimeoutStopSec=30
+
+[Install]
+WantedBy=multi-user.target
+
+# ============================================================================
+# NOTES:
+# ============================================================================
+#
+# 1. Adjust the number of workers based on your CPU:
+#    workers = (2 × CPU cores) + 1
+#    For 2 cores: --workers 5
+#    For 4 cores: --workers 9
+#
+# 2. Adjust timeout for long-running AI operations:
+#    --timeout 300 (5 minutes)
+#
+# 3. Max requests helps prevent memory leaks:
+#    --max-requests 1000
+#
+# 4. Resource limits can be adjusted based on your server:
+#    LimitNOFILE=65535 (max open files)
+#    LimitNPROC=4096 (max processes)
+#
+# 5. After creating/modifying this file:
+#    sudo systemctl daemon-reload
+#    sudo systemctl enable aiedu
+#    sudo systemctl start aiedu
+#    sudo systemctl status aiedu
+#
+# 6. View logs:
+#    sudo journalctl -u aiedu -f
+#    tail -f /home/aiedu/AI_for_Education/logs/error.log
+#
+# 7. Restart after code changes:
+#    sudo systemctl restart aiedu
+#

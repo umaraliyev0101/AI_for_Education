@@ -12,9 +12,7 @@ import logging
 # Document processing libraries
 import PyPDF2
 from pptx import Presentation
-from docx import Document
-
-logging.basicConfig(level=logging.INFO)
+from docx import logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 

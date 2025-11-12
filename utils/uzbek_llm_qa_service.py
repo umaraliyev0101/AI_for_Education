@@ -410,14 +410,7 @@ Javob:"""
             print(f"[LLM] Generating general knowledge answer for: '{question[:50]}...'")
             print(f"[LLM] Starting inference with {self.model_name} on {self.device}...")
 
-            # First, try some basic pattern matching for common questions
-            # answer = self._try_basic_fallbacks(question)
-            # if answer:
-            #     return answer
-
             if "flan-t5" in self.model_name.lower():
-                # Use better T5 prompts for general knowledge
-                # Try multiple prompt formats to see which works better
                 prompts = [
                     f"Please answer this question: {question}",
                     f"Question: {question} Answer:",
@@ -444,7 +437,6 @@ Javob:"""
                         
                         answer = outputs[0]['generated_text'].strip()
                         
-                        # Check if the answer is not just repeating the question or repetitive/irrelevant
                         if (answer and 
                             not self._is_repeating_question(question, answer) and 
                             not self._is_repetitive_text(answer) and
@@ -457,12 +449,10 @@ Javob:"""
                         print(f"[LLM] T5 prompt failed: {e}")
                         continue
                 
-                # If all prompts fail or generate repetitive text, return a generic response
                 total_time = time.time() - start_time
                 print(f"[LLM] All T5 prompts failed, total time: {total_time:.1f}s")
                 return "Kechirasiz, bu savolga umumiy bilimim yetarli emas. Dars materiallariga oid savollar bering."
             else:
-                # Use Llama/GPT-style prompt for general knowledge
                 prompt = f"""Siz o'zbek tilidagi savollarga javob beruvchi yordamchi assistentsiz.
 Savolga aniq va foydali javob bering.
 
@@ -527,95 +517,6 @@ Javob:"""
             print(f"[LLM] ERROR after {total_time:.1f}s: {e}")
             logger.error(f"❌ Failed to generate general knowledge answer: {e}")
             return "Kechirasiz, javob generatsiya qilishda xatolik yuz berdi."
-
-    # def _try_basic_fallbacks(self, question: str) -> str:
-    #     """
-    #     Try basic fallback responses for common question types.
-        
-    #     Args:
-    #         question: User's question
-            
-    #     Returns:
-    #         Answer string if fallback found, empty string otherwise
-    #     """
-    #     question_lower = question.lower()
-        
-    #     # Basic country information - Uzbekistan
-    #     if "o'zbekiston" in question_lower or "ozbekiston" in question_lower:
-    #         if any(word in question_lower for word in ["prezident", "prezidenti", "kim"]):
-    #             return "O'zbekiston Respublikasining prezidenti Shavkat Mirziyoyev."
-            
-    #         if any(word in question_lower for word in ["poytaxt", "poytaxti"]):
-    #             return "O'zbekiston poytaxti - Toshkent shahri."
-                
-    #         if any(word in question_lower for word in ["aholi", "populyatsiya", "aholisi"]):
-    #             return "O'zbekiston aholisi taxminan 35 million kishi."
-                
-    #         # Geography - Area
-    #         if any(word in question_lower for word in ["maydon", "hudud", "hududi", "yer", "qancha", "necha"]):
-    #             return "O'zbekiston maydoni 448,978 kvadrat kilometr."
-                
-    #         if any(word in question_lower for word in ["qo'shni", "chegaradosh", "qo'shnilari"]):
-    #             return "O'zbekiston qo'shni davlatlari: Qozog'iston, Qirg'iziston, Tojikiston, Turkmaniston va Afg'oniston."
-            
-    #     # Basic animal information
-    #     if "fil" in question_lower and any(word in question_lower for word in ["og'irlik", "vazn", "qancha", "necha"]):
-    #         return "Afrika fili og'irligi 4,000-7,000 kg, Osiyo fili esa 2,000-5,000 kg bo'lishi mumkin."
-            
-    #     if "sher" in question_lower and any(word in question_lower for word in ["og'irlik", "vazn", "qancha", "necha"]):
-    #         return "Erkak sher og'irligi 150-250 kg, urg'ochi sher esa 120-180 kg bo'ladi."
-            
-    #     # Basic math constants
-    #     if "pi" in question_lower or "п" in question_lower:
-    #         return "Pi (π) soni taxminan 3.14159 ga teng. Bu doira uzunligini diametriga nisbati."
-            
-    #     # Time/date questions
-    #     if any(word in question_lower for word in ["yil", "yili"]) and any(word in question_lower for word in ["hozir", "bugun", "jori"]):
-    #         from datetime import datetime
-    #         current_year = datetime.now().year
-    #         return f"Hozir {current_year}-yil."
-            
-    #     # Basic science/math questions
-    #     if "yer" in question_lower and any(word in question_lower for word in ["quyosh", "kun"]) and any(word in question_lower for word in ["masofa", "uzoq", "qancha"]):
-    #         return "Yer Quyoshdan o'rtacha masofasi 149.6 million kilometr."
-            
-    #     if "yer" in question_lower and any(word in question_lower for word in ["aylan", "davr", "qancha"]):
-    #         return "Yer Quyosh atrofida bir marta aylanishi uchun 365 kun 6 soat kerak bo'ladi."
-            
-    #     # Basic math questions
-    #     if any(word in question_lower for word in ["kun", "soat"]) and any(word in question_lower for word in ["necha", "qancha"]):
-    #         return "Bir kunda 24 soat bor."
-            
-    #     if any(word in question_lower for word in ["hafta", "haftada"]) and any(word in question_lower for word in ["kun", "necha"]):
-    #         return "Bir haftada 7 kun bor."
-            
-    #     if any(word in question_lower for word in ["yil", "yilda"]) and any(word in question_lower for word in ["oy", "necha"]):
-    #         return "Bir yilda 12 oy bor."
-            
-    #     # Simple multiplication
-    #     if "yetti" in question_lower and "sakkiz" in question_lower and any(word in question_lower for word in ["necha", "teng", "qancha"]):
-    #         return "7 karra 8 ga 56 ga teng."
-            
-    #     if "olti" in question_lower and "to'qqiz" in question_lower and any(word in question_lower for word in ["necha", "teng", "qancha"]):
-    #         return "6 karra 9 ga 54 ga teng."
-            
-    #     # Common animals
-    #     if any(word in question_lower for word in ["orgimchak", "o'rgimchak"]) and any(word in question_lower for word in ["oyoq", "necha", "qancha"]):
-    #         return "O'rgimchaklarning 8 ta oyoqlari bor."
-            
-    #     if any(word in question_lower for word in ["qurt", "chervyak"]) and any(word in question_lower for word in ["oyoq", "necha"]):
-    #         return "Qurtlarning oyoqlari yo'q, ular sudralib harakat qiladi."
-            
-    #     # Basic subjects
-    #     if "algebr" in question_lower and any(word in question_lower for word in ["nima", "nimani"]):
-    #         return "Algebra - bu matematikaning bir bo'limi bo'lib, harflar va raqamlardan foydalangan holda ifodalarni hal qilishni o'rganadi."
-            
-    #     if "geometriya" in question_lower and any(word in question_lower for word in ["nima", "nimani"]):
-    #         return "Geometriya - bu matematikaning shakllar, o'lchamlar va ularning xossalari haqidagi fan."
-            
-    #     # Basic science
-    #     if "fotosintez" in question_lower and any(word in question_lower for word in ["nima", "qanday"]):
-    #         return "Fotosintez - bu o'simliklar quyosh nuri yordamida uglerod dioksid va suvdan oziq modda (glyukoza) va kislorod ishlab chiqarish jarayoni."
 
     def _is_repeating_question(self, question: str, answer: str) -> bool:
         """
@@ -954,28 +855,4 @@ def create_uzbek_llm_qa_service(
     )
 
 
-if __name__ == "__main__":
-    # Example usage
-    print("=" * 70)
-    print("🤖 Uzbek LLM QA Service")
-    print("=" * 70)
-    
-    # Show current configuration
-    try:
-        from backend.llm_config import print_config
-        print_config()
-    except ImportError:
-        print("⚠️  backend/llm_config.py not found, using defaults")
 
-    # Test model loading
-    print("\n🔄 Initializing service...")
-    try:
-        service = create_uzbek_llm_qa_service()
-        info = service.get_model_info()
-        print(f"✅ Service initialized successfully!")
-        print(f"   Model: {info['llm_model']}")
-        print(f"   Device: {info['device']}")
-        print(f"   Embedding: {info['embedding_model']}")
-    except Exception as e:
-        print(f"❌ Service initialization failed: {e}")
-        print("💡 Tip: Check if all dependencies are installed (pip install -r requirements.txt)")
