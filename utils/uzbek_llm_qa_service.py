@@ -68,10 +68,9 @@ class UzbekLLMQAService:
                 logger.info(f"Loaded model configuration from llm_config.py")
             except ImportError:
                 # Fallback to default if config not found
-                # model_name = model_name or "behbudiy/Llama-3.1-8B-Instruct-Uz"
-                model_name = model_name or "google/flan-t5-xl"
+                model_name = model_name or "behbudiy/Llama-3.1-8B-Instruct-Uz"
                 embedding_model = embedding_model or "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
-                logger.warning("llm_config.py not found, using default models")
+                logger.warning("llm_config.py not found, using fallback: Llama-3.1-8B-Instruct-Uz")
         
         self.model_name = model_name
         self.embedding_model_name = embedding_model

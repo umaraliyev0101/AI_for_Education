@@ -24,11 +24,10 @@ Easy switching between different models for testing and production.
 # ~3GB download, highest quality
 # CURRENT_LLM_MODEL = "google/flan-t5-xl"
 
-# 🚀 OPTION 4: Production Model (Uzbek Language)  ACTIVE
+# 🚀 OPTION 4: Production Model (Uzbek Language) ✅ ACTIVE
 # ~16GB download, requires GPU with 8GB+ VRAM
 # Best for Uzbek language understanding
-# CURRENT_LLM_MODEL = "behbudiy/Llama-3.1-8B-Instruct-Uz"
-CURRENT_LLM_MODEL = "google/flan-t5-xl"
+CURRENT_LLM_MODEL = "behbudiy/Llama-3.1-8B-Instruct-Uz"
 
 # 🚀 OPTION 5: General Purpose (Good multilingual support)
 # ~13GB download, requires GPU
@@ -118,7 +117,7 @@ MODEL_COMPARISON = """
 
 RECOMMENDATION:
   👉 For Testing/Development: Use flan-t5-base
-  👉 For Production (Uzbek): Use Llama-3.1-8B-Instruct-Uz with GPU (CURRENT ✅)
+  👉 For Production (Uzbek): Use Llama-3.1-8B-Instruct-Uz with GPU ✅ ACTIVE
   👉 For Production (General): Use flan-t5-xl or Llama-2-7b-chat
 """
 
