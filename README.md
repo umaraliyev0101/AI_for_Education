@@ -18,14 +18,14 @@
 
 ---
 
-##  Quick Start
+## ⚡ Quick Start
 
 ### Prerequisites
 - Python 3.11+
 - Webcam (for face recognition)
 - 8GB+ RAM recommended
 
-### Local Development
+### Installation & Setup
 
 ```bash
 # Clone repository
@@ -34,20 +34,35 @@ cd AI_for_Education
 
 # Create virtual environment
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# Activate virtual environment
+# Windows PowerShell:
+venv\Scripts\Activate.ps1
+# Windows CMD:
+venv\Scripts\activate.bat
+# Linux/Mac:
+source venv/bin/activate
 
 # Install dependencies
 pip install -r requirements.txt
 
-# Copy environment template
+# Copy environment template and configure
 cp .env.example .env
-# Edit .env and set SECRET_KEY
+# Edit .env and set SECRET_KEY (minimum 32 characters)
 
 # Initialize database
-python backend/init_db.py
+python -m backend.init_db
 
-# Start development server
+# Start production server
+uvicorn backend.main:app --host 0.0.0.0 --port 8001
+# Or for development with auto-reload:
 uvicorn backend.main:app --reload --host 0.0.0.0 --port 8001
+```
+
+### Alternative: Using start script (Linux/Mac)
+```bash
+chmod +x start.sh
+./start.sh
 ```
 
 ### First Login
@@ -56,9 +71,12 @@ Default admin credentials:
 - Username: `admin`
 - Password: `admin123`
 
-Access:
-- API: http://localhost:8001
-- API Docs: http://localhost:8001/docs
+⚠️ **Important:** Change the default password immediately in production!
+
+### Access Points
+- **API**: http://localhost:8001
+- **API Documentation**: http://localhost:8001/docs
+- **Health Check**: http://localhost:8001/health
 
 
 ---
@@ -199,7 +217,7 @@ AI_in_Education/
 
 ### Base URL
 ```
-http://localhost:8000
+http://localhost:8001
 ```
 
 ### Authentication
@@ -313,13 +331,33 @@ VIEWER (Level 0)
 
 ## ⚙️ Configuration
 
-Copy `.env.example` to `.env` and update:
+### Environment Variables
+
+Copy `.env.example` to `.env` and configure:
 
 ```env
+# Required
 SECRET_KEY=your-secret-key-here-minimum-32-characters
+
+# Database
 DATABASE_URL=sqlite:///./ai_education.db
-ALLOWED_ORIGINS=http://localhost:3000
+
+# Server
+HOST=0.0.0.0
+PORT=8001
+
+# CORS
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8001
+
+# Optional: External Services
+OPENAI_API_KEY=your-openai-key
 ```
+
+**Important:**
+- Generate a secure `SECRET_KEY` (32+ characters)
+- For production, use PostgreSQL instead of SQLite
+- Configure `ALLOWED_ORIGINS` for your frontend URL
+- Add `OPENAI_API_KEY` if using OpenAI models for Q&A
 
 See `.env.example` for all available options.
 
@@ -334,8 +372,8 @@ import requests
 
 # Login
 response = requests.post(
-    "http://localhost:8000/api/auth/login",
-    data={"username": "teacher", "password": "teacher123"}
+    "http://localhost:8001/api/auth/login",
+    data={"username": "admin", "password": "admin123"}
 )
 token = response.json()["access_token"]
 
@@ -350,7 +388,7 @@ student_data = {
     "is_active": True
 }
 response = requests.post(
-    "http://localhost:8000/api/students/",
+    "http://localhost:8001/api/students/",
     json=student_data,
     headers=headers
 )
@@ -364,7 +402,7 @@ lesson_data = {
     "subject": "Mathematics"
 }
 response = requests.post(
-    "http://localhost:8000/api/lessons/",
+    "http://localhost:8001/api/lessons/",
     json=lesson_data,
     headers=headers
 )
@@ -374,14 +412,14 @@ lesson_id = response.json()["id"]
 with open("presentation.pptx", "rb") as f:
     files = {"file": f}
     response = requests.post(
-        f"http://localhost:8000/api/lessons/{lesson_id}/presentation",
+        f"http://localhost:8001/api/lessons/{lesson_id}/presentation",
         files=files,
         headers=headers
     )
 
 # Start lesson
 response = requests.post(
-    f"http://localhost:8000/api/lessons/{lesson_id}/start",
+    f"http://localhost:8001/api/lessons/{lesson_id}/start",
     headers=headers
 )
 
@@ -391,7 +429,7 @@ question_data = {
     "question_text": "What is algebra?"
 }
 response = requests.post(
-    "http://localhost:8000/api/qa/",
+    "http://localhost:8001/api/qa/",
     json=question_data,
     headers=headers
 )
@@ -401,16 +439,16 @@ response = requests.post(
 
 ```bash
 # Login
-curl -X POST http://localhost:8000/api/auth/login \
-  -F "username=teacher" \
-  -F "password=teacher123"
+curl -X POST http://localhost:8001/api/auth/login \
+  -F "username=admin" \
+  -F "password=admin123"
 
 # Get students
-curl -X GET http://localhost:8000/api/students/ \
+curl -X GET http://localhost:8001/api/students/ \
   -H "Authorization: Bearer <your_token>"
 
 # Create lesson
-curl -X POST http://localhost:8000/api/lessons/ \
+curl -X POST http://localhost:8001/api/lessons/ \
   -H "Authorization: Bearer <your_token>" \
   -H "Content-Type: application/json" \
   -d '{
@@ -424,13 +462,33 @@ curl -X POST http://localhost:8000/api/lessons/ \
 
 ## 🧪 Testing
 
-Use the interactive API documentation:
+### Interactive API Testing
+
+Use the built-in Swagger UI documentation:
+
 ```bash
 # Start server
-uvicorn backend.main:app --reload
+uvicorn backend.main:app --reload --port 8001
 
-# Open browser
+# Open in browser
 http://localhost:8001/docs
+```
+
+Steps:
+1. Click "Authorize" button (top right)
+2. Login via `/api/auth/login` endpoint
+3. Copy the `access_token` from response
+4. Paste token in authorization dialog
+5. Test any endpoint interactively
+
+### Quick Health Check
+
+```bash
+# Check if server is running
+curl http://localhost:8001/health
+
+# Expected response:
+# {"status":"healthy"}
 ```
 
 ---
@@ -442,38 +500,83 @@ http://localhost:8001/docs
 **1. Database Connection Error**
 ```bash
 # Reinitialize database
-python backend/init_db.py
+python -m backend.init_db
 ```
 
-**2. Face Recognition Not Working**
+**2. Module Not Found Error**
+```bash
+# Make sure you're in the project root directory
+cd AI_for_Education
+
+# Activate virtual environment
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\Activate.ps1  # Windows PowerShell
+
+# Reinstall dependencies
+pip install -r requirements.txt
+```
+
+**3. Face Recognition Not Working**
 ```bash
 # Check camera access
 python -c "import cv2; print(cv2.VideoCapture(0).isOpened())"
 
-# Reinstall face recognition
-pip install facenet-pytorch opencv-python
+# Should return: True
+
+# If False, check camera permissions in system settings
+# Reinstall if needed:
+pip install --upgrade facenet-pytorch opencv-python
 ```
 
-**3. STT Model Download Fails**
+**4. STT Model Download Fails**
 ```bash
-# Download manually
-from transformers import Wav2Vec2ForCTC
-model = Wav2Vec2ForCTC.from_pretrained("facebook/wav2vec2-xls-r-300m")
+# Download manually with Python
+python -c "from transformers import Wav2Vec2ForCTC; Wav2Vec2ForCTC.from_pretrained('facebook/wav2vec2-xls-r-300m')"
+
+# Or check internet connection and retry
 ```
 
-**4. CUDA Not Available**
+**5. CUDA Not Available (Optional - for GPU acceleration)**
 ```bash
 # Check PyTorch CUDA
 python -c "import torch; print(torch.cuda.is_available())"
 
-# Reinstall PyTorch with CUDA
+# If False and you have NVIDIA GPU, reinstall PyTorch with CUDA:
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
 
-**5. Permission Denied (403)**
-- Check your user role
-- Verify JWT token is valid
+**6. Permission Denied (403 Error)**
+- Check your user role (Admin/Teacher/Viewer)
+- Verify JWT token is valid and not expired
 - Ensure you're using correct credentials
+- Re-login if token expired
+
+**7. Port Already in Use**
+```bash
+# Change port in command
+uvicorn backend.main:app --port 8002
+
+# Or find and kill process using port 8001
+# Windows:
+netstat -ano | findstr :8001
+taskkill /PID <PID> /F
+
+# Linux/Mac:
+lsof -i :8001
+kill -9 <PID>
+```
+
+**8. Virtual Environment Issues**
+```bash
+# Delete and recreate
+rm -rf venv  # Linux/Mac
+Remove-Item -Recurse -Force venv  # Windows
+
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\Activate.ps1  # Windows
+pip install -r requirements.txt
+```
 
 ---
 
@@ -505,14 +608,131 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 ---
 
-## 🔧 Development
+## � Production Deployment
+
+### Using Gunicorn (Recommended)
 
 ```bash
+# Install gunicorn
+pip install gunicorn
+
+# Run with multiple workers
+gunicorn backend.main:app \
+  --workers 4 \
+  --worker-class uvicorn.workers.UvicornWorker \
+  --bind 0.0.0.0:8001 \
+  --timeout 300 \
+  --access-logfile - \
+  --error-logfile -
+```
+
+### Systemd Service (Linux)
+
+Create `/etc/systemd/system/aiedu.service`:
+
+```ini
+[Unit]
+Description=AI Education Platform
+After=network.target
+
+[Service]
+Type=notify
+User=www-data
+WorkingDirectory=/var/www/AI_for_Education
+Environment="PATH=/var/www/AI_for_Education/venv/bin"
+ExecStart=/var/www/AI_for_Education/venv/bin/gunicorn backend.main:app \
+  --workers 4 \
+  --worker-class uvicorn.workers.UvicornWorker \
+  --bind 0.0.0.0:8001
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+# Enable and start service
+sudo systemctl enable aiedu
+sudo systemctl start aiedu
+sudo systemctl status aiedu
+```
+
+### Reverse Proxy with Nginx
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:8001;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        
+        # WebSocket support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}
+```
+
+### Security Checklist
+
+- [ ] Change default admin password
+- [ ] Generate strong SECRET_KEY (32+ characters)
+- [ ] Use PostgreSQL instead of SQLite
+- [ ] Enable HTTPS with SSL certificate
+- [ ] Set proper CORS origins
+- [ ] Use environment variables for secrets
+- [ ] Keep dependencies updated
+- [ ] Enable firewall rules
+- [ ] Regular backups of database
+- [ ] Monitor logs for security issues
+
+---
+
+## �🔧 Development
+
+### Development Setup
+
+```bash
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\Activate.ps1  # Windows
+
 # Install dependencies
 pip install -r requirements.txt
 
-# Run development server
-uvicorn backend.main:app --reload --port 8001
+# Initialize database
+python -m backend.init_db
+
+# Run development server with auto-reload
+uvicorn backend.main:app --reload --host 0.0.0.0 --port 8001
+```
+
+### Project Structure Best Practices
+
+- Place new models in `backend/models/`
+- Add routes in `backend/routes/`
+- Define schemas in `backend/schemas/`
+- Business logic goes in `backend/services/`
+- Utilities in `utils/`
+
+### Code Quality
+
+```bash
+# Format code (if using black)
+black backend/
+
+# Check types (if using mypy)
+mypy backend/
+
+# Run linter (if using flake8)
+flake8 backend/
 ```
 
 ---
