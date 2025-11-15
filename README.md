@@ -86,13 +86,17 @@ Default admin credentials:
 ```
 AI_in_Education/
 ├── backend/                      # FastAPI Backend
+│   ├── __init__.py
 │   ├── main.py                  # Main application entry point
 │   ├── config.py                # Configuration settings
-│   ├── database.py              # Database connection
-│   ├── auth.py                  # JWT authentication
-│   ├── dependencies.py          # Access control dependencies
+│   ├── database.py              # Database connection & session
+│   ├── auth.py                  # JWT authentication logic
+│   ├── dependencies.py          # Access control & role-based permissions
+│   ├── llm_config.py            # LLM configuration for Q&A
+│   ├── init_db.py               # Database initialization script
 │   │
-│   ├── models/                  # SQLAlchemy models
+│   ├── models/                  # SQLAlchemy ORM models
+│   │   ├── __init__.py
 │   │   ├── user.py             # User model (Admin/Teacher/Viewer)
 │   │   ├── student.py          # Student model
 │   │   ├── lesson.py           # Lesson model
@@ -100,50 +104,71 @@ AI_in_Education/
 │   │   └── qa_session.py       # Q&A sessions
 │   │
 │   ├── routes/                  # API endpoints
+│   │   ├── __init__.py
 │   │   ├── auth.py             # Authentication endpoints
-│   │   ├── students.py         # Student CRUD
+│   │   ├── students.py         # Student CRUD operations
 │   │   ├── lessons.py          # Lesson management
 │   │   ├── attendance.py       # Attendance tracking
 │   │   ├── qa.py               # Q&A system
-│   │   └── websocket.py        # WebSocket for real-time
+│   │   └── websocket.py        # WebSocket for real-time updates
 │   │
-│   ├── schemas/                 # Pydantic schemas
-│   │   ├── user.py
-│   │   ├── student.py
-│   │   ├── lesson.py
-│   │   ├── attendance.py
-│   │   └── qa_session.py
+│   ├── schemas/                 # Pydantic validation schemas
+│   │   ├── __init__.py
+│   │   ├── user.py             # User request/response models
+│   │   ├── student.py          # Student schemas
+│   │   ├── lesson.py           # Lesson schemas
+│   │   ├── attendance.py       # Attendance schemas
+│   │   └── qa_session.py       # Q&A session schemas
 │   │
-│   └── services/                # Business logic
-│       ├── lesson_session_service.py
-│       └── presentation_service.py
+│   └── services/                # Business logic layer
+│       ├── __init__.py
+│       ├── face_recognition_service.py  # Face recognition integration
+│       ├── lesson_session_service.py    # Lesson session management
+│       └── presentation_service.py      # Presentation processing
 │
 ├── face_recognition/            # Face recognition system
+│   ├── __init__.py
 │   ├── face_enrollment.py      # Student face enrollment
-│   ├── face_attendance.py      # Attendance tracking
-│   └── face_recognition_db.py  # Face database
+│   ├── face_attendance.py      # Face-based attendance tracking
+│   └── face_recognition_db.py  # Face embeddings database
 │
 ├── stt_pipelines/               # Speech-to-Text pipelines
+│   ├── __init__.py
 │   ├── uzbek_xlsr_pipeline.py  # XLS-R STT (primary, 15% WER)
-│   ├── uzbek_whisper_pipeline.py
-│   ├── uzbek_hf_pipeline.py
-│   └── uzbek_tts_pipeline.py   # Text-to-Speech
+│   ├── uzbek_whisper_pipeline.py  # Whisper STT (backup)
+│   ├── uzbek_hf_pipeline.py    # HuggingFace STT models
+│   └── uzbek_tts_pipeline.py   # Text-to-Speech synthesis
 │
-├── utils/                       # Utilities
-│   ├── uzbek_llm_qa_service.py # RAG-based Q&A
-│   ├── uzbek_materials_processor.py
-│   └── uzbek_text_postprocessor.py
+├── utils/                       # Utility modules
+│   ├── __init__.py
+│   ├── uzbek_llm_qa_service.py # RAG-based Q&A system
+│   ├── uzbek_materials_processor.py  # Lesson materials processing
+│   ├── uzbek_text_postprocessor.py   # Text post-processing
+│   └── uzbek_accuracy_testing_framework.py  # STT accuracy testing
 │
-├── uploads/                     # User uploads
-│   ├── faces/                  # Student face images
-│   ├── materials/              # Lesson materials
-│   ├── presentations/          # Presentation files
+├── uploads/                     # User-uploaded files
+│   ├── faces/                  # Student face photos
+│   ├── materials/              # Lesson materials (PDF, DOCX, TXT)
+│   ├── presentations/          # Presentation files (PPTX, PDF)
 │   ├── slides/                 # Generated slide images
-│   └── audio/                  # Audio files
+│   └── audio/                  # Audio recordings
+│       └── presentations/      # Presentation audio
 │
 ├── vector_stores/               # Vector databases for RAG
+│   └── lesson_materials/       # Indexed lesson materials
 │
+├── lesson_materials/            # Sample lesson materials
+│   ├── algebra_darsi.txt
+│   └── tarix_darsi.txt
+│
+├── sample_materials/            # Additional sample materials
+│
+├── .env.example                 # Environment variables template
+├── .gitignore                   # Git ignore rules
 ├── requirements.txt             # Python dependencies
+├── pyproject.toml               # Project metadata
+├── start.sh                     # Quick start script (Linux/Mac)
+├── ai_education.db              # SQLite database (auto-generated)
 └── README.md                   # This file
 ```
 
