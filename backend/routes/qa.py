@@ -16,12 +16,12 @@ import os
 import json
 import logging
 
+_llm_service = None
+
 # Import LLM QA Service
 try:
     from utils.uzbek_llm_qa_service import create_uzbek_llm_qa_service
     LLM_AVAILABLE = True
-    # Initialize LLM service (lazy loading)
-    _llm_service = None
 except ImportError as e:
     logging.warning(f"LLM service not available: {e}")
     LLM_AVAILABLE = False
