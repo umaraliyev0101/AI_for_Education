@@ -184,7 +184,7 @@ async def create_qa_session(
     
     # Try to get answer using LLM
     llm_service = get_llm_service()
-    if llm_service and lesson.materials_path:
+    if llm_service or lesson.materials_path:
         try:
             # Prepare lesson materials if not already done
             materials_dir = lesson.materials_path
