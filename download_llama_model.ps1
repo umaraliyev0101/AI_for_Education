@@ -115,8 +115,9 @@ function Install-Dependencies {
     # Install compatible versions
     Write-Host "Installing compatible huggingface-hub version..." -ForegroundColor Yellow
     
-    # Install specific compatible versions
-    pip install -q "huggingface-hub>=0.23.0,<1.0" "hf-transfer>=0.1.0" tqdm
+    # Install specific compatible versions (use Invoke-Expression to avoid parsing issues)
+    $installCmd = 'pip install -q "huggingface-hub>=0.23.0,<1.0" tqdm'
+    Invoke-Expression $installCmd
     
     if ($LASTEXITCODE -eq 0) {
         Write-Success "huggingface-hub installed"
@@ -128,17 +129,18 @@ function Install-Dependencies {
 function Enable-Optimizations {
     Write-Host "Enabling download optimizations..." -ForegroundColor Cyan
     
-    # Enable hf_transfer for faster downloads (3-5x faster)
+    # Enable hf_transfer for faster downloads
     $env:HF_HUB_ENABLE_HF_TRANSFER = "1"
-    Write-Success "Fast transfer mode enabled (3-5x faster)"
+    Write-Success "Fast transfer mode enabled"
     
     # Increase timeout
     $env:HF_HUB_DOWNLOAD_TIMEOUT = "300"
-    Write-Success "Download timeout set to 300s"
+    Write-Success "Download timeout set to 300 seconds"
     
     # Set cache directory
-    $env:HF_HOME = "$env:USERPROFILE\.cache\huggingface"
-    Write-Success "Cache directory: $env:HF_HOME\hub"
+    $cacheDir = Join-Path $env:USERPROFILE ".cache\huggingface"
+    $env:HF_HOME = $cacheDir
+    Write-Success "Cache directory: $cacheDir\hub"
 }
 
 function Start-ModelDownload {
