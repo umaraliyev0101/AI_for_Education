@@ -112,14 +112,16 @@ function Install-Dependencies {
     }
     Write-Success "pip: OK"
     
-    # Install/upgrade huggingface-hub
-    Write-Host "Installing huggingface-hub with fast transfer..." -ForegroundColor Yellow
-    pip install -q -U "huggingface-hub[cli,hf_transfer]" tqdm
+    # Install compatible versions
+    Write-Host "Installing compatible huggingface-hub version..." -ForegroundColor Yellow
+    
+    # Install specific compatible versions
+    pip install -q "huggingface-hub>=0.23.0,<1.0" "hf-transfer>=0.1.0" tqdm
     
     if ($LASTEXITCODE -eq 0) {
         Write-Success "huggingface-hub installed"
     } else {
-        Write-Warning-Message "Failed to install huggingface-hub"
+        Write-Warning-Message "Some packages may not be installed, continuing..."
     }
 }
 
@@ -156,27 +158,54 @@ function Start-ModelDownload {
     
     # Download using Python (more reliable on Windows)
     Write-Info "Using Python for download..."
+    Write-Host ""
     
     $downloadScript = @"
 import os
-from huggingface_hub import snapshot_download
-from tqdm import tqdm
+import sys
+
+# Enable hf_transfer if available
+os.environ['HF_HUB_ENABLE_HF_TRANSFER'] = '1'
+
+print("Importing huggingface_hub...")
+try:
+    from huggingface_hub import snapshot_download
+    from tqdm import tqdm
+except ImportError as e:
+    print(f"Error importing: {e}")
+    print("\nInstalling required packages...")
+    import subprocess
+    subprocess.check_call([sys.executable, '-m', 'pip', 'install', '-q', 'huggingface-hub>=0.23.0,<1.0', 'tqdm'])
+    print("Packages installed. Please run the script again.")
+    sys.exit(1)
 
 print("\n📥 Downloading model files...")
+print(f"Model: $MODEL_ID")
+print(f"Cache: {os.path.expanduser('~/.cache/huggingface/hub')}")
+print()
 
 try:
     # Download to default HuggingFace cache
-    snapshot_download(
+    path = snapshot_download(
         repo_id="$MODEL_ID",
         resume_download=True,
-        max_workers=8,
+        max_workers=4,  # Reduced for stability
         local_files_only=False,
         token=os.getenv("HF_TOKEN")
     )
-    print("\n✅ Download completed successfully!")
+    print(f"\n✅ Download completed successfully!")
+    print(f"Model saved to: {path}")
+    sys.exit(0)
+except KeyboardInterrupt:
+    print("\n⚠️  Download interrupted. Run again to resume.")
+    sys.exit(130)
 except Exception as e:
-    print(f"\n❌ Download failed: {e}")
-    exit(1)
+    print(f"\n❌ Download failed: {type(e).__name__}: {e}")
+    print("\nTroubleshooting:")
+    print("  1. Check internet connection")
+    print("  2. Run script again (will resume)")
+    print("  3. Try: pip install --upgrade huggingface-hub")
+    sys.exit(1)
 "@
     
     # Save script to temp file
