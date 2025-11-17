@@ -30,6 +30,7 @@ python-dotenv>=1.0.0
 # ============================================================================
 # DATA VALIDATION
 # ============================================================================
+pydantic>=2.4.0
 pydantic[email]>=2.4.0
 pydantic-settings>=2.0.0
 
@@ -63,6 +64,7 @@ langchain-community>=0.0.20
 langchain-text-splitters>=0.0.1
 langchain-core>=0.1.0
 faiss-cpu>=1.7.0
+chromadb>=0.4.0
 
 # ============================================================================
 # DOCUMENT PROCESSING
@@ -106,5 +108,5 @@ requests>=2.31.0
 # - streamlit (UI framework - not used)
 # - python-dateutil (covered by stdlib)
 # - fastapi-cors (using built-in CORSMiddleware)
-# - chromadb (using FAISS instead)
+# - chromadb was removed but re-added as optional alternative to FAISS
 #

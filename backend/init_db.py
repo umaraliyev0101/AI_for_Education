@@ -27,23 +27,23 @@ def create_initial_admin():
             )
             db.add(admin)
             db.commit()
-            print("✅ Initial admin user created")
+            print("SUCCESS: Initial admin user created")
             print("   Username: admin")
             print("   Password: admin123")
-            print("   ⚠️  Please change the password after first login!")
+            print("   WARNING: Please change the password after first login!")
         else:
-            print("ℹ️  Admin user already exists")
+            print("INFO: Admin user already exists")
             
     finally:
         db.close()
 
 
 if __name__ == "__main__":
-    print("🔧 Initializing database...")
+    print("Initializing database...")
     init_db()
-    print("✅ Database tables created")
+    print("SUCCESS: Database tables created")
     
-    print("\n🔧 Creating initial admin user...")
+    print("\nCreating initial admin user...")
     create_initial_admin()
     
-    print("\n✅ Database initialization complete!")
+    print("\nSUCCESS: Database initialization complete!")
