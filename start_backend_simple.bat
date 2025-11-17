@@ -27,13 +27,16 @@ echo ✅ Virtual environment activated
 echo.
 
 echo Checking CUDA availability...
-python -c "import torch; print('PyTorch:', torch.__version__); print('CUDA Available:', torch.cuda.is_available()); print('Device:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
+echo Python executable: 
+where python
+echo.
+venv\Scripts\python.exe -c "import torch; print('PyTorch:', torch.__version__); print('CUDA Available:', torch.cuda.is_available()); print('Device:', torch.cuda.get_device_name(0) if torch.cuda.is_available() else 'CPU')"
 echo.
 
 echo Starting FastAPI server...
 echo Server will be available at: http://localhost:8001
 echo API Documentation: http://localhost:8001/docs
 echo.
-uvicorn backend.main:app --reload --host 0.0.0.0 --port 8001
+venv\Scripts\python.exe -m uvicorn backend.main:app --reload --host 0.0.0.0 --port 8001
 
 pause
