@@ -36,6 +36,18 @@ def get_llm_service():
     global _llm_service
     if _llm_service is None and LLM_AVAILABLE:
         try:
+            import torch
+            logger.info("=" * 60)
+            logger.info("🚀 Initializing LLM Service")
+            logger.info(f"  PyTorch version: {torch.__version__}")
+            logger.info(f"  CUDA available: {torch.cuda.is_available()}")
+            if torch.cuda.is_available():
+                logger.info(f"  CUDA version: {torch.version.cuda}")
+                logger.info(f"  GPU: {torch.cuda.get_device_name(0)}")
+            else:
+                logger.warning("  ⚠️ WARNING: CUDA NOT AVAILABLE - Model will run on CPU (4+ minutes per query)")
+            logger.info("=" * 60)
+            
             _llm_service = create_uzbek_llm_qa_service()
             logger.info("✅ LLM service initialized")
         except Exception as e:
@@ -184,11 +196,13 @@ async def create_qa_session(
     
     # Try to get answer using LLM
     llm_service = get_llm_service()
-    if llm_service or lesson.materials_path:
+    if llm_service:
         try:
-            # Prepare lesson materials if not already done
+            lesson_id_str = f"lesson_{qa_data.lesson_id}"
+            
+            # Prepare lesson materials if available
             materials_dir = lesson.materials_path
-            if os.path.exists(materials_dir):
+            if materials_dir and os.path.exists(materials_dir):
                 file_paths = []
                 for root, dirs, files in os.walk(materials_dir):
                     for file in files:
@@ -196,50 +210,42 @@ async def create_qa_session(
                             file_paths.append(os.path.join(root, file))
                 
                 if file_paths:
-                    lesson_id_str = f"lesson_{qa_data.lesson_id}"
                     success = llm_service.prepare_lesson_materials(file_paths, lesson_id_str)
+                    if not success:
+                        logger.warning(f"Failed to prepare materials for lesson {qa_data.lesson_id}")
+            
+            # Generate answer (with or without materials)
+            answer, found, docs = llm_service.answer_question(
+                qa_data.question_text, 
+                lesson_id_str, 
+                use_llm=True
+            )
+            new_qa.found_answer = found
+            new_qa.answer_text = answer
+            new_qa.retrieved_docs_count = len(docs)
+            
+            # Generate TTS audio for answer if requested
+            if generate_audio and answer:
+                try:
+                    from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
+                    tts = create_uzbek_tts(voice="male_clear")
                     
-                    if success:
-                        # Generate answer
-                        answer, found, docs = llm_service.answer_question(
-                            qa_data.question_text, 
-                            lesson_id_str, 
-                            use_llm=True
-                        )
-                        new_qa.found_answer = found
-                        new_qa.answer_text = answer
-                        new_qa.retrieved_docs_count = len(docs)
-                        
-                        # Generate TTS audio for answer if requested
-                        if generate_audio and answer:
-                            try:
-                                from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
-                                tts = create_uzbek_tts(voice="male_clear")
-                                
-                                audio_filename = f"qa_{new_qa.lesson_id}_answer_{hash(answer[:50])}.mp3"
-                                audio_path = os.path.join(settings.AUDIO_DIR, audio_filename)
-                                
-                                tts.speak_text(answer, save_to_file=audio_path)
-                                new_qa.answer_audio_path = audio_path
-                                
-                            except Exception as e:
-                                logger.error(f"TTS generation failed: {e}")
-                    else:
-                        new_qa.found_answer = False
-                        new_qa.answer_text = "Dars materiallarini qayta ishlashda xatolik yuz berdi."
-                else:
-                    new_qa.found_answer = False
-                    new_qa.answer_text = "Dars uchun materiallar topilmadi."
-            else:
-                new_qa.found_answer = False
-                new_qa.answer_text = "Dars materiallarining yo'li mavjud emas."
+                    audio_filename = f"qa_{new_qa.lesson_id}_answer_{hash(answer[:50])}.mp3"
+                    audio_path = os.path.join(settings.AUDIO_DIR, audio_filename)
+                    
+                    tts.speak_text(answer, save_to_file=audio_path)
+                    new_qa.answer_audio_path = audio_path
+                    
+                except Exception as e:
+                    logger.error(f"TTS generation failed: {e}")
+                    
         except Exception as e:
             logger.error(f"LLM processing error: {e}")
             new_qa.found_answer = False
             new_qa.answer_text = f"LLM xatolik: {str(e)}"
     else:
         new_qa.found_answer = False
-        new_qa.answer_text = "LLM service mavjud emas yoki dars materiallari yo'q."
+        new_qa.answer_text = "LLM service mavjud emas."
     
     db.add(new_qa)
     db.commit()
@@ -332,11 +338,13 @@ async def ask_question_audio(
     
     # Generate answer using LLM
     llm_service = get_llm_service()
-    if llm_service and lesson.materials_path:
+    if llm_service:
         try:
-            # Prepare lesson materials if needed
+            lesson_id_str = f"lesson_{lesson_id}"
+            
+            # Prepare lesson materials if available
             materials_dir = lesson.materials_path
-            if os.path.exists(materials_dir):
+            if materials_dir and os.path.exists(materials_dir):
                 file_paths = []
                 for root, dirs, files in os.walk(materials_dir):
                     for file in files:
@@ -344,35 +352,27 @@ async def ask_question_audio(
                             file_paths.append(os.path.join(root, file))
                 
                 if file_paths:
-                    lesson_id_str = f"lesson_{lesson_id}"
                     success = llm_service.prepare_lesson_materials(file_paths, lesson_id_str)
-                    
-                    if success:
-                        # Generate answer
-                        answer, found, docs = llm_service.answer_question(
-                            question_text, 
-                            lesson_id_str, 
-                            use_llm=True
-                        )
-                        new_qa.found_answer = found
-                        new_qa.answer_text = answer
-                        new_qa.retrieved_docs_count = len(docs)
-                    else:
-                        new_qa.found_answer = False
-                        new_qa.answer_text = "Dars materiallarini qayta ishlashda xatolik yuz berdi."
-                else:
-                    new_qa.found_answer = False
-                    new_qa.answer_text = "Dars uchun materiallar topilmadi."
-            else:
-                new_qa.found_answer = False
-                new_qa.answer_text = "Dars materiallarining yo'li mavjud emas."
+                    if not success:
+                        logger.warning(f"Failed to prepare materials for lesson {lesson_id}")
+            
+            # Generate answer (with or without materials)
+            answer, found, docs = llm_service.answer_question(
+                question_text, 
+                lesson_id_str, 
+                use_llm=True
+            )
+            new_qa.found_answer = found
+            new_qa.answer_text = answer
+            new_qa.retrieved_docs_count = len(docs)
+            
         except Exception as e:
             logger.error(f"LLM processing error: {e}")
             new_qa.found_answer = False
             new_qa.answer_text = f"LLM xatolik: {str(e)}"
     else:
         new_qa.found_answer = False
-        new_qa.answer_text = "LLM service mavjud emas yoki dars materiallari yo'q."
+        new_qa.answer_text = "LLM service mavjud emas."
     
     db.add(new_qa)
     db.commit()

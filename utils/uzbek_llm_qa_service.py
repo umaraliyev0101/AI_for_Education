@@ -91,6 +91,22 @@ class UzbekLLMQAService:
             separators=["\n\n", "\n", ". ", " ", ""]
         )
 
+        # Log CUDA availability and device info
+        logger.info("=" * 60)
+        logger.info("🔍 CUDA/Device Information:")
+        logger.info(f"  PyTorch version: {torch.__version__}")
+        logger.info(f"  CUDA available: {torch.cuda.is_available()}")
+        if torch.cuda.is_available():
+            logger.info(f"  CUDA version: {torch.version.cuda}")
+            logger.info(f"  GPU count: {torch.cuda.device_count()}")
+            logger.info(f"  Current GPU: {torch.cuda.current_device()}")
+            logger.info(f"  GPU name: {torch.cuda.get_device_name(0)}")
+            logger.info(f"  GPU memory: {torch.cuda.get_device_properties(0).total_memory / 1e9:.2f} GB")
+        else:
+            logger.warning("  ⚠️ CUDA NOT AVAILABLE - Running on CPU (will be SLOW!)")
+        logger.info(f"  Selected device: {self.device}")
+        logger.info("=" * 60)
+        
         logger.info(f"Initializing Uzbek LLM QA Service on device: {self.device}")
         self._initialize_models()
 
@@ -165,6 +181,12 @@ class UzbekLLMQAService:
                 model_kwargs={'device': self.device}
             )
 
+            # Log model device placement
+            if hasattr(self.model, 'device'):
+                logger.info(f"  Model device: {self.model.device}")
+            if hasattr(self.model, 'hf_device_map'):
+                logger.info(f"  Device map: {self.model.hf_device_map}")
+            
             logger.info("✅ Models initialized successfully")
 
         except Exception as e:

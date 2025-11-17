@@ -1,0 +1,28 @@
+{
+  "lesson_id": 4,
+  "total_slides": 3,
+  "slides": [
+    {
+      "slide_number": 1,
+      "text": "1. Lab 10 – Complex Data Types: Semi-Structured Data\nObjectives\n•Understand flexible, schema-less data (JSON, XML, RDF).\n•Create and query JSON data in SQL.\n•Generate and query XML documents.\n•Represent facts as RDF triples and simulate SPARQL queries.\n•Semi-structured data allowsvarying attributesper record.\n•JSON– key-value pairs, nested objects, arrays.\n•XML– hierarchical tags for structured documents.\n•RDF– triples(subject, predicate, object)forming a graph.\n•SPARQL– query language for RDF, analogous to SQL.\n2. Part 1 – JSON in SQL Databases (6 pts)\nTask 1 – Create Table\nCREATE TABLE students (\nid SERIAL PRIMARY KEY,\nprofile JSON\n);\nTask 2 – Insert JSON Data\nINSERT INTO students (profile)\nVALUES (’{\n\"name\": {\"first\": \"Ali\", \"last\": \"Karimov\"},\n\"dept\": \"Computer Science\",\n\"skills\": [\"SQL\", \"Python\", \"C++\"],\n\"gpa\": 3.8\n}’);\n3. Part 1 – Querying JSON Attributes\nSELECT\nprofile -> ’name’ ->> ’first’ AS firstname,\nprofile ->> ’dept’ AS department,\nprofile ->> ’gpa’ AS gpa\nFROM students;\nDeliverables\n•Screenshot of table creation and query output.\n•Short explanation: How JSON differs from fixed columns.\n1",
+      "audio_path": "/uploads/audio/presentations/lesson_4/slide_1.mp3",
+      "image_path": "uploads/slides/lesson_4/slide_1.png",
+      "duration_estimate": 66.4
+    },
+    {
+      "slide_number": 2,
+      "text": "4. Part 2 – XML Generation and Querying (4 pts)\nTask 1 – Generate XML from Query\nSELECT\nXMLELEMENT(NAME \"student\",\nXMLFOREST(id AS \"id\", profile AS \"profile\"))\nFROM students;\nTask 2 – Query XML using XPath\nSELECT\nEXTRACTVALUE(\nXMLTYPE(’<student>\n<name>Ali Karimov</name>\n<gpa>3.8</gpa>\n</student>’),\n’/student/gpa’) AS gpa_value\nFROM dual;\n5. XML Deliverables and Reflection\n•Output of XML generation and XPath query.\n•Short paragraph: When is XML preferred over JSON?\n–Supports ordered, mixed, and self-describing data.\n–Widely used for configuration files and document-centric systems.\n6. Part 3 – RDF and Knowledge Graphs (5 pts)\nTask 1 – Represent Data as Triples\nCREATE TABLE rdf_data (\nsubject VARCHAR(50),\npredicate VARCHAR(50),\nobject VARCHAR(50)\n);\nINSERT INTO rdf_data VALUES\n(’10101’, ’name’, ’Srinivasan’),\n(’10101’, ’teaches’, ’sec1’),\n(’sec1’, ’course’, ’Database Systems’);\n7. Query RDF Triples and Simulate SPARQL\nTask 2 – Query Triples\nSELECT subject, object\nFROM rdf_data\nWHERE predicate = ’teaches’;\nTask 3 – SPARQL-Like Join Query\n2",
+      "audio_path": "/uploads/audio/presentations/lesson_4/slide_2.mp3",
+      "image_path": "uploads/slides/lesson_4/slide_2.png",
+      "duration_estimate": 60.4
+    },
+    {
+      "slide_number": 3,
+      "text": "SELECT t1.subject, t3.object AS course\nFROM rdf_data t1\nJOIN rdf_data t2 ON t1.object = t2.subject\nJOIN rdf_data t3 ON t2.subject = t3.subject\nWHERE t1.predicate = ’teaches’\nAND t3.predicate = ’course’;\nDeliverables:RDF table output + query results + optional graph diagram.\n8. Submission & Evaluation\nSubmit:\n•A single PDF/Word report containing\n–SQL code and screenshots of results.\n–Explanations for each task.\n3",
+      "audio_path": "/uploads/audio/presentations/lesson_4/slide_3.mp3",
+      "image_path": "uploads/slides/lesson_4/slide_3.png",
+      "duration_estimate": 24.4
+    }
+  ],
+  "processed_at": "1854.0286776"
+}

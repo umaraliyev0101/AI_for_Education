@@ -1,0 +1,91 @@
+{
+  "lesson_id": 5,
+  "total_slides": 12,
+  "slides": [
+    {
+      "slide_number": 1,
+      "text": "PITCHDECK",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_1.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_1.png",
+      "duration_estimate": 0.4
+    },
+    {
+      "slide_number": 2,
+      "text": "Brief Description\nBu shunchaki namuna tarzida bo‘lib, uni o‘z startap loyihangizga moslab,\nindividual o‘zgartirishlar va ko‘rsatkichlar qo'shishingiz mumkin.",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_2.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_2.png",
+      "duration_estimate": 7.2
+    },
+    {
+      "slide_number": 3,
+      "text": "Parental Control\nProblem and solution\nProblem\nSchool Students getting addicted to phone usage\nSolution\nMahsulot bu muammoni qanday hal qilishini ko‘rsating.",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_3.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_3.png",
+      "duration_estimate": 8.4
+    },
+    {
+      "slide_number": 4,
+      "text": "Narrow Market Analysis\n1\n10K SOM\n2\n300K SAM\n3\n2M TAM\nBozor: maqsadli auditoriya diagrammasi.",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_4.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_4.png",
+      "duration_estimate": 6.4
+    },
+    {
+      "slide_number": 5,
+      "text": "Primary users\nOur primary users are parents of primary school children seeking to guide safe and balanced digital habits for their kids.\nMijoz Segmentlari\nTech-aware families who want to encourage healthy device use.\n\nSchools promoting digital responsibility programs and offering your app as part of parent–teacher collaboration.\nQo'shimcha Segmentlar\nAgencies focusing on child safety, digital literacy, or education reform initiatives.\n\nLocal internet providers or device retailers who can bundle the app as a value-added service.",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_5.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_5.png",
+      "duration_estimate": 30.0
+    },
+    {
+      "slide_number": 6,
+      "text": "Competitive Advantages",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_6.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_6.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 7,
+      "text": "Business Model and Monetization\nCustomer Segments\nMain Partners\nCost Structure\nMain Activities\nRevenue Streams\nPricing",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_7.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_7.png",
+      "duration_estimate": 6.0
+    },
+    {
+      "slide_number": 8,
+      "text": "Project Roadmap\nLaunch Dates\nKey product and feature release timelines\nUser Growth\nProject increase in our customer base\nAchieving Results\nExpected results and goals.",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_8.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_8.png",
+      "duration_estimate": 9.6
+    },
+    {
+      "slide_number": 9,
+      "text": "Moliyaviy Ko‘rsatkichlar\nMAU (Oylik Faol Foydalanuvchilar)\nPlatformamizning oylik faol foydalanuvchilari soni.\nARR (Yillik Takroriy Daromad)\nYillik takroriy daromadimizning umumiy ko‘rsatkichi.\nMRR (Oylik Takroriy Daromad)\nOylik takroriy daromadimizning umumiy ko‘rsatkichi.\n\n\n…va boshqalar\nNET/GROSS\nSof va yalpi daromad ko‘rsatkichlari va boshqalar.",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_9.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_9.png",
+      "duration_estimate": 15.6
+    },
+    {
+      "slide_number": 10,
+      "text": "Team\nFounders and management of our company.\nIsmi\nVazifasi / Ish tajribasi\nIsmi\nVazifasi / Ish tajribasi\nIsmi\nVazifasi / Ish tajribasi\nIsmi\nVazifasi/ Ish tajribasi",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_10.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_10.png",
+      "duration_estimate": 10.4
+    },
+    {
+      "slide_number": 11,
+      "text": "Offer to Investors\n1\nInvestitsiya Hajmi\nTalab qilinayotgan investitsiya miqdori.\n2\nInvestitsiyani Taqsimlash\n/ Yo'naltirish\nMablag'larning qanday yo‘nalishlarga sarflanishi.\n3\nKutilayotgan Rentabellik\nInvestitsiyadan kutilayotgan daromad.\n4\nO‘zini Oqlash Nuqtasi\nInvestitsiyaning qancha vaqtda\no‘zini qoplashi (Break-even point).\n5\nKompaniya Qiymatini Baholash\nKompaniyaning joriy bahosi.\n6\nKompaniyadagi Ulush Foizi\nInvestorga taklif qilinayotgan ulush foizi.",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_11.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_11.png",
+      "duration_estimate": 20.8
+    },
+    {
+      "slide_number": 12,
+      "text": "Thank you\nWe appreciate your time and interest in our vision. Let's connect.\n\nGet in Touch\n\nPhone: +998 90 582 84 86\nEmail: d.umaraliyev@newuu.uz\nBoshqalar: \n\t\t@umaraliyev0101\n\t\t@umaraliyev0101",
+      "audio_path": "/uploads/audio/presentations/lesson_5/slide_12.mp3",
+      "image_path": "uploads/slides/lesson_5/slide_12.png",
+      "duration_estimate": 10.8
+    }
+  ],
+  "processed_at": "1863.5640435"
+}
