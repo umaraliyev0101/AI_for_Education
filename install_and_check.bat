@@ -99,8 +99,18 @@ if not exist "lesson_materials" mkdir lesson_materials
 echo ✅ Directories created
 echo.
 
+REM Initialize database
+echo [9/10] Initializing database...
+python -m backend.init_db >nul 2>&1
+if %errorlevel% neq 0 (
+    echo ⚠️ Database initialization warning (may already exist)
+) else (
+    echo ✅ Database initialized
+)
+echo.
+
 REM Check/Download LLM model
-echo [9/10] Checking LLM model...
+echo [10/10] Checking LLM model...
 python -c "from transformers import AutoTokenizer, AutoModelForSeq2SeqLM; print('Checking model...'); tokenizer = AutoTokenizer.from_pretrained('google/flan-t5-base'); print('✅ Tokenizer loaded'); model = AutoModelForSeq2SeqLM.from_pretrained('google/flan-t5-base'); print('✅ Model loaded successfully')" 2>nul
 if %errorlevel% neq 0 (
     echo ⚠️ Model not found, downloading...
@@ -113,16 +123,6 @@ if %errorlevel% neq 0 (
     )
 ) else (
     echo ✅ Model is ready
-)
-echo.
-
-REM Initialize database
-echo [10/10] Initializing database...
-python -m backend.init_db >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ⚠️ Database initialization warning (may already exist)
-) else (
-    echo ✅ Database initialized
 )
 echo.
 
