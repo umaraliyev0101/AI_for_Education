@@ -25,6 +25,7 @@ alembic>=1.12.0
 # ============================================================================
 python-jose[cryptography]>=3.3.0
 passlib[bcrypt]>=1.7.4
+bcrypt>=4.0.0
 python-dotenv>=1.0.0
 
 # ============================================================================
@@ -60,6 +61,7 @@ Pillow>=10.0.0
 soundfile>=0.12.1
 librosa>=0.10.0
 pydub>=0.25.1
+simpleaudio>=1.0.4
 
 # ============================================================================
 # TEXT-TO-SPEECH & SPEECH-TO-TEXT
@@ -84,12 +86,6 @@ chromadb>=0.4.0
 PyPDF2>=3.0.0
 python-pptx>=0.6.21
 python-docx>=1.1.0
-
-# ============================================================================
-# PRESENTATION PROCESSING (PowerPoint automation)
-# ============================================================================
-comtypes>=1.4.0; sys_platform == 'win32'
-pywin32>=305; sys_platform == 'win32'
 
 # ============================================================================
 # TASK SCHEDULING
@@ -125,16 +121,12 @@ httpx>=0.24.0
 #    - Required for some Python packages
 #    - Download from: https://aka.ms/vs/17/release/vc_redist.x64.exe
 #
-# 3. Microsoft PowerPoint (Windows only, for presentation processing):
-#    - Required for PPTX to image conversion
-#    - Part of Microsoft Office
-#
-# 4. GPU Support (Optional, for CUDA acceleration):
+# 3. GPU Support (Optional, for CUDA acceleration):
 #    - Install PyTorch with CUDA support:
 #      pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 #    - Requires NVIDIA GPU with CUDA drivers installed
 #
-# 5. HuggingFace Hub (for model downloads):
+# 4. HuggingFace Hub (for model downloads):
 #    - Optional CLI tools: pip install "huggingface-hub[cli,hf_transfer]"
 #
 # ============================================================================
@@ -154,6 +146,8 @@ httpx>=0.24.0
 # - If opencv fails: pip install opencv-python-headless
 # - If faiss-cpu fails on Windows: pip install faiss-cpu --no-cache-dir
 # - If torch CUDA not detected: Reinstall with CUDA-specific wheels
-# - If comtypes fails: Run as administrator or pip install comtypes --no-cache-dir
+# - If bcrypt fails: pip install bcrypt --no-cache-dir
+# - If simpleaudio fails: pip install simpleaudio --no-cache-dir
+# - If librosa fails: pip install librosa --no-deps && pip install numba resampy
 #
 # ============================================================================
