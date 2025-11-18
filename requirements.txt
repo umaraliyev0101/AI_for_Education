@@ -1,8 +1,8 @@
 # ============================================================================
-# AI Education System - Production Requirements
+# AI Education System - Complete Requirements
 # ============================================================================
-# Optimized for deployment - only necessary dependencies included
-# Date: November 12, 2025
+# Comprehensive dependencies for all features
+# Date: November 18, 2025
 
 # ============================================================================
 # CORE BACKEND FRAMEWORK
@@ -51,9 +51,21 @@ opencv-python>=4.8.0
 Pillow>=10.0.0
 
 # ============================================================================
-# TEXT-TO-SPEECH
+# AUDIO PROCESSING (for STT/TTS)
+# ============================================================================
+# Note: ffmpeg is required for audio processing but must be installed separately:
+# - Windows: Download from https://ffmpeg.org/download.html or use: choco install ffmpeg
+# - Linux: sudo apt-get install ffmpeg
+# - macOS: brew install ffmpeg
+soundfile>=0.12.1
+librosa>=0.10.0
+pydub>=0.25.1
+
+# ============================================================================
+# TEXT-TO-SPEECH & SPEECH-TO-TEXT
 # ============================================================================
 edge-tts>=6.1.0
+pygame>=2.5.0
 
 # ============================================================================
 # LLM & RAG (Retrieval-Augmented Generation)
@@ -74,6 +86,12 @@ python-pptx>=0.6.21
 python-docx>=1.1.0
 
 # ============================================================================
+# PRESENTATION PROCESSING (PowerPoint automation)
+# ============================================================================
+comtypes>=1.4.0; sys_platform == 'win32'
+pywin32>=305; sys_platform == 'win32'
+
+# ============================================================================
 # TASK SCHEDULING
 # ============================================================================
 apscheduler>=3.10.4
@@ -92,21 +110,50 @@ jiwer>=3.0.0
 # HTTP CLIENT (for testing & external APIs)
 # ============================================================================
 requests>=2.31.0
+httpx>=0.24.0
 
 # ============================================================================
-# NOTES
+# SYSTEM REQUIREMENTS & EXTERNAL DEPENDENCIES
 # ============================================================================
 #
-# GPU Support:
-# - For CUDA acceleration, install torch with GPU support:
-#   pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+# 1. FFmpeg (REQUIRED for audio processing):
+#    - Windows: choco install ffmpeg OR download from https://ffmpeg.org/
+#    - Linux: sudo apt-get install ffmpeg
+#    - macOS: brew install ffmpeg
 #
-# Removed unused dependencies:
-# - scipy, matplotlib, seaborn (visualization - not used)
-# - librosa, soundfile, pyaudio (audio processing - not needed)
-# - pygame (audio playback - not needed)
-# - streamlit (UI framework - not used)
-# - python-dateutil (covered by stdlib)
-# - fastapi-cors (using built-in CORSMiddleware)
-# - chromadb was removed but re-added as optional alternative to FAISS
+# 2. Visual C++ Redistributable (Windows only):
+#    - Required for some Python packages
+#    - Download from: https://aka.ms/vs/17/release/vc_redist.x64.exe
 #
+# 3. Microsoft PowerPoint (Windows only, for presentation processing):
+#    - Required for PPTX to image conversion
+#    - Part of Microsoft Office
+#
+# 4. GPU Support (Optional, for CUDA acceleration):
+#    - Install PyTorch with CUDA support:
+#      pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+#    - Requires NVIDIA GPU with CUDA drivers installed
+#
+# 5. HuggingFace Hub (for model downloads):
+#    - Optional CLI tools: pip install "huggingface-hub[cli,hf_transfer]"
+#
+# ============================================================================
+# INSTALLATION NOTES
+# ============================================================================
+#
+# Complete Installation Steps:
+#
+# 1. Install system dependencies (ffmpeg, etc.)
+# 2. Create virtual environment: python -m venv venv
+# 3. Activate: venv\Scripts\activate (Windows) or source venv/bin/activate (Linux/Mac)
+# 4. Upgrade pip: python -m pip install --upgrade pip
+# 5. Install requirements: pip install -r requirements.txt
+# 6. For GPU support: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+#
+# Troubleshooting:
+# - If opencv fails: pip install opencv-python-headless
+# - If faiss-cpu fails on Windows: pip install faiss-cpu --no-cache-dir
+# - If torch CUDA not detected: Reinstall with CUDA-specific wheels
+# - If comtypes fails: Run as administrator or pip install comtypes --no-cache-dir
+#
+# ============================================================================
