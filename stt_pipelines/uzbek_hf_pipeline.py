@@ -33,26 +33,55 @@ class UzbekHFSTTPipeline:
     Uzbek Speech-to-Text using Hugging Face transformer models
     """
 
-    def __init__(self, model_name: str = "sarahai/uzbek-stt-3", device: str = "cpu"):
+    def __init__(self, model_name: str = "sarahai/uzbek-stt-3", device: str = "auto"):
         self.model_name = model_name
         self.device = device
 
-        # Set device
+        # Set device with GPU optimization
         if self.device == "auto":
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+            if torch.cuda.is_available():
+                self.device = "cuda"
+                # Set GPU memory optimization
+                torch.cuda.empty_cache()
+                logger.info(f"GPU available: {torch.cuda.get_device_name(0)}")
+            else:
+                self.device = "cpu"
+                logger.info("GPU not available, using CPU")
 
         logger.info(f"Using device: {self.device}")
 
-        # Load model
+        # Load model with GPU optimizations
         try:
             logger.info(f"Loading HF model: {self.model_name}")
-            self.pipe = pipeline(
-                "automatic-speech-recognition",
-                model=self.model_name,
-                device=self.device,
-                torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                chunk_length_s=30,
-            )
+            
+            # GPU-specific configurations
+            if self.device == "cuda":
+                model_kwargs = {
+                    "torch_dtype": torch.float16,  # Use FP16 for memory efficiency
+                    "device_map": "auto",  # Automatic device placement
+                    "low_cpu_mem_usage": True,  # Reduce CPU memory usage during loading
+                }
+                # Set CUDA memory fraction if needed
+                torch.cuda.set_per_process_memory_fraction(0.8)  # Use 80% of GPU memory
+                # When using device_map, don't specify device in pipeline
+                self.pipe = pipeline(
+                    "automatic-speech-recognition",
+                    model=self.model_name,
+                    chunk_length_s=30,
+                    model_kwargs=model_kwargs
+                )
+            else:
+                model_kwargs = {
+                    "torch_dtype": torch.float32,
+                }
+                self.pipe = pipeline(
+                    "automatic-speech-recognition",
+                    model=self.model_name,
+                    device=self.device,
+                    chunk_length_s=30,
+                    model_kwargs=model_kwargs
+                )
+            
             logger.info("✅ Uzbek HF STT initialized successfully")
 
         except Exception as e:

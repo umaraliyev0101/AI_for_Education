@@ -20,15 +20,38 @@ class UzbekXLSRSTT:
 
     def __init__(self, model_name: str = "lucio/xls-r-uzbek-cv8", device: str = "auto"):
         self.model_name = model_name
-        self.device = "cuda" if device == "auto" and torch.cuda.is_available() else device
+        
+        # Set device with GPU optimization
+        if device == "auto":
+            if torch.cuda.is_available():
+                self.device = "cuda"
+                torch.cuda.empty_cache()
+                logger.info(f"GPU available: {torch.cuda.get_device_name(0)}")
+            else:
+                self.device = "cpu"
+                logger.info("GPU not available, using CPU")
+        else:
+            self.device = device
 
         logger.info(f"Loading {model_name} on {self.device}")
 
+        # Load processor and model with GPU optimizations
         self.processor = Wav2Vec2Processor.from_pretrained(model_name)
-        self.model = Wav2Vec2ForCTC.from_pretrained(model_name)
-
+        
+        model_kwargs = {}
         if self.device == "cuda":
-            self.model = self.model.cuda()
+            model_kwargs = {
+                "torch_dtype": torch.float16,
+                "low_cpu_mem_usage": True,
+            }
+            torch.cuda.set_per_process_memory_fraction(0.8)
+        
+        self.model = Wav2Vec2ForCTC.from_pretrained(model_name, **model_kwargs)
+
+        # Move model to device
+        if self.device == "cuda":
+            self.model = self.model.to('cuda')
+            self.model = self.model.half()  # Use FP16 for memory efficiency
 
         logger.info("✅ XLS-R STT ready")
 
@@ -52,8 +75,9 @@ class UzbekXLSRSTT:
             # Process audio
             inputs = self.processor(audio_data, sampling_rate=16000, return_tensors="pt", padding=True)
 
+            # Move inputs to device
             if self.device == "cuda":
-                inputs = {k: v.cuda() for k, v in inputs.items()}
+                inputs = {k: v.to(self.device) for k, v in inputs.items()}
 
             # Transcribe
             with torch.no_grad():

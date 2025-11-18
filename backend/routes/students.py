@@ -349,6 +349,8 @@ async def delete_student(
     Returns:
         No content
     """
+    from backend.services.face_recognition_service import get_face_recognition_service
+    
     student = db.query(Student).filter(Student.id == student_id).first()
     
     if not student:
@@ -357,7 +359,11 @@ async def delete_student(
             detail=f"Student with ID {student_id} not found"
         )
     
-    # Clean up face image if exists
+    # Delete face enrollment from both databases
+    face_service = get_face_recognition_service(db)
+    face_service.delete_student_enrollment(student_id)
+    
+    # Clean up face image file if it still exists
     if hasattr(student, 'face_image_path'):
         face_image_path = student.face_image_path
         if face_image_path is not None and os.path.exists(str(face_image_path)):

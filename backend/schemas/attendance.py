@@ -23,6 +23,7 @@ class AttendanceResponse(AttendanceBase):
     id: int
     timestamp: datetime
     recognition_confidence: Optional[float] = None
+    student_name: Optional[str] = None  # Added student name
     
     class Config:
         from_attributes = True

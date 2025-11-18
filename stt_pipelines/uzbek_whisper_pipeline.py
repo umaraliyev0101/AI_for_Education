@@ -37,37 +37,53 @@ class UzbekWhisperSTT:
     def __init__(self, config: Optional[UzbekSTTConfig] = None):
         self.config = config or UzbekSTTConfig()
 
-        # Set device
+        # Set device with GPU optimization
         if self.config.device == "auto":
-            self.device = "cuda" if torch.cuda.is_available() else "cpu"
+            if torch.cuda.is_available():
+                self.device = "cuda"
+                torch.cuda.empty_cache()
+                logger.info(f"GPU available: {torch.cuda.get_device_name(0)}")
+            else:
+                self.device = "cpu"
+                logger.info("GPU not available, using CPU")
         else:
             self.device = self.config.device
 
         logger.info(f"Using device: {self.device}")
 
-        # Load model and processor
+        # Load model and processor with GPU optimizations
+        model_kwargs = {}
+        if self.device == "cuda":
+            model_kwargs = {
+                "torch_dtype": torch.float16,
+                "device_map": "auto",
+                "low_cpu_mem_usage": True,
+            }
+            torch.cuda.set_per_process_memory_fraction(0.8)
+        else:
+            model_kwargs = {
+                "torch_dtype": torch.float32,
+            }
+
         self.model = AutoModelForSpeechSeq2Seq.from_pretrained(
             self.config.model_name,
-            torch_dtype=self.config.torch_dtype,
-            low_cpu_mem_usage=True,
-            use_safetensors=True
+            **model_kwargs
         )
-        self.model.to(self.device)
-
+        
         self.processor = AutoProcessor.from_pretrained(self.config.model_name)
-
-        # Create pipeline
+        
+        # Create pipeline with optimized settings
         self.pipe = pipeline(
             "automatic-speech-recognition",
             model=self.model,
             tokenizer=self.processor.tokenizer,
             feature_extractor=self.processor.feature_extractor,
-            max_new_tokens=128,
+            torch_dtype=torch.float16 if self.device == "cuda" else torch.float32,
             chunk_length_s=self.config.chunk_length_s,
             batch_size=self.config.batch_size,
-            return_timestamps=True,
-            torch_dtype=self.config.torch_dtype,
-            device=self.device,
+            generate_kwargs={"language": self.config.language, "task": self.config.task},
+            low_cpu_mem_usage=True,
+            use_safetensors=True
         )
 
         logger.info("✅ Uzbek Whisper STT initialized successfully")

@@ -49,7 +49,16 @@ async def list_attendance(
         query = query.filter(Attendance.student_id == student_id)
     
     attendance_records = query.offset(skip).limit(limit).all()
-    return attendance_records
+    
+    # Add student names to response
+    response_data = []
+    for record in attendance_records:
+        record_dict = record.__dict__.copy()
+        student = db.query(Student).filter(Student.id == record.student_id).first()
+        record_dict['student_name'] = student.name if student else None
+        response_data.append(record_dict)
+    
+    return response_data
 
 
 @router.get("/lesson/{lesson_id}", response_model=List[AttendanceResponse])
@@ -81,7 +90,15 @@ async def get_lesson_attendance(
         Attendance.lesson_id == lesson_id
     ).order_by(Attendance.timestamp).all()
     
-    return attendance_records
+    # Add student names to response
+    response_data = []
+    for record in attendance_records:
+        record_dict = record.__dict__.copy()
+        student = db.query(Student).filter(Student.id == record.student_id).first()
+        record_dict['student_name'] = student.name if student else None
+        response_data.append(record_dict)
+    
+    return response_data
 
 
 @router.get("/student/{student_id}", response_model=List[AttendanceResponse])
@@ -113,7 +130,14 @@ async def get_student_attendance(
         Attendance.student_id == student_id
     ).order_by(Attendance.timestamp.desc()).all()
     
-    return attendance_records
+    # Add student names to response (though all will be the same student)
+    response_data = []
+    for record in attendance_records:
+        record_dict = record.__dict__.copy()
+        record_dict['student_name'] = student.name
+        response_data.append(record_dict)
+    
+    return response_data
 
 
 @router.post("/", response_model=AttendanceResponse, status_code=status.HTTP_201_CREATED)
@@ -174,7 +198,11 @@ async def mark_attendance(
     db.commit()
     db.refresh(new_attendance)
     
-    return new_attendance
+    # Add student name to response
+    response_data = new_attendance.__dict__.copy()
+    response_data['student_name'] = student.name
+    
+    return response_data
 
 
 @router.post("/scan", response_model=AttendanceResponse)
@@ -288,7 +316,11 @@ async def scan_face_attendance(
         # Clean up
         face_recognition_system.close()
         
-        return new_attendance
+        # Add student name to response
+        response_data = new_attendance.__dict__.copy()
+        response_data['student_name'] = student.name
+        
+        return response_data
         
     except HTTPException:
         raise
@@ -302,26 +334,32 @@ async def scan_face_attendance(
 @router.post("/auto-scan/{lesson_id}")
 async def auto_scan_attendance(
     lesson_id: int,
+    max_duration_minutes: int = Query(30, description="Maximum scan duration in minutes", ge=1, le=120),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_teacher)
 ):
     """
-    Auto-scan attendance when teacher logs in using webcam
-    This endpoint triggers automatic attendance taking
+    Auto-scan attendance until lesson starts
+    Scans continuously from now until lesson start time (or max duration)
     
     Args:
         lesson_id: Lesson database ID
+        max_duration_minutes: Safety limit in minutes (1-120)
         db: Database session
         current_user: Authenticated teacher/admin
         
     Returns:
         List of recognized students with photos
     """
+    from datetime import datetime, timedelta
     from face_recognition.face_attendance import FaceRecognitionAttendance
     from backend.config import settings
     import os
     import cv2
     import base64
+    import logging
+    
+    logger = logging.getLogger(__name__)
     
     # Verify lesson exists
     lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
@@ -331,6 +369,31 @@ async def auto_scan_attendance(
             detail=f"Lesson with ID {lesson_id} not found"
         )
     
+    # Calculate scan duration based on lesson start time
+    current_time = datetime.now()
+    
+    # Combine date and start_time for full datetime
+    if lesson.start_time is not None:
+        lesson_start = lesson.start_time
+    else:
+        # Fallback: assume lesson starts at the date specified
+        lesson_start = lesson.date
+    
+    # Calculate time until lesson starts
+    time_until_start = lesson_start - current_time
+    time_until_start_seconds = max(0, int(time_until_start.total_seconds()))
+    
+    # If lesson already started, scan for 5 minutes or until max_duration
+    if time_until_start_seconds <= 0:
+        scan_duration_seconds = min(300, max_duration_minutes * 60)  # 5 min or max_duration
+        scan_reason = "lesson_already_started"
+    else:
+        # Scan until lesson starts, but not longer than max_duration
+        scan_duration_seconds = min(time_until_start_seconds, max_duration_minutes * 60)
+        scan_reason = "until_lesson_start"
+    
+    logger.info(f"Auto-scan: {scan_duration_seconds}s ({scan_reason}), lesson starts at {lesson_start}")
+    
     try:
         # Initialize face recognition
         face_recognition_system = FaceRecognitionAttendance(
@@ -338,7 +401,7 @@ async def auto_scan_attendance(
         )
         
         # Open camera
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(1) # Uses camera index from settings
         if not cap.isOpened():
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
@@ -346,10 +409,13 @@ async def auto_scan_attendance(
             )
         
         recognized_students = []
-        max_attempts = 100  # Try for ~5 seconds (at 20 fps)
+        max_attempts = scan_duration_seconds * 20  # Assuming 20 fps
         attempt = 0
+        scan_start_time = datetime.now()
         
-        while attempt < max_attempts and len(recognized_students) < 10:  # Scan up to 10 students
+        logger.info(f"Starting auto-scan: {scan_duration_seconds}s duration, max {max_attempts} frames")
+        
+        while attempt < max_attempts:
             ret, frame = cap.read()
             if not ret:
                 break
@@ -389,9 +455,13 @@ async def auto_scan_attendance(
                 
                 # Encode student photo (use face_image_path from Student model)
                 photo_base64 = None
-                if hasattr(student, 'face_image_path') and student.face_image_path and os.path.exists(student.face_image_path):
-                    with open(student.face_image_path, 'rb') as f:
-                        photo_base64 = base64.b64encode(f.read()).decode('utf-8')
+                face_image_path = getattr(student, 'face_image_path', None)
+                if face_image_path and os.path.exists(str(face_image_path)):
+                    try:
+                        with open(str(face_image_path), 'rb') as f:
+                            photo_base64 = base64.b64encode(f.read()).decode('utf-8')
+                    except Exception:
+                        photo_base64 = None
                 
                 recognized_students.append({
                     'student_id': student.student_id,
@@ -400,16 +470,31 @@ async def auto_scan_attendance(
                     'photo_base64': photo_base64,
                     'confidence': student_info['confidence']
                 })
+                
+                logger.info(f"Recognized: {student.name} ({len(recognized_students)} total)")
             
             attempt += 1
+            
+            # Progress logging every 100 frames
+            if attempt % 100 == 0:
+                elapsed = (datetime.now() - scan_start_time).total_seconds()
+                logger.info(f"Scan progress: {elapsed:.1f}s elapsed, {len(recognized_students)} students recognized")
+        
+        scan_end_time = datetime.now()
+        total_scan_time = (scan_end_time - scan_start_time).total_seconds()
         
         cap.release()
         face_recognition_system.close()
         
+        logger.info(f"Auto-scan completed: {total_scan_time:.1f}s, {len(recognized_students)} students")
+        
         return {
             "lesson_id": lesson_id,
             "recognized_count": len(recognized_students),
-            "students": recognized_students
+            "students": recognized_students,
+            "scan_duration_seconds": total_scan_time,
+            "scan_reason": scan_reason,
+            "lesson_start_time": lesson_start.isoformat() if lesson_start is not None else None
         }
         
     except Exception as e:

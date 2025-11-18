@@ -105,7 +105,7 @@ def start_backend():
         # Start uvicorn server in background
         cmd = [
             sys.executable, "-m", "uvicorn",
-            "backend.main:app",
+            "main:app",
             "--host", "0.0.0.0",
             "--port", "8001",
             "--reload"
