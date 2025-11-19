@@ -86,6 +86,7 @@ chromadb>=0.4.0
 PyPDF2>=3.0.0
 python-pptx>=0.6.21
 python-docx>=1.1.0
+pdf2image>=1.17.0
 
 # ============================================================================
 # TASK SCHEDULING
@@ -117,7 +118,13 @@ httpx>=0.24.0
 #    - Linux: sudo apt-get install ffmpeg
 #    - macOS: brew install ffmpeg
 #
-# 2. Visual C++ Redistributable (Windows only):
+# 2. LibreOffice (OPTIONAL, for PPTX conversion fallback on systems without PowerPoint):
+#    - Windows: Download from https://www.libreoffice.org/download/download/
+#    - Linux: sudo apt-get install libreoffice
+#    - macOS: brew install --cask libreoffice
+#    - Note: Used as fallback when Microsoft PowerPoint is not available
+#
+# 3. Visual C++ Redistributable (Windows only):
 #    - Required for some Python packages
 #    - Download from: https://aka.ms/vs/17/release/vc_redist.x64.exe
 #

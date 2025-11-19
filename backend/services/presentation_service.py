@@ -55,6 +55,20 @@ except ImportError:
     TTS_AVAILABLE = False
     logger.warning("TTS pipeline not available")
 
+# Check for LibreOffice availability (fallback for PPTX conversion)
+LIBREOFFICE_AVAILABLE = False
+try:
+    import subprocess
+    result = subprocess.run(['soffice', '--version'], capture_output=True, text=True, timeout=5)
+    if result.returncode == 0:
+        LIBREOFFICE_AVAILABLE = True
+        logger.info("✅ LibreOffice available for PPTX conversion fallback")
+    else:
+        logger.warning("⚠️ LibreOffice soffice command not found or not working")
+except (subprocess.TimeoutExpired, FileNotFoundError, Exception) as e:
+    logger.warning(f"⚠️ LibreOffice check failed: {e}")
+    logger.warning("💡 Install LibreOffice for PPTX conversion fallback on systems without PowerPoint")
+
 
 class PresentationService:
     """Service for processing presentations and generating audio"""
@@ -80,7 +94,7 @@ class PresentationService:
     
     def _convert_pptx_to_images(self, pptx_path: str, lesson_id: int) -> List[str]:
         """
-        Convert PPTX slides to PNG images using PowerPoint COM on Windows
+        Convert PPTX slides to PNG images using PowerPoint COM or LibreOffice fallback
         
         Returns:
             List of image file paths
@@ -108,18 +122,39 @@ class PresentationService:
             logger.info(f"✅ Found {len(image_paths)} existing slide images")
             return image_paths
         
+        # Try PowerPoint COM first (Windows with PowerPoint)
+        if COMTYPES_AVAILABLE:
+            logger.info("🔄 Attempting PowerPoint COM conversion...")
+            powerpoint_result = self._convert_pptx_with_powerpoint(pptx_path, lesson_id, lesson_slides_dir)
+            if powerpoint_result:
+                return powerpoint_result
+        
+        # Fallback to LibreOffice (cross-platform)
+        if LIBREOFFICE_AVAILABLE and PDF2IMAGE_AVAILABLE:
+            logger.info("🔄 Attempting LibreOffice conversion fallback...")
+            libreoffice_result = self._convert_pptx_with_libreoffice(pptx_path, lesson_id, lesson_slides_dir)
+            if libreoffice_result:
+                return libreoffice_result
+        
+        # Both methods failed
+        logger.error("❌ All PPTX conversion methods failed")
         if not COMTYPES_AVAILABLE:
-            logger.error("❌ comtypes not available for PPTX conversion")
             logger.error("💡 Install comtypes: pip install comtypes")
             logger.error("💡 Make sure Microsoft PowerPoint is installed on this system")
-            return []
-        
+        if not LIBREOFFICE_AVAILABLE:
+            logger.error("💡 Install LibreOffice for cross-platform PPTX conversion")
+        if not PDF2IMAGE_AVAILABLE:
+            logger.error("💡 Install pdf2image: pip install pdf2image")
+        return []
+    
+    def _convert_pptx_with_powerpoint(self, pptx_path: str, lesson_id: int, output_dir: str) -> List[str]:
+        """Convert PPTX to images using PowerPoint COM"""
         try:
             logger.info(f"🚀 Starting PowerPoint COM automation for {pptx_path}")
             
             # Convert to absolute path
             abs_pptx_path = os.path.abspath(pptx_path)
-            abs_output_dir = os.path.abspath(lesson_slides_dir)
+            abs_output_dir = os.path.abspath(output_dir)
             
             logger.info(f"📂 Input: {abs_pptx_path}")
             logger.info(f"📂 Output: {abs_output_dir}")
@@ -181,13 +216,102 @@ class PresentationService:
             logger.info("🔌 Quitting PowerPoint...")
             powerpoint.Quit()
             
-            logger.info(f"✅ Successfully exported {len(image_paths)} slides")
+            logger.info(f"✅ Successfully exported {len(image_paths)} slides with PowerPoint")
             return image_paths
             
         except Exception as e:
-            logger.error(f"❌ Failed to convert PPTX to images: {e}")
+            logger.error(f"❌ PowerPoint COM conversion failed: {e}")
             logger.error(f"❌ Error type: {type(e).__name__}")
             logger.error(f"❌ Error details: {str(e)}")
+            import traceback
+            logger.error(f"❌ Traceback:\n{traceback.format_exc()}")
+            return []
+    
+    def _convert_pptx_with_libreoffice(self, pptx_path: str, lesson_id: int, output_dir: str) -> List[str]:
+        """Convert PPTX to images using LibreOffice (fallback method)"""
+        try:
+            logger.info(f"📄 Converting PPTX to PDF with LibreOffice: {pptx_path}")
+            
+            # Convert to absolute paths
+            abs_pptx_path = os.path.abspath(pptx_path)
+            abs_output_dir = os.path.abspath(output_dir)
+            
+            # Create temporary PDF path
+            temp_pdf_path = os.path.join(abs_output_dir, f"temp_presentation.pdf")
+            
+            logger.info(f"📂 Input: {abs_pptx_path}")
+            logger.info(f"📂 Temp PDF: {temp_pdf_path}")
+            logger.info(f"📂 Output dir: {abs_output_dir}")
+            
+            # Verify input file exists
+            if not os.path.exists(abs_pptx_path):
+                logger.error(f"❌ Input file not found: {abs_pptx_path}")
+                return []
+            
+            # Step 1: Convert PPTX to PDF using LibreOffice
+            logger.info("🔄 Running LibreOffice conversion...")
+            cmd = [
+                'soffice',
+                '--headless',
+                '--convert-to', 'pdf',
+                '--outdir', abs_output_dir,
+                abs_pptx_path
+            ]
+            
+            result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            
+            if result.returncode != 0:
+                logger.error(f"❌ LibreOffice conversion failed: {result.stderr}")
+                return []
+            
+            # Check if PDF was created (LibreOffice might name it differently)
+            expected_pdf = os.path.join(abs_output_dir, os.path.splitext(os.path.basename(pptx_path))[0] + ".pdf")
+            if not os.path.exists(expected_pdf):
+                # Try alternative naming
+                alt_pdf = temp_pdf_path
+                if not os.path.exists(alt_pdf):
+                    logger.error("❌ PDF file not found after LibreOffice conversion")
+                    return []
+                temp_pdf_path = alt_pdf
+            
+            logger.info(f"✅ PDF created: {temp_pdf_path}")
+            
+            # Step 2: Convert PDF to images using pdf2image
+            logger.info("🖼️ Converting PDF to images...")
+            images = convert_from_path(temp_pdf_path, dpi=150)
+            
+            image_paths = []
+            
+            for i, image in enumerate(images, start=1):
+                image_filename = f"slide_{i}.png"
+                image_path = os.path.join(abs_output_dir, image_filename)
+                
+                # Save image
+                image.save(image_path, 'PNG')
+                
+                # Store relative path
+                rel_path = f"uploads/slides/lesson_{lesson_id}/{image_filename}"
+                image_paths.append(rel_path)
+                
+                logger.info(f"✅ Exported slide {i} to {image_filename}")
+            
+            # Clean up temporary PDF
+            try:
+                if os.path.exists(temp_pdf_path):
+                    os.remove(temp_pdf_path)
+                    logger.info("🧹 Cleaned up temporary PDF file")
+            except Exception as e:
+                logger.warning(f"⚠️ Failed to clean up temp PDF: {e}")
+            
+            logger.info(f"✅ Successfully exported {len(image_paths)} slides with LibreOffice")
+            return image_paths
+            
+        except subprocess.TimeoutExpired:
+            logger.error("❌ LibreOffice conversion timed out")
+            return []
+        except Exception as e:
+            logger.error(f"❌ LibreOffice conversion failed: {e}")
+            logger.error(f"❌ Error type: {type(e).__name__}")
             import traceback
             logger.error(f"❌ Traceback:\n{traceback.format_exc()}")
             return []
