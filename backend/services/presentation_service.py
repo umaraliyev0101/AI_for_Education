@@ -331,24 +331,39 @@ class PresentationService:
             logger.info(f"🐛 DEBUG: stdout: {result.stdout}")
             if result.stderr:
                 logger.warning(f"🐛 DEBUG: stderr: {result.stderr}")
-            
+
             if result.returncode != 0:
                 logger.error(f"❌ LibreOffice conversion failed: {result.stderr}")
                 return []
-            
-            # Check if PDF was created (LibreOffice might name it differently)
-            expected_pdf = os.path.join(abs_output_dir, os.path.splitext(os.path.basename(pptx_path))[0] + ".pdf")
-            logger.info(f"🐛 DEBUG: Expected PDF path: {expected_pdf}")
-            
-            if not os.path.exists(expected_pdf):
-                # Try alternative naming
-                alt_pdf = temp_pdf_path
-                if not os.path.exists(alt_pdf):
-                    logger.error("❌ PDF file not found after LibreOffice conversion")
-                    logger.error(f"🐛 DEBUG: Files in output dir: {os.listdir(abs_output_dir)}")
-                    return []
-                temp_pdf_path = alt_pdf
-            
+
+            # Detect generated PDF file(s).
+            try:
+                files_after = [f for f in os.listdir(abs_output_dir) if f.lower().endswith('.pdf')]
+            except Exception:
+                files_after = []
+
+            # Prefer file with same stem as source PPTX
+            base_stem = os.path.splitext(os.path.basename(pptx_path))[0]
+            matching = [f for f in files_after if os.path.splitext(f)[0] == base_stem]
+
+            chosen_pdf = None
+            if matching:
+                chosen_pdf = os.path.join(abs_output_dir, matching[0])
+                logger.info(f"🐛 DEBUG: Found PDF matching PPTX stem: {matching[0]}")
+            elif files_after:
+                # If there are multiple PDFs, pick the newest by mtime
+                files_full = [os.path.join(abs_output_dir, f) for f in files_after]
+                files_full.sort(key=lambda p: os.path.getmtime(p), reverse=True)
+                chosen_pdf = files_full[0]
+                logger.info(f"🐛 DEBUG: No stem match; picking newest PDF: {os.path.basename(chosen_pdf)}")
+
+            if not chosen_pdf:
+                # Fallback: maybe LibreOffice produced a file with a different name
+                logger.error("❌ PDF file not found after LibreOffice conversion")
+                logger.error(f"🐛 DEBUG: Files in output dir: {os.listdir(abs_output_dir)}")
+                return []
+
+            temp_pdf_path = chosen_pdf
             logger.info(f"✅ PDF created: {temp_pdf_path}")
             
             # Step 2: Convert PDF to images using pdf2image
