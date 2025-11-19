@@ -43,6 +43,11 @@ except ImportError:
 # For PDF to image conversion
 try:
     from pdf2image import convert_from_path
+    try:
+        # specific exception used when poppler's pdfinfo is missing
+        from pdf2image.exceptions import PDFInfoNotInstalledError
+    except Exception:
+        PDFInfoNotInstalledError = None
     PDF2IMAGE_AVAILABLE = True
 except ImportError:
     PDF2IMAGE_AVAILABLE = False
@@ -329,7 +334,29 @@ class PresentationService:
             
             # Step 2: Convert PDF to images using pdf2image
             logger.info("🖼️ Converting PDF to images...")
-            images = convert_from_path(temp_pdf_path, dpi=150)
+            # Allow overriding poppler bin path via env var POPPLER_PATH
+            poppler_path = os.environ.get('POPPLER_PATH')
+            try:
+                if poppler_path:
+                    logger.info(f"🐛 DEBUG: Using POPPLER_PATH={poppler_path}")
+                    images = convert_from_path(temp_pdf_path, dpi=150, poppler_path=poppler_path)
+                else:
+                    images = convert_from_path(temp_pdf_path, dpi=150)
+            except Exception as e:
+                # If pdf2image fails because poppler/pdfinfo is missing, fall back to PyMuPDF
+                err_name = type(e).__name__
+                logger.warning(f"⚠️ pdf2image failed: {err_name}: {e}")
+                try:
+                    from pdf2image.exceptions import PDFInfoNotInstalledError
+                except Exception:
+                    PDFInfoNotInstalledError = None
+
+                if PDFInfoNotInstalledError and isinstance(e, PDFInfoNotInstalledError):
+                    logger.info("🔁 Falling back to PyMuPDF for PDF->PNG conversion")
+                    return self._convert_pdf_with_pymupdf(temp_pdf_path, lesson_id, abs_output_dir)
+                else:
+                    logger.error(f"❌ pdf2image conversion failed: {e}")
+                    return []
             
             image_paths = []
             
