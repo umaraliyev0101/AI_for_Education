@@ -143,15 +143,14 @@ class PresentationService:
                 return powerpoint_result
         
         # Fallback to LibreOffice (cross-platform)
-        # Try LibreOffice even when pdf2image isn't available — we can still convert PPTX->PDF
-        # and then use PyMuPDF fallback to render PDF->PNG.
-        if LIBREOFFICE_AVAILABLE:
-            logger.info("🔄 Attempting LibreOffice conversion fallback...")
-            if not PDF2IMAGE_AVAILABLE:
-                logger.info("ℹ️ pdf2image not available; will attempt LibreOffice -> PyMuPDF path")
-            libreoffice_result = self._convert_pptx_with_libreoffice(pptx_path, lesson_id, lesson_slides_dir)
-            if libreoffice_result:
-                return libreoffice_result
+        # Probe for LibreOffice at runtime and attempt conversion even if the
+        # import-time check failed (some environments change PATH after startup).
+        logger.info("🔄 Attempting LibreOffice conversion fallback (runtime probe)...")
+        if not PDF2IMAGE_AVAILABLE:
+            logger.info("ℹ️ pdf2image not available; will attempt LibreOffice -> PyMuPDF path")
+        libreoffice_result = self._convert_pptx_with_libreoffice(pptx_path, lesson_id, lesson_slides_dir)
+        if libreoffice_result:
+            return libreoffice_result
         
         # Both methods failed
         logger.error("❌ All PPTX conversion methods failed")
@@ -268,9 +267,19 @@ class PresentationService:
             
             # Try to find soffice executable
             import shutil
-            soffice_path = shutil.which("soffice")
-            logger.info(f"🐛 DEBUG: shutil.which('soffice'): {soffice_path}")
-            
+            # Allow explicit env override for the soffice binary (helpful for services)
+            soffice_env = os.environ.get('LIBREOFFICE_PATH') or os.environ.get('SOFFICE_PATH')
+            if soffice_env:
+                # If user provides a folder, append executable name
+                candidate = os.path.expandvars(soffice_env)
+                if os.path.isdir(candidate):
+                    candidate = os.path.join(candidate, 'soffice.exe' if os.name == 'nt' else 'soffice')
+                soffice_path = candidate if os.path.exists(candidate) else None
+                logger.info(f"🐛 DEBUG: Using soffice from env var: {soffice_env} -> {soffice_path}")
+            else:
+                soffice_path = shutil.which("soffice")
+                logger.info(f"🐛 DEBUG: shutil.which('soffice'): {soffice_path}")
+
             if not soffice_path:
                 # Try common LibreOffice installation locations
                 common_paths = [
@@ -292,7 +301,11 @@ class PresentationService:
             
             if not soffice_path:
                 logger.error("❌ soffice executable not found in PATH or common locations")
-                logger.error("💡 Please ensure LibreOffice is installed and soffice is in PATH")
+                logger.error("💡 Please ensure LibreOffice is installed and 'soffice' is in PATH")
+                logger.error("💡 Or set an explicit environment variable before starting the backend:")
+                logger.error("  - PowerShell (current session): $env:LIBREOFFICE_PATH='C:\\Program Files\\LibreOffice\\program'")
+                logger.error("  - Windows (permanent): setx LIBREOFFICE_PATH 'C:\\Program Files\\LibreOffice\\program'")
+                logger.error("  - Linux: export LIBREOFFICE_PATH=/usr/bin")
                 return []
             
             # Verify input file exists
