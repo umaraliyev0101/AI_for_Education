@@ -143,21 +143,27 @@ class PresentationService:
                 return powerpoint_result
         
         # Fallback to LibreOffice (cross-platform)
-        if LIBREOFFICE_AVAILABLE and PDF2IMAGE_AVAILABLE:
+        # Try LibreOffice even when pdf2image isn't available — we can still convert PPTX->PDF
+        # and then use PyMuPDF fallback to render PDF->PNG.
+        if LIBREOFFICE_AVAILABLE:
             logger.info("🔄 Attempting LibreOffice conversion fallback...")
+            if not PDF2IMAGE_AVAILABLE:
+                logger.info("ℹ️ pdf2image not available; will attempt LibreOffice -> PyMuPDF path")
             libreoffice_result = self._convert_pptx_with_libreoffice(pptx_path, lesson_id, lesson_slides_dir)
             if libreoffice_result:
                 return libreoffice_result
         
         # Both methods failed
         logger.error("❌ All PPTX conversion methods failed")
+        # Give actionable hints
         if not COMTYPES_AVAILABLE:
-            logger.error("💡 Install comtypes: pip install comtypes")
-            logger.error("💡 Make sure Microsoft PowerPoint is installed on this system")
+            logger.error("💡 PowerPoint COM not available: pip install comtypes and ensure MS PowerPoint is installed")
         if not LIBREOFFICE_AVAILABLE:
-            logger.error("💡 Install LibreOffice for cross-platform PPTX conversion")
+            logger.error("💡 LibreOffice not found: install LibreOffice or ensure 'soffice' is in PATH")
         if not PDF2IMAGE_AVAILABLE:
-            logger.error("💡 Install pdf2image: pip install pdf2image")
+            logger.error("💡 pdf2image not installed: pip install pdf2image (requires poppler) or rely on PyMuPDF fallback")
+        if not PYMUPDF_AVAILABLE:
+            logger.error("💡 PyMuPDF not installed: pip install PyMuPDF")
         return []
     
     def _convert_pptx_with_powerpoint(self, pptx_path: str, lesson_id: int, output_dir: str) -> List[str]:
