@@ -48,6 +48,14 @@ except ImportError:
     PDF2IMAGE_AVAILABLE = False
     logger.warning("⚠️ pdf2image not available - PDF image conversion disabled")
 
+# For PDF to image conversion (fallback, no external dependencies)
+try:
+    import fitz  # PyMuPDF
+    PYMUPDF_AVAILABLE = True
+except ImportError:
+    PYMUPDF_AVAILABLE = False
+    logger.warning("⚠️ PyMuPDF not available - PDF fallback conversion disabled")
+
 try:
     from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
     TTS_AVAILABLE = True
@@ -318,19 +326,61 @@ class PresentationService:
     
     def _convert_pdf_to_images(self, pdf_path: str, lesson_id: int) -> List[str]:
         """
-        Convert PDF pages to PNG images
+        Convert PDF pages to PNG images using pdf2image or PyMuPDF fallback
         
         Returns:
             List of image file paths
         """
-        if not PDF2IMAGE_AVAILABLE:
-            logger.error("❌ pdf2image not available for PDF conversion")
-            return []
+        # Create output directory for this lesson
+        lesson_slides_dir = os.path.join(self.slides_output_dir, f"lesson_{lesson_id}")
+        os.makedirs(lesson_slides_dir, exist_ok=True)
         
+        logger.info(f"🖼️  PDF directory: {os.path.abspath(lesson_slides_dir)}")
+        
+        # ✅ Check if images already exist
+        existing_images = []
         try:
-            # Create output directory for this lesson
-            lesson_slides_dir = os.path.join(self.slides_output_dir, f"lesson_{lesson_id}")
-            os.makedirs(lesson_slides_dir, exist_ok=True)
+            for file in os.listdir(lesson_slides_dir):
+                if file.startswith('slide_') and file.endswith('.png'):
+                    rel_path = f"uploads/slides/lesson_{lesson_id}/{file}"
+                    existing_images.append((int(file.split('_')[1].split('.')[0]), rel_path))
+        except Exception as e:
+            logger.warning(f"⚠️  Error checking existing images: {e}")
+        
+        if existing_images:
+            # Sort by slide number and return paths
+            existing_images.sort(key=lambda x: x[0])
+            image_paths = [path for _, path in existing_images]
+            logger.info(f"✅ Found {len(image_paths)} existing PDF page images")
+            return image_paths
+        
+        # Try pdf2image first (requires poppler)
+        if PDF2IMAGE_AVAILABLE:
+            logger.info("🔄 Attempting pdf2image conversion...")
+            pdf2image_result = self._convert_pdf_with_pdf2image(pdf_path, lesson_id, lesson_slides_dir)
+            if pdf2image_result:
+                return pdf2image_result
+        
+        # Fallback to PyMuPDF (no external dependencies)
+        if PYMUPDF_AVAILABLE:
+            logger.info("🔄 Attempting PyMuPDF conversion fallback...")
+            pymupdf_result = self._convert_pdf_with_pymupdf(pdf_path, lesson_id, lesson_slides_dir)
+            if pymupdf_result:
+                return pymupdf_result
+        
+        # Both methods failed
+        logger.error("❌ All PDF conversion methods failed")
+        if not PDF2IMAGE_AVAILABLE:
+            logger.error("💡 Install pdf2image: pip install pdf2image")
+            logger.error("💡 Also install poppler: conda install -c conda-forge poppler (or system package manager)")
+        if not PYMUPDF_AVAILABLE:
+            logger.error("💡 Install PyMuPDF: pip install PyMuPDF")
+        return []
+    
+    def _convert_pdf_with_pdf2image(self, pdf_path: str, lesson_id: int, output_dir: str) -> List[str]:
+        """Convert PDF to images using pdf2image (requires poppler)"""
+        try:
+            logger.info(f"📄 Converting PDF with pdf2image: {pdf_path}")
             
             # Convert PDF to images
             images = convert_from_path(pdf_path, dpi=150)
@@ -339,7 +389,7 @@ class PresentationService:
             
             for i, image in enumerate(images, start=1):
                 image_filename = f"slide_{i}.png"
-                image_path = os.path.join(lesson_slides_dir, image_filename)
+                image_path = os.path.join(output_dir, image_filename)
                 
                 # Save image
                 image.save(image_path, 'PNG')
@@ -350,10 +400,47 @@ class PresentationService:
                 
                 logger.info(f"✅ Exported page {i} to {image_filename}")
             
+            logger.info(f"✅ Successfully converted {len(image_paths)} pages with pdf2image")
             return image_paths
             
         except Exception as e:
-            logger.error(f"❌ Failed to convert PDF to images: {e}")
+            logger.error(f"❌ pdf2image conversion failed: {e}")
+            return []
+    
+    def _convert_pdf_with_pymupdf(self, pdf_path: str, lesson_id: int, output_dir: str) -> List[str]:
+        """Convert PDF to images using PyMuPDF (no external dependencies)"""
+        try:
+            logger.info(f"📄 Converting PDF with PyMuPDF: {pdf_path}")
+            
+            # Open PDF document
+            doc = fitz.open(pdf_path)
+            image_paths = []
+            
+            # Convert each page to image
+            for page_num in range(len(doc)):
+                page = doc.load_page(page_num)
+                
+                # Render page to image (higher resolution for better quality)
+                pix = page.get_pixmap(matrix=fitz.Matrix(2, 2))  # 2x scaling for better quality
+                
+                image_filename = f"slide_{page_num + 1}.png"
+                image_path = os.path.join(output_dir, image_filename)
+                
+                # Save image
+                pix.save(image_path)
+                
+                # Store relative path
+                rel_path = f"uploads/slides/lesson_{lesson_id}/{image_filename}"
+                image_paths.append(rel_path)
+                
+                logger.info(f"✅ Exported page {page_num + 1} to {image_filename}")
+            
+            doc.close()
+            logger.info(f"✅ Successfully converted {len(image_paths)} pages with PyMuPDF")
+            return image_paths
+            
+        except Exception as e:
+            logger.error(f"❌ PyMuPDF conversion failed: {e}")
             return []
     
     async def process_presentation(self, presentation_path: str, lesson_id: int) -> Optional[Dict[str, Any]]:

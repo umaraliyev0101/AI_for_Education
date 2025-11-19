@@ -87,6 +87,7 @@ PyPDF2>=3.0.0
 python-pptx>=0.6.21
 python-docx>=1.1.0
 pdf2image>=1.17.0
+PyMuPDF>=1.23.0
 
 # ============================================================================
 # TASK SCHEDULING
@@ -124,7 +125,13 @@ httpx>=0.24.0
 #    - macOS: brew install --cask libreoffice
 #    - Note: Used as fallback when Microsoft PowerPoint is not available
 #
-# 3. Visual C++ Redistributable (Windows only):
+# 3. Poppler (OPTIONAL, for PDF conversion with pdf2image):
+#    - Windows: conda install -c conda-forge poppler
+#    - Linux: sudo apt-get install poppler-utils
+#    - macOS: brew install poppler
+#    - Note: Alternative is to use PyMuPDF which has no external dependencies
+#
+# 4. Visual C++ Redistributable (Windows only):
 #    - Required for some Python packages
 #    - Download from: https://aka.ms/vs/17/release/vc_redist.x64.exe
 #
