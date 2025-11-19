@@ -238,7 +238,7 @@ class PresentationService:
     def _convert_pptx_with_libreoffice(self, pptx_path: str, lesson_id: int, output_dir: str) -> List[str]:
         """Convert PPTX to images using LibreOffice (fallback method)"""
         try:
-            logger.info(f"📄 Converting PPTX to PDF with LibreOffice: {pptx_path}")
+            logger.info(f"📄 Converting PPTX with LibreOffice: {pptx_path}")
             
             # Convert to absolute paths
             abs_pptx_path = os.path.abspath(pptx_path)
@@ -251,6 +251,39 @@ class PresentationService:
             logger.info(f"📂 Temp PDF: {temp_pdf_path}")
             logger.info(f"📂 Output dir: {abs_output_dir}")
             
+            # DEBUG: Log environment information
+            logger.info(f"🐛 DEBUG: Current PATH: {os.environ.get('PATH', 'NOT_SET')}")
+            logger.info(f"🐛 DEBUG: Working directory: {os.getcwd()}")
+            
+            # Try to find soffice executable
+            import shutil
+            soffice_path = shutil.which("soffice")
+            logger.info(f"🐛 DEBUG: shutil.which('soffice'): {soffice_path}")
+            
+            if not soffice_path:
+                # Try common LibreOffice installation locations
+                common_paths = [
+                    r"C:\Program Files\LibreOffice\program\soffice.exe",
+                    r"C:\Program Files (x86)\LibreOffice\program\soffice.exe",
+                    r"C:\Users\%USERNAME%\AppData\Local\Programs\LibreOffice\program\soffice.exe",
+                    "/usr/bin/soffice",
+                    "/usr/lib/libreoffice/program/soffice",
+                    "/opt/libreoffice/program/soffice"
+                ]
+                
+                for path in common_paths:
+                    expanded_path = os.path.expandvars(path)
+                    logger.info(f"🐛 DEBUG: Checking path: {expanded_path}")
+                    if os.path.exists(expanded_path):
+                        soffice_path = expanded_path
+                        logger.info(f"🐛 DEBUG: Found soffice at: {soffice_path}")
+                        break
+            
+            if not soffice_path:
+                logger.error("❌ soffice executable not found in PATH or common locations")
+                logger.error("💡 Please ensure LibreOffice is installed and soffice is in PATH")
+                return []
+            
             # Verify input file exists
             if not os.path.exists(abs_pptx_path):
                 logger.error(f"❌ Input file not found: {abs_pptx_path}")
@@ -259,14 +292,21 @@ class PresentationService:
             # Step 1: Convert PPTX to PDF using LibreOffice
             logger.info("🔄 Running LibreOffice conversion...")
             cmd = [
-                'soffice',
+                soffice_path,
                 '--headless',
                 '--convert-to', 'pdf',
                 '--outdir', abs_output_dir,
                 abs_pptx_path
             ]
             
+            logger.info(f"🐛 DEBUG: Command: {' '.join(cmd)}")
+            
             result = subprocess.run(cmd, capture_output=True, text=True, timeout=60)
+            
+            logger.info(f"🐛 DEBUG: Return code: {result.returncode}")
+            logger.info(f"🐛 DEBUG: stdout: {result.stdout}")
+            if result.stderr:
+                logger.warning(f"🐛 DEBUG: stderr: {result.stderr}")
             
             if result.returncode != 0:
                 logger.error(f"❌ LibreOffice conversion failed: {result.stderr}")
@@ -274,11 +314,14 @@ class PresentationService:
             
             # Check if PDF was created (LibreOffice might name it differently)
             expected_pdf = os.path.join(abs_output_dir, os.path.splitext(os.path.basename(pptx_path))[0] + ".pdf")
+            logger.info(f"🐛 DEBUG: Expected PDF path: {expected_pdf}")
+            
             if not os.path.exists(expected_pdf):
                 # Try alternative naming
                 alt_pdf = temp_pdf_path
                 if not os.path.exists(alt_pdf):
                     logger.error("❌ PDF file not found after LibreOffice conversion")
+                    logger.error(f"🐛 DEBUG: Files in output dir: {os.listdir(abs_output_dir)}")
                     return []
                 temp_pdf_path = alt_pdf
             
