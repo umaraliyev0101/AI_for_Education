@@ -14,6 +14,7 @@ import json
 import asyncio
 from PIL import Image
 import io
+import functools
 
 logger = logging.getLogger(__name__)
 
@@ -891,19 +892,19 @@ class PresentationService:
             audio_path = os.path.join(lesson_audio_dir, audio_filename)
             
             # Generate speech WITHOUT playing (run in executor to avoid blocking)
-            # play_audio=False prevents the audio from playing during batch processing
-            loop = asyncio.get_event_loop()
-            await loop.run_in_executor(
-                None,
-                lambda: self.tts.speak_text(text, save_to_file=audio_path, play_audio=False)
-            )
+            # Use the running loop and run in executor to avoid 'no current event loop' errors
+            loop = asyncio.get_running_loop()
+            speak_fn = functools.partial(self.tts.speak_text, text, save_to_file=audio_path, play_audio=False)
+            logger.debug(f"🗣️ Generating TTS for lesson {lesson_id} slide {slide_number} -> {audio_path}")
+            await loop.run_in_executor(None, speak_fn)
+            logger.debug(f"🗣️ TTS generation completed for lesson {lesson_id} slide {slide_number}")
             
             if os.path.exists(audio_path):
                 logger.info(f"✅ Generated audio for slide {slide_number}")
                 # Return relative path with leading slash for frontend
                 return f"/uploads/audio/presentations/lesson_{lesson_id}/{audio_filename}"
             else:
-                logger.error(f"❌ Audio file not created for slide {slide_number}")
+                logger.error(f"❌ Audio file not created for slide {slide_number} at expected path: {audio_path}")
                 return None
                 
         except Exception as e:

@@ -4,7 +4,6 @@ WebSocket Routes for Real-Time Lesson Management
 
 WebSocket endpoints for:
 - Live attendance monitoring
-- Presentation delivery with audio
 - Real-time Q&A during lessons
 - Lesson state updates
 """
@@ -24,7 +23,6 @@ from backend.models.lesson import Lesson
 from backend.models.user import User, UserRole
 from backend.dependencies import get_current_user_ws
 from backend.services.lesson_session_service import get_lesson_session_service
-from backend.services.presentation_service import get_presentation_service
 from face_recognition.face_attendance import FaceRecognitionAttendance
 from backend.models.student import Student
 from backend.models.attendance import Attendance
@@ -346,11 +344,6 @@ async def lesson_websocket(
     - {"type": "start_attendance"}
     - {"type": "end_attendance"}
     - {"type": "stop_auto_attendance"}
-    - {"type": "start_presentation"}
-    - {"type": "next_slide"}
-    - {"type": "previous_slide"}
-    - {"type": "pause_presentation"}
-    - {"type": "resume_presentation"}
     - {"type": "ask_question", "question": "text", "method": "text|audio"}
     - {"type": "start_qa"}
     - {"type": "end_lesson"}
@@ -362,9 +355,6 @@ async def lesson_websocket(
     - {"type": "auto_attendance_stopped", "message": "..."}
     - {"type": "student_detected", "student": {...}}
     - {"type": "attendance_count_update", "present_count": 5}
-    - {"type": "slide_data", "slide": {...}}
-    - {"type": "presentation_paused"}
-    - {"type": "presentation_resumed"}
     - {"type": "question_answered", "answer": {...}}
     - {"type": "qa_mode_started"}
     - {"type": "lesson_ended"}
@@ -382,7 +372,6 @@ async def lesson_websocket(
     
     # Get services
     session_service = get_lesson_session_service()
-    presentation_service = get_presentation_service()
     
     try:
         # Send initial lesson state
@@ -407,21 +396,6 @@ async def lesson_websocket(
             
             elif message_type == "end_attendance":
                 await handle_end_attendance(lesson_id, session_service, manager)
-            
-            elif message_type == "start_presentation":
-                await handle_start_presentation(lesson_id, lesson, session_service, presentation_service, manager)
-            
-            elif message_type == "next_slide":
-                await handle_next_slide(lesson_id, session_service, presentation_service, manager)
-            
-            elif message_type == "previous_slide":
-                await handle_previous_slide(lesson_id, session_service, presentation_service, manager)
-            
-            elif message_type == "pause_presentation":
-                await handle_pause_presentation(lesson_id, session_service, manager)
-            
-            elif message_type == "resume_presentation":
-                await handle_resume_presentation(lesson_id, session_service, manager)
             
             elif message_type == "ask_question":
                 await handle_ask_question(
@@ -490,109 +464,6 @@ async def handle_end_attendance(lesson_id: int, session_service, manager):
         })
     finally:
         db.close()
-
-
-async def handle_start_presentation(lesson_id: int, lesson, session_service, presentation_service, manager):
-    """Handle presentation phase start"""
-    await session_service.start_presentation_phase(lesson_id)
-    
-    # ✅ FIX: Load presentation data (should already be processed via API endpoint)
-    presentation_data = presentation_service.load_presentation_metadata(lesson_id)
-    
-    if not presentation_data:
-        # ❌ Presentation not processed yet - send error instead of auto-processing
-        await manager.broadcast_to_lesson(lesson_id, {
-            "type": "error",
-            "message": "Presentation not processed yet. Please upload and process the presentation first.",
-            "timestamp": datetime.now().isoformat()
-        })
-        logger.warning(f"⚠️ Attempted to start unprocessed presentation for lesson {lesson_id}")
-        return
-    
-    if presentation_data:
-        # Send ALL presentation data including all slides
-        session_service.update_session_state(lesson_id, {'current_slide': 1})
-        
-        await manager.broadcast_to_lesson(lesson_id, {
-            "type": "presentation_started",
-            "lesson_id": lesson_id,
-            "lesson_title": lesson.title,
-            "total_slides": presentation_data['total_slides'],
-            "slides": presentation_data['slides'],  # ← All slides with image_path, audio_path, text
-            "current_slide_number": 1,
-            "timestamp": datetime.now().isoformat()
-        })
-        
-        logger.info(f"📊 Presentation started for lesson {lesson_id} with {presentation_data['total_slides']} slides")
-    else:
-        await manager.broadcast_to_lesson(lesson_id, {
-            "type": "error",
-            "message": "No presentation available"
-        })
-
-
-async def handle_next_slide(lesson_id: int, session_service, presentation_service, manager):
-    """Handle next slide request"""
-    session_state = session_service.get_session_state(lesson_id)
-    if not session_state:
-        return
-    
-    current_slide = session_state.get('current_slide', 0)
-    presentation_data = presentation_service.load_presentation_metadata(lesson_id)
-    
-    if presentation_data and current_slide < presentation_data['total_slides']:
-        next_slide_num = current_slide + 1
-        slide_data = presentation_service.get_slide_data(lesson_id, next_slide_num)
-        
-        session_service.update_session_state(lesson_id, {'current_slide': next_slide_num})
-        
-        await manager.broadcast_to_lesson(lesson_id, {
-            "type": "slide_changed",
-            "slide": slide_data,
-            "timestamp": datetime.now().isoformat()
-        })
-    elif presentation_data and current_slide >= presentation_data['total_slides']:
-        # Presentation completed, transition to Q&A
-        await handle_presentation_completed(lesson_id, session_service, manager)
-
-
-async def handle_previous_slide(lesson_id: int, session_service, presentation_service, manager):
-    """Handle previous slide request"""
-    session_state = session_service.get_session_state(lesson_id)
-    if not session_state:
-        return
-    
-    current_slide = session_state.get('current_slide', 1)
-    
-    if current_slide > 1:
-        prev_slide_num = current_slide - 1
-        slide_data = presentation_service.get_slide_data(lesson_id, prev_slide_num)
-        
-        session_service.update_session_state(lesson_id, {'current_slide': prev_slide_num})
-        
-        await manager.broadcast_to_lesson(lesson_id, {
-            "type": "slide_changed",
-            "slide": slide_data,
-            "timestamp": datetime.now().isoformat()
-        })
-
-
-async def handle_pause_presentation(lesson_id: int, session_service, manager):
-    """Handle presentation pause (for questions)"""
-    await session_service.pause_lesson(lesson_id)
-    await manager.broadcast_to_lesson(lesson_id, {
-        "type": "presentation_paused",
-        "timestamp": datetime.now().isoformat()
-    })
-
-
-async def handle_resume_presentation(lesson_id: int, session_service, manager):
-    """Handle presentation resume"""
-    await session_service.resume_lesson(lesson_id)
-    await manager.broadcast_to_lesson(lesson_id, {
-        "type": "presentation_resumed",
-        "timestamp": datetime.now().isoformat()
-    })
 
 
 async def handle_ask_question(lesson_id: int, question: str, method: str, session_service, manager, websocket):
@@ -741,16 +612,6 @@ async def handle_stop_auto_attendance(lesson_id: int, manager):
             "message": "Auto attendance is not currently running",
             "timestamp": datetime.now().isoformat()
         })
-
-
-async def handle_presentation_completed(lesson_id: int, session_service, manager):
-    """Handle presentation completion and auto-transition to Q&A"""
-    await session_service.start_qa_phase(lesson_id)
-    await manager.broadcast_to_lesson(lesson_id, {
-        "type": "presentation_completed",
-        "message": "Presentation finished. Starting Q&A session.",
-        "timestamp": datetime.now().isoformat()
-    })
 
 
 async def handle_end_lesson(lesson_id: int, session_service, manager, db: Session):

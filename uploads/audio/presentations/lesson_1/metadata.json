@@ -1,0 +1,245 @@
+{
+  "lesson_id": 1,
+  "total_slides": 34,
+  "slides": [
+    {
+      "slide_number": 1,
+      "text": "6 – МАЪРУЗА. МАТНЛИ ХУЖЖАТ МУХАРРИРЛАРИ\nРежа\nМатнли хужжат мухаррирлари, уларнинг \n     вазифаси ва имкониятлари.\n2. Матнли хужжатларни яратиш ва тахрирлаш.\n     Матн бўлаклари билан ишлаш (қидириш,   \n     кўчириш, силжитиш, алмаштириш ва  \n     ўчириш). Рўйхатлар ва жадвалларни \n     яратиш ҳамда безаш. \n3. Электрон хужжатларда график ва формула \n    объектларидан фойдаланиш.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_1.png",
+      "duration_estimate": 17.6
+    },
+    {
+      "slide_number": 2,
+      "text": "Компьютердан фойдаланишга  назарга  олсак, фойдаланувчилар  асосан кўнгилхушлик ва ҳужжатлар  тайёрлаш   учун шуғулланишлари  маълум  бўлади. \nҲужжатлар  матн  муҳаррирлари  ёки  матн процессорлари  деб  аталувчи  дастурлар  ёрдамида  тайёрланади.  Энг  содда  матн муҳаррирларига  мисол  сифатида  Windows  таркибига  кирувчи  Блокнот  ва Wordpadни келтиришимиз мумкин. Ҳужжатларни тайёрлашда энг кўп ишлатиладиган дастур бу Microsoft Office таркибига кирувчи Word матн муҳарриридир. Word муҳаррири оддий икки қаторли эълонлардан  тортиб  минглаб  варақли  мураккаб  китобларгача  ярата  оладиган оммабоп  дастурдир.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_2.png",
+      "duration_estimate": 27.2
+    },
+    {
+      "slide_number": 3,
+      "text": "MS WORD дастурини юклаш",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_3.png",
+      "duration_estimate": 1.6
+    },
+    {
+      "slide_number": 4,
+      "text": "MS Word 2010 матн муҳаририни ишга тушириш.\nСичқонча курсорини ишчи столидаги   пиктограммасига олиб келиб чап тугмасини 2 марта босилади. \nАгар пиктограмма иш столида бўлмаса Windowsнинг асосий менюсидан Пуск → Все программы → Microsoft Office → Word 2010 бандлари танланади.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_4.png",
+      "duration_estimate": 15.6
+    },
+    {
+      "slide_number": 5,
+      "text": "Slayd 5",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_5.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 6,
+      "text": "Word матн муҳаррири Microsoft office дастурлари пакетига киради ва унинг ойнаси қуйидаги элементлардан ташкил топган:\nҲужжат сарловҳаси – у ойнанинг биринчи қаторида бўлиб унда ҳужжат файли номи ёзилган бўлади.\nМеню қатори – Файл, Главная, Вставка, Разметка страницы, Ссылки, Рассылки, Рецензирование, Показ слайдов, Рецензирование, Вид каби меню бўлимларидан иборат. Бу бўлимлар ҳар қайси бир неча буйруқлардан ташкил топган. Масалан, Файл бўлимида файлларни очиш, сақлаш, янги файл очиш, чоп этиш ва файлдан чиқиш каби буйруқлар мавжуд.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_6.png",
+      "duration_estimate": 29.6
+    },
+    {
+      "slide_number": 7,
+      "text": "Slayd 7",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_7.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 8,
+      "text": "Slayd 8",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_8.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 9,
+      "text": "Slayd 9",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_9.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 10,
+      "text": "Slayd 10",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_10.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 11,
+      "text": "Slayd 11",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_11.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 12,
+      "text": "Slayd 12",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_12.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 13,
+      "text": "Slayd 13",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_13.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 14,
+      "text": "Slayd 14",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_14.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 15,
+      "text": "Slayd 15",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_15.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 16,
+      "text": "Slayd 16",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_16.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 17,
+      "text": "Slayd 17",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_17.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 18,
+      "text": "Slayd 18",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_18.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 19,
+      "text": "Slayd 19",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_19.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 20,
+      "text": "«Файл» ойнаси:",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_20.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 21,
+      "text": "«ГЛАВНАЯ» ойнаси",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_21.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 22,
+      "text": "«Разметка страницы» ойнаси:",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_22.png",
+      "duration_estimate": 1.2
+    },
+    {
+      "slide_number": 23,
+      "text": "Ссылки ойнаси:",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_23.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 24,
+      "text": "«Рассылки» ойнаси",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_24.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 25,
+      "text": "Рецензирование ойнаси",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_25.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 26,
+      "text": "«ВИД» ойнаси",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_26.png",
+      "duration_estimate": 0.8
+    },
+    {
+      "slide_number": 27,
+      "text": "Матн  қисмларини  белгилаш\nМатн қисмларини клавиатура ва сичқонча ёрдамида белгилаш мумкин.\nКлавиатура орқали белгилаш учун матн курсорини белгиланиши керак бўлган матн қисмининг биринчи символига олиб келиб  Shift клавишини босиб турган ҳолда (←↑→↓) стрелкалардан фойдаланиб, матн қисмини қора рангга бўяймиз.  Белгилашни тамомлаб Shift клавишини ва стрелкани қўйиб юборамиз. Агар матннинг кўп  қисмини бўямоқчи бўлсак  унда стрелкалар ўрнига PgDn ёки  PgUp клавишларидан фойдаланамиз.\nСичқонча ёрдамида белгилаш учун сичқонча курсорини белгиланиши керак бўлган матн қисмининг биринчи белгисига қўйиб сичқончанинг чап тугмасини босган ҳолда керакли символгача ҳаракатлантирамиз (бўяймиз).",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_27.png",
+      "duration_estimate": 33.6
+    },
+    {
+      "slide_number": 28,
+      "text": "Қаторни   белгилаш\nСичқонча курсорини белгиланиши керак бўлган қаторнинг чап томонига  олиб келамиз. Курсор() кўринишини олиш керак, яъни стрелка юқорига ва ўнгга қараши керак. Сичқонча чап тугмасини 1 марта боссак  бир қаторни белгилаймиз. Агар бир неча қаторни белгиламоқчи бўлсак, сичқонча тугмасини қўйиб юбормаган ҳолда пастга қараб ҳаракатлантирамиз. Керакли қаторни белгилагандан сўнг сичқонча тугмасини қўйиб юборамиз.\nМатннинг исталган қисмини тўғри туртбурчак\nҳолида белгилаш\nShift+Alt+сичқончани чап тугмаси босилади ва исталган томонга тортилади.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_28.png",
+      "duration_estimate": 27.6
+    },
+    {
+      "slide_number": 29,
+      "text": "Сўз ва абзацларни белгилаш\nСичқонча ёрдамида бир сўзни белгилаш учун, сичқонча курсорини шу сўз устига олиб келиб унинг чап тугмаси 2 марта босилади. \nСичқонча ёрдамида  бир гапни белгилаш учун сичқонча курсорини шу гапнинг ихтиёрий сўзи устига олиб келиб Ctrl тугмасини босиб турган ҳолда сичқончанинг чап тугмасини 1 марта босамиз. \nСичқонча ёрдамида 1 абзацни белгилаш учун сичқонча курсори шу абзацнинг ихтиёрий сўзи устига олиб келиниб сичқонча чап тугмаси 3 марта босилади.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_29.png",
+      "duration_estimate": 28.0
+    },
+    {
+      "slide_number": 30,
+      "text": "Инструментлар панели.\nБунда асосан қуйидаги инструментлар панеллари ишлатилади. Стандарт, форматлаш, расм чизиш ва бошқа. Бу панеллларни экранга қўйиш ёки олиб ташлаш менюнинг Вид бўлимидаги Панел инструментлари буйруғи орқали амалга оширилади. Стандарт ва форматлаш панел инструментидаги белгилар (пиктограммалар) асосан бош менюнинг бўлимларидаги буйруқларни тез бажариш учун мўлжалланган.\nЛинейка – бу экран эни ўлчамини кўрсатиб туради.\nМатн киритиш майдони. Бу жойда файдаланувчилар ўз матнларини киритиш ва уларни қайта ишлаши мумкин.  \nҲолатлар сатри – бу ҳужжат сахифаси, қатори ва курсор ўрни ҳақида ахборот бериб туради.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_30.png",
+      "duration_estimate": 32.8
+    },
+    {
+      "slide_number": 31,
+      "text": "Клавиатура ёрдамида курсорни силжитиш қуйидаги тугмалар ёрдамида амалга оширилади:\nHome матн қатори бошига ва End охирига бориш. \nСtrl+Home  ҳужжат бошига ва Ctrl+End охирига бориш.\nPage Up  ҳужжатни юқорига ва Page Down пастга варақлаш.\nҲужжат бўлагини  излаш ва алмаштириш. Ҳужжат бўлагини излаш ёки уни алмаштириш учун асосий менюнинг Правка бўлимидаги «Найти» ва «Заменить..» буйруқлари ишлатилади. \nЖадвалларни ҳосил қилиш ва уни қайта  ишлаш учун асосан бош менюнинг «Taблица» пунктидан  фойдаланилади.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_31.png",
+      "duration_estimate": 27.2
+    },
+    {
+      "slide_number": 32,
+      "text": "Word графикаси устида ишлаш технологияси \nWord матн муҳаррирининг яна бир имкониятларидан бири бу ҳужжат файлида расмларни жойлаштиришдир, яъни ҳужжат-файлининг хоҳлаган жойига, мавжуд расм-файлларидан (.wmf, .bmp, .pcx ва бошқа) расмларни қўйиш мумкин. Бунинг учун  «Вставка» менюсидан «Рисунок» буйруғини бериб, у ердан “картинки” ёки “из файла” бўлимидан керакли расмлар танланади.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_32.png",
+      "duration_estimate": 19.2
+    },
+    {
+      "slide_number": 33,
+      "text": "Wordда оддий ва мураккаб формулаларни ёзиш технологияси \nМатн ёзиш давомида махсус белгиларни (символларни) ишлатиш кетар бўлса менюнинг Вставка бўлимидан символларни чақириш буйруғини бериш керак ва у ердан керакли белгиларни танлаш имконияти мавжуд. Мулоқат ойнасидан керакли белги танланиб  Вставка кейин Закрыть буйруғи берилади. Бу махсус белгилар ёрдамида унча мураккаб бўлмаган математик формулаларни ёзиш мумкин. \nМатематиканинг анча қийин формулаларини Microsoft Equation махсус объект дастури ёрдамида бажариш керак. Бунинг учун менюнинг Вставка бўлимига кейин эса Объект бўлимига кирилиб мулоқот дарчасидан Microsoft Equation дастури ишга туширилади.",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_33.png",
+      "duration_estimate": 32.8
+    },
+    {
+      "slide_number": 34,
+      "text": "Назорат саволлари\n1.Матн муҳарририланнинг асосий вазифаси нимадан иборат?\n2.Windows муҳитида ишловчи қандай матн муҳарирларни биласиз?\n3.Word матн мухаррири ойнаси қандай элементлардан ташкил топган?\n4.Word матн мухарририда тузилган файл нима дейилади?\n5.Wordда тузилган файл қандай кенгайтма номга ва пиктограммага эга?\n6.Wordнинг асосий панел воситаларини айтиб беринг.\n7.Жадвалларни ҳосил қилишни тушунтириб беринг. \n    8.Ҳужжат ичига расмларни жойлаштириш қандай амалга оширилади?\n    9.Математик ифодаларни ёзиш қай тарзда амалга оширилади?",
+      "audio_path": null,
+      "image_path": "uploads/slides/lesson_1/slide_34.png",
+      "duration_estimate": 25.6
+    }
+  ],
+  "processed_at": "164916.0227691"
+}
