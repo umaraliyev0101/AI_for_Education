@@ -372,7 +372,7 @@ async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, l
     Background task for auto-scanning attendance
     """
     import asyncio
-    from datetime import datetime
+    from datetime import datetime, timedelta
     from face_recognition.face_attendance import FaceRecognitionAttendance
     from backend.config import settings
     import os
@@ -426,13 +426,12 @@ async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, l
         logger.info(f"Using camera: {camera_name} for auto-scan of lesson {lesson_id}")
         
         recognized_students = []
-        max_attempts = scan_duration_seconds * 20  # Assuming 20 fps
-        attempt = 0
         scan_start_time = datetime.now()
+        scan_end_time_target = scan_start_time + timedelta(seconds=scan_duration_seconds)
         
-        logger.info(f"Starting background auto-scan: {scan_duration_seconds}s duration, max {max_attempts} frames using {camera_name}")
+        logger.info(f"Starting background auto-scan: {scan_duration_seconds}s duration until {scan_end_time_target}, using {camera_name}")
         
-        while attempt < max_attempts:
+        while datetime.now() < scan_end_time_target:
             # Check if lesson has started (stop 1 second before)
             current_time_check = datetime.now()
             time_until_start_check = lesson_start - current_time_check
@@ -443,7 +442,6 @@ async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, l
             ret, frame = cap.read()
             if not ret:
                 await asyncio.sleep(0.1)  # Wait a bit before retrying
-                attempt += 1
                 continue
             
             # Process frame
@@ -499,16 +497,14 @@ async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, l
                 
                 logger.info(f"Recognized: {student.name} ({len(recognized_students)} total)")
             
-            attempt += 1
+            # Yield control to event loop every frame
+            await asyncio.sleep(0.05)  # ~20 fps target
             
-            # Yield control to event loop every 5 frames
-            if attempt % 5 == 0:
-                await asyncio.sleep(0.01)
-            
-            # Progress logging every 100 frames
-            if attempt % 100 == 0:
-                elapsed = (datetime.now() - scan_start_time).total_seconds()
-                logger.info(f"Scan progress: {elapsed:.1f}s elapsed, {len(recognized_students)} students recognized")
+            # Progress logging every 2 seconds
+            elapsed = (datetime.now() - scan_start_time).total_seconds()
+            if int(elapsed) % 2 == 0 and int(elapsed) > 0:
+                remaining = max(0, scan_duration_seconds - elapsed)
+                logger.info(f"Scan progress: {elapsed:.1f}s elapsed, {remaining:.1f}s remaining, {len(recognized_students)} students recognized")
         
         scan_end_time = datetime.now()
         total_scan_time = (scan_end_time - scan_start_time).total_seconds()
