@@ -367,7 +367,7 @@ async def scan_face_attendance(
         )
 
 
-async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, lesson_start: Any, db: Session):
+async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, lesson_start: Any):
     """
     Background task for auto-scanning attendance
     """
@@ -375,12 +375,16 @@ async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, l
     from datetime import datetime, timedelta
     from face_recognition.face_attendance import FaceRecognitionAttendance
     from backend.config import settings
+    from backend.database import get_db
     import os
     import cv2
     import base64
     import logging
     
     logger = logging.getLogger(__name__)
+    
+    # Create our own database session for this background task
+    db = next(get_db())
     
     try:
         # Initialize face recognition
@@ -516,6 +520,12 @@ async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, l
         
     except Exception as e:
         logger.error(f"Auto-scan background task failed for lesson {lesson_id}: {str(e)}")
+    finally:
+        # Always close the database session
+        try:
+            db.close()
+        except Exception:
+            pass
 
 
 @router.post("/auto-scan/{lesson_id}")
@@ -575,7 +585,7 @@ async def auto_scan_attendance(
     
     # Start background scanning task
     asyncio.create_task(run_auto_scan_background(
-        lesson_id, scan_duration_seconds, lesson.date, db
+        lesson_id, scan_duration_seconds, lesson.date
     ))
     
     # Return immediately with scan started confirmation

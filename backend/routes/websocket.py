@@ -138,7 +138,7 @@ class ConnectionManager:
         """Get number of active connections for a lesson"""
         return len(self.active_connections.get(lesson_id, {}))
     
-    async def start_attendance_monitoring(self, lesson_id: int, db: Session):
+    async def start_attendance_monitoring(self, lesson_id: int):
         """Start automatic attendance monitoring for a lesson"""
         if lesson_id in self.monitoring_tasks:
             return  # Already monitoring
@@ -164,7 +164,7 @@ class ConnectionManager:
             return
         
         # Start monitoring task
-        task = asyncio.create_task(self._attendance_monitoring_loop(lesson_id, db))
+        task = asyncio.create_task(self._attendance_monitoring_loop(lesson_id))
         self.monitoring_tasks[lesson_id] = task
         
         logger.info(f"✅ Started attendance monitoring for lesson {lesson_id}")
@@ -187,7 +187,7 @@ class ConnectionManager:
         
         logger.info(f"🛑 Stopped attendance monitoring for lesson {lesson_id}")
     
-    async def _attendance_monitoring_loop(self, lesson_id: int, db: Session):
+    async def _attendance_monitoring_loop(self, lesson_id: int):
         """Background loop for attendance monitoring"""
         monitor = self.attendance_monitors.get(lesson_id)
         if not monitor or not monitor['face_recognition']:
@@ -195,10 +195,14 @@ class ConnectionManager:
         
         face_recognition = monitor['face_recognition']
         
+        # Create our own database session for this background task
+        db = next(get_db())
+        
         # Try to open camera
         cap = cv2.VideoCapture(monitor['camera_id'])
         if not cap.isOpened():
             logger.error(f"❌ Cannot open camera for lesson {lesson_id}")
+            db.close()
             return
         
         try:
@@ -268,6 +272,11 @@ class ConnectionManager:
             logger.error(f"❌ Attendance monitoring error for lesson {lesson_id}: {e}")
         finally:
             cap.release()
+            # Always close the database session
+            try:
+                db.close()
+            except Exception:
+                pass
     
     async def get_attendance_report(self, lesson_id: int, db: Session) -> Dict[str, Any]:
         """Generate comprehensive attendance report for a lesson"""
@@ -454,11 +463,7 @@ async def handle_start_attendance(lesson_id: int, session_service, manager):
     await session_service.start_attendance_phase(lesson_id)
     
     # Start automatic attendance monitoring
-    db = next(get_db())
-    try:
-        await manager.start_attendance_monitoring(lesson_id, db)
-    finally:
-        db.close()
+    await manager.start_attendance_monitoring(lesson_id)
     
     await manager.broadcast_to_lesson(lesson_id, {
         "type": "attendance_started",
