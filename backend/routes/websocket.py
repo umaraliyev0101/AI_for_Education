@@ -28,6 +28,7 @@ from backend.services.presentation_service import get_presentation_service
 from face_recognition.face_attendance import FaceRecognitionAttendance
 from backend.models.student import Student
 from backend.models.attendance import Attendance
+from backend.routes.attendance import get_student_photo_base64
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -238,6 +239,7 @@ class ConnectionManager:
                                 'email': student.email,
                                 'confidence': student_info['confidence'],
                                 'face_image_path': student.face_image_path,
+                                'photo_base64': get_student_photo_base64(student),
                                 'detected_at': datetime.now().isoformat()
                             }
                             
@@ -290,6 +292,7 @@ class ConnectionManager:
                     'name': student.name,
                     'email': student.email,
                     'face_image_path': student.face_image_path,
+                    'photo_base64': get_student_photo_base64(student),
                     'detected_at': attendance_record.timestamp.isoformat() if attendance_record else None,
                     'confidence': attendance_record.recognition_confidence if attendance_record else None
                 })
@@ -302,7 +305,8 @@ class ConnectionManager:
                     'student_id': student.student_id,
                     'name': student.name,
                     'email': student.email,
-                    'face_image_path': student.face_image_path
+                    'face_image_path': student.face_image_path,
+                    'photo_base64': get_student_photo_base64(student)
                 })
         
         return {
@@ -626,9 +630,10 @@ async def handle_ask_question(lesson_id: int, question: str, method: str, sessio
         db: Session = next(get_db())
         try:
             lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
-            if lesson and lesson.materials_path and os.path.exists(lesson.materials_path):
+            materials_path = getattr(lesson, 'materials_path', None)
+            if lesson and materials_path and os.path.exists(str(materials_path)):
                 file_paths = []
-                for root, dirs, files in os.walk(lesson.materials_path):
+                for root, dirs, files in os.walk(str(materials_path)):
                     for file in files:
                         if file.endswith(('.pdf', '.pptx', '.docx', '.txt', '.md')):
                             file_paths.append(os.path.join(root, file))

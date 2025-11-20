@@ -17,6 +17,37 @@ from backend.dependencies import require_teacher, get_current_user
 router = APIRouter()
 
 
+def get_student_photo_base64(student: Student) -> Optional[str]:
+    """
+    Get student's photo as base64 string for display in frontend
+    
+    Args:
+        student: Student model instance
+        
+    Returns:
+        Base64 encoded image string or None if no image available
+    """
+    import os
+    import base64
+    
+    if not student:
+        return None
+    
+    face_image_path = getattr(student, 'face_image_path', None)
+    if not face_image_path:
+        return None
+    
+    try:
+        face_image_path_str = str(face_image_path)
+        if os.path.exists(face_image_path_str):
+            with open(face_image_path_str, 'rb') as f:
+                return base64.b64encode(f.read()).decode('utf-8')
+    except Exception:
+        pass
+    
+    return None
+
+
 @router.get("/", response_model=List[AttendanceResponse])
 async def list_attendance(
     skip: int = 0,
@@ -50,12 +81,13 @@ async def list_attendance(
     
     attendance_records = query.offset(skip).limit(limit).all()
     
-    # Add student names to response
+    # Add student names and photos to response
     response_data = []
     for record in attendance_records:
         record_dict = record.__dict__.copy()
         student = db.query(Student).filter(Student.id == record.student_id).first()
         record_dict['student_name'] = student.name if student else None
+        record_dict['student_photo_base64'] = get_student_photo_base64(student)
         response_data.append(record_dict)
     
     return response_data
@@ -90,12 +122,13 @@ async def get_lesson_attendance(
         Attendance.lesson_id == lesson_id
     ).order_by(Attendance.timestamp).all()
     
-    # Add student names to response
+    # Add student names and photos to response
     response_data = []
     for record in attendance_records:
         record_dict = record.__dict__.copy()
         student = db.query(Student).filter(Student.id == record.student_id).first()
         record_dict['student_name'] = student.name if student else None
+        record_dict['student_photo_base64'] = get_student_photo_base64(student)
         response_data.append(record_dict)
     
     return response_data
@@ -130,11 +163,12 @@ async def get_student_attendance(
         Attendance.student_id == student_id
     ).order_by(Attendance.timestamp.desc()).all()
     
-    # Add student names to response (though all will be the same student)
+    # Add student names and photos to response (though all will be the same student)
     response_data = []
     for record in attendance_records:
         record_dict = record.__dict__.copy()
         record_dict['student_name'] = student.name
+        record_dict['student_photo_base64'] = get_student_photo_base64(student)
         response_data.append(record_dict)
     
     return response_data
@@ -198,9 +232,10 @@ async def mark_attendance(
     db.commit()
     db.refresh(new_attendance)
     
-    # Add student name to response
+    # Add student name and photo to response
     response_data = new_attendance.__dict__.copy()
     response_data['student_name'] = student.name
+    response_data['student_photo_base64'] = get_student_photo_base64(student)
     
     return response_data
 
@@ -316,9 +351,10 @@ async def scan_face_attendance(
         # Clean up
         face_recognition_system.close()
         
-        # Add student name to response
+        # Add student name and photo to response
         response_data = new_attendance.__dict__.copy()
         response_data['student_name'] = student.name
+        response_data['student_photo_base64'] = get_student_photo_base64(student)
         
         return response_data
         
