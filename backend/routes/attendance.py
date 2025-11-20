@@ -4,7 +4,7 @@ Face recognition attendance tracking
 """
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Query
 from sqlalchemy.orm import Session
-from typing import List, Optional
+from typing import List, Optional, Any
 from datetime import datetime
 from backend.database import get_db
 from backend.models.attendance import Attendance
@@ -331,25 +331,12 @@ async def scan_face_attendance(
         )
 
 
-@router.post("/auto-scan/{lesson_id}")
-async def auto_scan_attendance(
-    lesson_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(require_teacher)
-):
+async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, lesson_start: Any, db: Session):
     """
-    Auto-scan attendance until 1 second before lesson starts
-    Scans continuously from now until 1 second before lesson start time
-    
-    Args:
-        lesson_id: Lesson database ID
-        db: Database session
-        current_user: Authenticated teacher/admin
-        
-    Returns:
-        List of recognized students with photos
+    Background task for auto-scanning attendance
     """
-    from datetime import datetime, timedelta
+    import asyncio
+    from datetime import datetime
     from face_recognition.face_attendance import FaceRecognitionAttendance
     from backend.config import settings
     import os
@@ -358,43 +345,6 @@ async def auto_scan_attendance(
     import logging
     
     logger = logging.getLogger(__name__)
-    
-    # Verify lesson exists
-    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
-    if not lesson:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Lesson with ID {lesson_id} not found"
-        )
-    
-    # Calculate scan duration based on lesson scheduled time
-    current_time = datetime.now()
-    
-    # Use the scheduled date as the lesson start time for autoscan
-    # (not the manual start_time which is only set when lesson is actually started)
-    lesson_start = lesson.date
-    
-    # Calculate time until lesson starts
-    time_until_start = lesson_start - current_time
-    time_until_start_seconds = max(0, int(time_until_start.total_seconds()))
-    
-    # If lesson already started (based on scheduled time), don't scan
-    if time_until_start_seconds <= 1:
-        logger.info("Lesson already started or starts within 1 second, skipping auto-scan")
-        return {
-            "lesson_id": lesson_id,
-            "recognized_count": 0,
-            "students": [],
-            "scan_duration_seconds": 0,
-            "scan_reason": "lesson_already_started",
-            "lesson_start_time": lesson_start.isoformat() if lesson_start is not None else None
-        }
-    
-    # Scan until 1 second before lesson starts
-    scan_duration_seconds = time_until_start_seconds - 1
-    scan_reason = "until_1_second_before_lesson_start"
-    
-    logger.info(f"Auto-scan: {scan_duration_seconds}s ({scan_reason}), lesson starts at {lesson_start}")
     
     try:
         # Initialize face recognition
@@ -406,10 +356,8 @@ async def auto_scan_attendance(
         camera_index = 1  # Default camera index
         cap = cv2.VideoCapture(camera_index)
         if not cap.isOpened():
-            raise HTTPException(
-                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                detail="Cannot access camera"
-            )
+            logger.error(f"Cannot access camera for auto-scan of lesson {lesson_id}")
+            return
         
         # Get camera information
         camera_name = f"Camera {camera_index}"
@@ -439,19 +387,28 @@ async def auto_scan_attendance(
             # If we can't get camera info, just use the index
             pass
         
-        logger.info(f"Using camera: {camera_name}")
+        logger.info(f"Using camera: {camera_name} for auto-scan of lesson {lesson_id}")
         
         recognized_students = []
         max_attempts = scan_duration_seconds * 20  # Assuming 20 fps
         attempt = 0
         scan_start_time = datetime.now()
         
-        logger.info(f"Starting auto-scan: {scan_duration_seconds}s duration, max {max_attempts} frames using {camera_name}")
+        logger.info(f"Starting background auto-scan: {scan_duration_seconds}s duration, max {max_attempts} frames using {camera_name}")
         
         while attempt < max_attempts:
+            # Check if lesson has started (stop 1 second before)
+            current_time_check = datetime.now()
+            time_until_start_check = lesson_start - current_time_check
+            if time_until_start_check.total_seconds() <= 1:
+                logger.info("Lesson starting within 1 second, stopping auto-scan")
+                break
+            
             ret, frame = cap.read()
             if not ret:
-                break
+                await asyncio.sleep(0.1)  # Wait a bit before retrying
+                attempt += 1
+                continue
             
             # Process frame
             _, recognized = face_recognition_system.process_frame(frame, mark_attendance=False)
@@ -508,6 +465,10 @@ async def auto_scan_attendance(
             
             attempt += 1
             
+            # Yield control to event loop every 5 frames
+            if attempt % 5 == 0:
+                await asyncio.sleep(0.01)
+            
             # Progress logging every 100 frames
             if attempt % 100 == 0:
                 elapsed = (datetime.now() - scan_start_time).total_seconds()
@@ -521,21 +482,79 @@ async def auto_scan_attendance(
         
         logger.info(f"Auto-scan completed: {total_scan_time:.1f}s, {len(recognized_students)} students using {camera_name}")
         
+    except Exception as e:
+        logger.error(f"Auto-scan background task failed for lesson {lesson_id}: {str(e)}")
+
+
+@router.post("/auto-scan/{lesson_id}")
+async def auto_scan_attendance(
+    lesson_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+    """
+    Auto-scan attendance until 1 second before lesson starts
+    Scans continuously from now until 1 second before lesson start time
+    
+    Args:
+        lesson_id: Lesson database ID
+        db: Database session
+        current_user: Authenticated teacher/admin
+        
+    Returns:
+        Confirmation that scan has started
+    """
+    import asyncio
+    from datetime import datetime
+    
+    # Verify lesson exists
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Lesson with ID {lesson_id} not found"
+        )
+    
+    # Calculate scan duration based on lesson scheduled time
+    current_time = datetime.now()
+    
+    # Use the scheduled date as the lesson start time for autoscan
+    # (not the manual start_time which is only set when lesson is actually started)
+    lesson_start = lesson.date
+    
+    # Calculate time until lesson starts
+    time_until_start = lesson_start - current_time
+    time_until_start_seconds = max(0, int(time_until_start.total_seconds()))
+    
+    # If lesson already started (based on scheduled time), don't scan
+    if time_until_start_seconds <= 1:
         return {
             "lesson_id": lesson_id,
-            "recognized_count": len(recognized_students),
-            "students": recognized_students,
-            "scan_duration_seconds": total_scan_time,
-            "scan_reason": scan_reason,
-            "camera_used": camera_name,
+            "recognized_count": 0,
+            "students": [],
+            "scan_duration_seconds": 0,
+            "scan_reason": "lesson_already_started",
             "lesson_start_time": lesson_start.isoformat() if lesson_start is not None else None
         }
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Auto-scan failed: {str(e)}"
-        )
+    
+    # Scan until 1 second before lesson starts
+    scan_duration_seconds = time_until_start_seconds - 1
+    scan_reason = "until_1_second_before_lesson_start"
+    
+    # Start background scanning task
+    asyncio.create_task(run_auto_scan_background(
+        lesson_id, scan_duration_seconds, lesson.date, db
+    ))
+    
+    # Return immediately with scan started confirmation
+    return {
+        "lesson_id": lesson_id,
+        "status": "scan_started",
+        "scan_duration_seconds": scan_duration_seconds,
+        "scan_reason": scan_reason,
+        "lesson_start_time": lesson_start.isoformat() if lesson_start is not None else None,
+        "message": f"Auto-scan started and will run for {scan_duration_seconds} seconds until 1 second before lesson starts"
+    }
 
 
 @router.delete("/{attendance_id}", status_code=status.HTTP_204_NO_CONTENT)
