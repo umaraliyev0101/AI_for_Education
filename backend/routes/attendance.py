@@ -389,7 +389,7 @@ async def run_auto_scan_background(lesson_id: int, scan_duration_seconds: int, l
         )
         
         # Open camera
-        camera_index = 1  # Default camera index
+        camera_index = 0  # Default camera index
         cap = cv2.VideoCapture(camera_index)
         if not cap.isOpened():
             logger.error(f"Cannot access camera for auto-scan of lesson {lesson_id}")
