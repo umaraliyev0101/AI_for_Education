@@ -108,10 +108,16 @@ class UzbekTTSPipeline:
             Audio data as bytes
         """
         try:
-            # If an event loop is already running (e.g. uvicorn), run the async TTS
-            # in a separate thread with its own event loop to avoid "cannot run
-            # the event loop while another loop is running" errors.
-            if asyncio.get_event_loop().is_running():
+            # Check if there's already a running event loop
+            try:
+                loop = asyncio.get_running_loop()
+                loop_is_running = True
+            except RuntimeError:
+                loop_is_running = False
+
+            if loop_is_running:
+                # If an event loop is already running (e.g. uvicorn), run the async TTS
+                # in a separate thread with its own event loop to avoid conflicts.
                 from concurrent.futures import ThreadPoolExecutor
 
                 def _run_in_thread(txt: str) -> bytes:
