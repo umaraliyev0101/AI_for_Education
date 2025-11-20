@@ -15,6 +15,9 @@ import json
 import logging
 from datetime import datetime, date
 from decimal import Decimal
+import asyncio
+import cv2
+import os
 
 from backend.database import get_db
 from backend.models.lesson import Lesson
@@ -22,6 +25,9 @@ from backend.models.user import User, UserRole
 from backend.dependencies import get_current_user_ws
 from backend.services.lesson_session_service import get_lesson_session_service
 from backend.services.presentation_service import get_presentation_service
+from face_recognition.face_attendance import FaceRecognitionAttendance
+from backend.models.student import Student
+from backend.models.attendance import Attendance
 from sqlalchemy.orm import Session
 
 logger = logging.getLogger(__name__)
@@ -36,6 +42,10 @@ class ConnectionManager:
         # {lesson_id: {connection_id: websocket}}
         self.active_connections: Dict[int, Dict[str, WebSocket]] = {}
         self.connection_counter = 0
+        
+        # Attendance monitoring
+        self.attendance_monitors: Dict[int, Dict[str, Any]] = {}  # {lesson_id: monitor_data}
+        self.monitoring_tasks: Dict[int, asyncio.Task] = {}  # {lesson_id: task}
     
     def _serialize_data(self, data: Any) -> Any:
         """
@@ -126,6 +136,183 @@ class ConnectionManager:
     def get_connection_count(self, lesson_id: int) -> int:
         """Get number of active connections for a lesson"""
         return len(self.active_connections.get(lesson_id, {}))
+    
+    async def start_attendance_monitoring(self, lesson_id: int, db: Session):
+        """Start automatic attendance monitoring for a lesson"""
+        if lesson_id in self.monitoring_tasks:
+            return  # Already monitoring
+        
+        # Initialize attendance monitor
+        self.attendance_monitors[lesson_id] = {
+            'face_recognition': None,
+            'present_students': set(),
+            'last_update': datetime.now(),
+            'camera_id': 0  # Default camera
+        }
+        
+        # Initialize face recognition system
+        try:
+            attendance_db_path = os.path.join("uploads", "attendance.db")
+            self.attendance_monitors[lesson_id]['face_recognition'] = FaceRecognitionAttendance(
+                db_path=attendance_db_path,
+                threshold=0.6
+            )
+            logger.info(f"✅ Started face recognition for lesson {lesson_id}")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize face recognition: {e}")
+            return
+        
+        # Start monitoring task
+        task = asyncio.create_task(self._attendance_monitoring_loop(lesson_id, db))
+        self.monitoring_tasks[lesson_id] = task
+        
+        logger.info(f"✅ Started attendance monitoring for lesson {lesson_id}")
+    
+    async def stop_attendance_monitoring(self, lesson_id: int):
+        """Stop attendance monitoring for a lesson"""
+        if lesson_id in self.monitoring_tasks:
+            self.monitoring_tasks[lesson_id].cancel()
+            try:
+                await self.monitoring_tasks[lesson_id]
+            except asyncio.CancelledError:
+                pass
+            del self.monitoring_tasks[lesson_id]
+        
+        if lesson_id in self.attendance_monitors:
+            monitor = self.attendance_monitors[lesson_id]
+            if monitor['face_recognition']:
+                monitor['face_recognition'].close()
+            del self.attendance_monitors[lesson_id]
+        
+        logger.info(f"🛑 Stopped attendance monitoring for lesson {lesson_id}")
+    
+    async def _attendance_monitoring_loop(self, lesson_id: int, db: Session):
+        """Background loop for attendance monitoring"""
+        monitor = self.attendance_monitors.get(lesson_id)
+        if not monitor or not monitor['face_recognition']:
+            return
+        
+        face_recognition = monitor['face_recognition']
+        
+        # Try to open camera
+        cap = cv2.VideoCapture(monitor['camera_id'])
+        if not cap.isOpened():
+            logger.error(f"❌ Cannot open camera for lesson {lesson_id}")
+            return
+        
+        try:
+            while lesson_id in self.attendance_monitors:
+                ret, frame = cap.read()
+                if not ret:
+                    await asyncio.sleep(1)
+                    continue
+                
+                # Process frame for face recognition
+                _, recognized = face_recognition.process_frame(frame, mark_attendance=True)
+                
+                # Process recognized students
+                for student_info in recognized:
+                    student_id = student_info['student_id']
+                    
+                    # Check if this is a new detection
+                    if student_id not in monitor['present_students']:
+                        monitor['present_students'].add(student_id)
+                        
+                        # Get student details from database
+                        student = db.query(Student).filter(Student.student_id == student_id).first()
+                        if student:
+                            # Mark attendance in main database
+                            attendance_record = Attendance(
+                                student_id=student.id,
+                                lesson_id=lesson_id,
+                                recognition_confidence=student_info['confidence'],
+                                entry_method="auto_face_recognition"
+                            )
+                            db.add(attendance_record)
+                            db.commit()
+                            
+                            # Send real-time update to clients
+                            student_data = {
+                                'student_id': student.student_id,
+                                'name': student.name,
+                                'email': student.email,
+                                'confidence': student_info['confidence'],
+                                'face_image_path': student.face_image_path,
+                                'detected_at': datetime.now().isoformat()
+                            }
+                            
+                            await self.broadcast_to_lesson(lesson_id, {
+                                "type": "student_detected",
+                                "student": student_data,
+                                "timestamp": datetime.now().isoformat()
+                            })
+                
+                # Send attendance count update every second
+                current_time = datetime.now()
+                if (current_time - monitor['last_update']).seconds >= 1:
+                    monitor['last_update'] = current_time
+                    
+                    await self.broadcast_to_lesson(lesson_id, {
+                        "type": "attendance_count_update",
+                        "present_count": len(monitor['present_students']),
+                        "timestamp": current_time.isoformat()
+                    })
+                
+                await asyncio.sleep(0.5)  # Check every 0.5 seconds
+                
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            logger.error(f"❌ Attendance monitoring error for lesson {lesson_id}: {e}")
+        finally:
+            cap.release()
+    
+    async def get_attendance_report(self, lesson_id: int, db: Session) -> Dict[str, Any]:
+        """Generate comprehensive attendance report for a lesson"""
+        monitor = self.attendance_monitors.get(lesson_id, {})
+        present_students = monitor.get('present_students', set())
+        
+        # Get all students (assuming all enrolled students are potential attendees)
+        all_students = db.query(Student).filter(Student.is_active == True).all()
+        
+        # Get present students details
+        present_students_data = []
+        for student in all_students:
+            if student.student_id in present_students:
+                # Get attendance record
+                attendance_record = db.query(Attendance).filter(
+                    Attendance.student_id == student.id,
+                    Attendance.lesson_id == lesson_id
+                ).first()
+                
+                present_students_data.append({
+                    'student_id': student.student_id,
+                    'name': student.name,
+                    'email': student.email,
+                    'face_image_path': student.face_image_path,
+                    'detected_at': attendance_record.timestamp.isoformat() if attendance_record else None,
+                    'confidence': attendance_record.recognition_confidence if attendance_record else None
+                })
+        
+        # Get absent students
+        absent_students_data = []
+        for student in all_students:
+            if student.student_id not in present_students:
+                absent_students_data.append({
+                    'student_id': student.student_id,
+                    'name': student.name,
+                    'email': student.email,
+                    'face_image_path': student.face_image_path
+                })
+        
+        return {
+            'total_students': len(all_students),
+            'present_count': len(present_students_data),
+            'absent_count': len(absent_students_data),
+            'present_students': present_students_data,
+            'absent_students': absent_students_data,
+            'attendance_rate': (len(present_students_data) / len(all_students) * 100) if all_students else 0
+        }
 
 
 # Global connection manager
@@ -145,6 +332,7 @@ async def lesson_websocket(
     Message types from client:
     - {"type": "start_attendance"}
     - {"type": "end_attendance"}
+    - {"type": "stop_auto_attendance"}
     - {"type": "start_presentation"}
     - {"type": "next_slide"}
     - {"type": "previous_slide"}
@@ -156,7 +344,11 @@ async def lesson_websocket(
     
     Message types to client:
     - {"type": "lesson_state", "data": {...}}
-    - {"type": "attendance_update", "student": {...}}
+    - {"type": "attendance_started", "auto_monitoring": true}
+    - {"type": "attendance_ended", "report": {...}}
+    - {"type": "auto_attendance_stopped", "message": "..."}
+    - {"type": "student_detected", "student": {...}}
+    - {"type": "attendance_count_update", "present_count": 5}
     - {"type": "slide_data", "slide": {...}}
     - {"type": "presentation_paused"}
     - {"type": "presentation_resumed"}
@@ -231,6 +423,9 @@ async def lesson_websocket(
             elif message_type == "start_qa":
                 await handle_start_qa(lesson_id, session_service, manager)
             
+            elif message_type == "stop_auto_attendance":
+                await handle_stop_auto_attendance(lesson_id, manager)
+            
             elif message_type == "end_lesson":
                 await handle_end_lesson(lesson_id, session_service, manager, db)
                 break
@@ -253,8 +448,17 @@ async def lesson_websocket(
 async def handle_start_attendance(lesson_id: int, session_service, manager):
     """Handle attendance phase start"""
     await session_service.start_attendance_phase(lesson_id)
+    
+    # Start automatic attendance monitoring
+    db = next(get_db())
+    try:
+        await manager.start_attendance_monitoring(lesson_id, db)
+    finally:
+        db.close()
+    
     await manager.broadcast_to_lesson(lesson_id, {
         "type": "attendance_started",
+        "auto_monitoring": True,
         "timestamp": datetime.now().isoformat()
     })
 
@@ -262,10 +466,21 @@ async def handle_start_attendance(lesson_id: int, session_service, manager):
 async def handle_end_attendance(lesson_id: int, session_service, manager):
     """Handle attendance phase end"""
     session_service.update_session_state(lesson_id, {'attendance_started': False})
-    await manager.broadcast_to_lesson(lesson_id, {
-        "type": "attendance_ended",
-        "timestamp": datetime.now().isoformat()
-    })
+    
+    # Stop automatic attendance monitoring
+    await manager.stop_attendance_monitoring(lesson_id)
+    
+    # Generate and send final attendance report
+    db = next(get_db())
+    try:
+        report = await manager.get_attendance_report(lesson_id, db)
+        await manager.broadcast_to_lesson(lesson_id, {
+            "type": "attendance_ended",
+            "report": report,
+            "timestamp": datetime.now().isoformat()
+        })
+    finally:
+        db.close()
 
 
 async def handle_start_presentation(lesson_id: int, lesson, session_service, presentation_service, manager):
@@ -372,15 +587,116 @@ async def handle_resume_presentation(lesson_id: int, session_service, manager):
 
 
 async def handle_ask_question(lesson_id: int, question: str, method: str, session_service, manager, websocket):
-    """Handle question during presentation"""
-    # This will be processed by Q&A system
-    # For now, just acknowledge
-    await manager.send_personal_message({
-        "type": "question_received",
-        "question": question,
-        "method": method,
-        "timestamp": datetime.now().isoformat()
-    }, websocket)
+    """Handle question during presentation with LLM processing and audio response"""
+    try:
+        # Acknowledge question receipt
+        await manager.send_personal_message({
+            "type": "question_received",
+            "question": question,
+            "method": method,
+            "timestamp": datetime.now().isoformat()
+        }, websocket)
+        
+        # Get LLM service
+        from backend.routes.qa import get_llm_service
+        llm_service = get_llm_service()
+        
+        if not llm_service:
+            await manager.send_personal_message({
+                "type": "question_answered",
+                "question": question,
+                "answer": {
+                    "text": "LLM service mavjud emas.",
+                    "audio_path": None,
+                    "found_answer": False
+                },
+                "timestamp": datetime.now().isoformat()
+            }, websocket)
+            return
+        
+        # Process question using LLM
+        lesson_id_str = f"lesson_{lesson_id}"
+        
+        # Prepare lesson materials if available
+        from backend.models.lesson import Lesson
+        from backend.database import get_db
+        from sqlalchemy.orm import Session
+        import os
+        
+        db: Session = next(get_db())
+        try:
+            lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+            if lesson and lesson.materials_path and os.path.exists(lesson.materials_path):
+                file_paths = []
+                for root, dirs, files in os.walk(lesson.materials_path):
+                    for file in files:
+                        if file.endswith(('.pdf', '.pptx', '.docx', '.txt', '.md')):
+                            file_paths.append(os.path.join(root, file))
+                
+                if file_paths:
+                    success = llm_service.prepare_lesson_materials(file_paths, lesson_id_str)
+                    if not success:
+                        logger.warning(f"Failed to prepare materials for lesson {lesson_id}")
+        finally:
+            db.close()
+        
+        # Generate answer
+        answer, found, docs = llm_service.answer_question(
+            question, 
+            lesson_id_str, 
+            use_llm=True
+        )
+        
+        # Generate TTS audio for answer
+        audio_path = None
+        if answer:
+            try:
+                from stt_pipelines.uzbek_tts_pipeline import create_uzbek_tts
+                from backend.config import settings
+                import os
+                
+                tts = create_uzbek_tts(voice="male_clear")
+                
+                audio_filename = f"qa_{lesson_id}_ws_answer_{hash(answer[:50])}.mp3"
+                audio_path = os.path.join(settings.AUDIO_DIR, audio_filename)
+                
+                tts.speak_text(answer, save_to_file=audio_path)
+                
+                # Convert to relative path for frontend
+                if os.path.exists(audio_path):
+                    audio_path = f"/uploads/audio/{audio_filename}"
+                else:
+                    audio_path = None
+                    
+            except Exception as e:
+                logger.error(f"TTS generation failed: {e}")
+                audio_path = None
+        
+        # Send answer back
+        await manager.send_personal_message({
+            "type": "question_answered",
+            "question": question,
+            "answer": {
+                "text": answer,
+                "audio_path": audio_path,
+                "found_answer": found,
+                "retrieved_docs_count": len(docs)
+            },
+            "timestamp": datetime.now().isoformat()
+        }, websocket)
+        
+    except Exception as e:
+        logger.error(f"Error processing question: {e}")
+        await manager.send_personal_message({
+            "type": "question_answered",
+            "question": question,
+            "answer": {
+                "text": f"Xatolik yuz berdi: {str(e)}",
+                "audio_path": None,
+                "found_answer": False
+            },
+            "timestamp": datetime.now().isoformat()
+        }, websocket)
 
 
 async def handle_start_qa(lesson_id: int, session_service, manager):
@@ -390,6 +706,31 @@ async def handle_start_qa(lesson_id: int, session_service, manager):
         "type": "qa_mode_started",
         "timestamp": datetime.now().isoformat()
     })
+
+
+async def handle_stop_auto_attendance(lesson_id: int, manager):
+    """Handle stopping auto attendance monitoring"""
+    # Check if auto attendance is currently running
+    is_monitoring = lesson_id in manager.monitoring_tasks and not manager.monitoring_tasks[lesson_id].done()
+    
+    if is_monitoring:
+        # Stop the monitoring
+        await manager.stop_attendance_monitoring(lesson_id)
+        
+        # Send confirmation to all clients
+        await manager.broadcast_to_lesson(lesson_id, {
+            "type": "auto_attendance_stopped",
+            "message": "Auto attendance monitoring has been stopped",
+            "timestamp": datetime.now().isoformat()
+        })
+        logger.info(f"🛑 Auto attendance stopped for lesson {lesson_id}")
+    else:
+        # Send error if not currently monitoring
+        await manager.broadcast_to_lesson(lesson_id, {
+            "type": "error",
+            "message": "Auto attendance is not currently running",
+            "timestamp": datetime.now().isoformat()
+        })
 
 
 async def handle_presentation_completed(lesson_id: int, session_service, manager):
@@ -404,9 +745,16 @@ async def handle_presentation_completed(lesson_id: int, session_service, manager
 
 async def handle_end_lesson(lesson_id: int, session_service, manager, db: Session):
     """Handle lesson end"""
+    # Stop attendance monitoring if still running
+    await manager.stop_attendance_monitoring(lesson_id)
+    
+    # Generate final attendance report
+    report = await manager.get_attendance_report(lesson_id, db)
+    
     await session_service.end_lesson(lesson_id, db)
     await manager.broadcast_to_lesson(lesson_id, {
         "type": "lesson_ended",
+        "final_attendance_report": report,
         "timestamp": datetime.now().isoformat()
     })
 

@@ -44,6 +44,13 @@ async def list_lessons(
         query = query.filter(Lesson.status == status_filter)
     
     lessons = query.offset(skip).limit(limit).all()
+    
+    # Update status for all retrieved lessons based on current time
+    for lesson in lessons:
+        lesson.update_status()
+    
+    db.commit()
+    
     return lessons
 
 
@@ -72,6 +79,10 @@ async def get_lesson(
             detail=f"Lesson with ID {lesson_id} not found"
         )
     
+    # Update status based on current time
+    lesson.update_status()
+    db.commit()
+    
     return lesson
 
 
@@ -99,9 +110,11 @@ async def create_lesson(
         date=lesson_data.date,
         duration_minutes=lesson_data.duration_minutes,
         subject=lesson_data.subject,
-        notes=lesson_data.notes,
-        status=LessonStatus.SCHEDULED
+        notes=lesson_data.notes
     )
+    
+    # Automatically set status based on timing
+    new_lesson.update_status()
     
     db.add(new_lesson)
     db.commit()
@@ -142,6 +155,9 @@ async def update_lesson(
     
     for field, value in update_data.items():
         setattr(lesson, field, value)
+    
+    # Automatically update status based on new timing
+    lesson.update_status()
     
     db.commit()
     db.refresh(lesson)

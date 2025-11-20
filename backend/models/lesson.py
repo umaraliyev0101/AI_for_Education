@@ -7,6 +7,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from backend.database import Base
 import enum
+from datetime import datetime
 
 
 class LessonStatus(str, enum.Enum):
@@ -49,6 +50,47 @@ class Lesson(Base):
     # Relationships
     attendance_records = relationship("Attendance", back_populates="lesson", cascade="all, delete-orphan")
     qa_sessions = relationship("QASession", back_populates="lesson", cascade="all, delete-orphan")
+    
+    def calculate_status(self) -> LessonStatus:
+        """
+        Calculate lesson status based on current time and lesson schedule
+        
+        Returns:
+            LessonStatus: The appropriate status based on timing
+        """
+        now = datetime.now(self.date.tzinfo) if hasattr(self.date, 'tzinfo') and self.date.tzinfo else datetime.now()
+        
+        # If manually cancelled, keep cancelled
+        current_status = getattr(self, 'status', None)
+        if current_status and str(current_status) == str(LessonStatus.CANCELLED):
+            return LessonStatus.CANCELLED
+        
+        # Use the scheduled date as the reference point
+        scheduled_time = getattr(self, 'date', None)
+        
+        if not scheduled_time:
+            return LessonStatus.SCHEDULED
+        
+        # Calculate end time if duration is specified
+        duration = getattr(self, 'duration_minutes', None)
+        end_time = None
+        if duration:
+            from datetime import timedelta
+            end_time = scheduled_time + timedelta(minutes=duration)
+        
+        # Status logic based purely on scheduled time
+        if now < scheduled_time:
+            return LessonStatus.SCHEDULED
+        elif end_time and now >= end_time:
+            return LessonStatus.COMPLETED
+        else:
+            return LessonStatus.IN_PROGRESS
+    
+    def update_status(self):
+        """
+        Update the lesson status based on current time
+        """
+        self.status = self.calculate_status()
     
     def __repr__(self):
         return f"<Lesson(id={self.id}, title='{self.title}', status='{self.status}')>"

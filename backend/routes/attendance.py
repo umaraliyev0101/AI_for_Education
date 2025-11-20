@@ -334,17 +334,15 @@ async def scan_face_attendance(
 @router.post("/auto-scan/{lesson_id}")
 async def auto_scan_attendance(
     lesson_id: int,
-    max_duration_minutes: int = Query(30, description="Maximum scan duration in minutes", ge=1, le=120),
     db: Session = Depends(get_db),
     current_user: User = Depends(require_teacher)
 ):
     """
-    Auto-scan attendance until lesson starts
-    Scans continuously from now until lesson start time (or max duration)
+    Auto-scan attendance until 1 second before lesson starts
+    Scans continuously from now until 1 second before lesson start time
     
     Args:
         lesson_id: Lesson database ID
-        max_duration_minutes: Safety limit in minutes (1-120)
         db: Database session
         current_user: Authenticated teacher/admin
         
@@ -369,28 +367,32 @@ async def auto_scan_attendance(
             detail=f"Lesson with ID {lesson_id} not found"
         )
     
-    # Calculate scan duration based on lesson start time
+    # Calculate scan duration based on lesson scheduled time
     current_time = datetime.now()
     
-    # Combine date and start_time for full datetime
-    if lesson.start_time is not None:
-        lesson_start = lesson.start_time
-    else:
-        # Fallback: assume lesson starts at the date specified
-        lesson_start = lesson.date
+    # Use the scheduled date as the lesson start time for autoscan
+    # (not the manual start_time which is only set when lesson is actually started)
+    lesson_start = lesson.date
     
     # Calculate time until lesson starts
     time_until_start = lesson_start - current_time
     time_until_start_seconds = max(0, int(time_until_start.total_seconds()))
     
-    # If lesson already started, scan for 5 minutes or until max_duration
-    if time_until_start_seconds <= 0:
-        scan_duration_seconds = min(300, max_duration_minutes * 60)  # 5 min or max_duration
-        scan_reason = "lesson_already_started"
-    else:
-        # Scan until lesson starts, but not longer than max_duration
-        scan_duration_seconds = min(time_until_start_seconds, max_duration_minutes * 60)
-        scan_reason = "until_lesson_start"
+    # If lesson already started (based on scheduled time), don't scan
+    if time_until_start_seconds <= 1:
+        logger.info("Lesson already started or starts within 1 second, skipping auto-scan")
+        return {
+            "lesson_id": lesson_id,
+            "recognized_count": 0,
+            "students": [],
+            "scan_duration_seconds": 0,
+            "scan_reason": "lesson_already_started",
+            "lesson_start_time": lesson_start.isoformat() if lesson_start is not None else None
+        }
+    
+    # Scan until 1 second before lesson starts
+    scan_duration_seconds = time_until_start_seconds - 1
+    scan_reason = "until_1_second_before_lesson_start"
     
     logger.info(f"Auto-scan: {scan_duration_seconds}s ({scan_reason}), lesson starts at {lesson_start}")
     
@@ -401,19 +403,50 @@ async def auto_scan_attendance(
         )
         
         # Open camera
-        cap = cv2.VideoCapture(1) # Uses camera index from settings
+        camera_index = 1  # Default camera index
+        cap = cv2.VideoCapture(camera_index)
         if not cap.isOpened():
             raise HTTPException(
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="Cannot access camera"
             )
         
+        # Get camera information
+        camera_name = f"Camera {camera_index}"
+        try:
+            # Try to get camera backend information
+            backend = cap.get(cv2.CAP_PROP_BACKEND)
+            if backend:
+                backend_name = {
+                    cv2.CAP_DSHOW: "DirectShow",
+                    cv2.CAP_MSMF: "Media Foundation",
+                    cv2.CAP_V4L2: "V4L2",
+                    cv2.CAP_AVFOUNDATION: "AVFoundation",
+                    cv2.CAP_GSTREAMER: "GStreamer",
+                    cv2.CAP_FFMPEG: "FFMPEG",
+                    cv2.CAP_IMAGES: "Images",
+                    cv2.CAP_OPENCV_MJPEG: "OpenCV MJPEG"
+                }.get(int(backend), f"Unknown ({backend})")
+                camera_name = f"Camera {camera_index} ({backend_name})"
+            
+            # Try to get camera resolution
+            width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+            height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+            if width > 0 and height > 0:
+                camera_name += f" - {width}x{height}"
+                
+        except Exception:
+            # If we can't get camera info, just use the index
+            pass
+        
+        logger.info(f"Using camera: {camera_name}")
+        
         recognized_students = []
         max_attempts = scan_duration_seconds * 20  # Assuming 20 fps
         attempt = 0
         scan_start_time = datetime.now()
         
-        logger.info(f"Starting auto-scan: {scan_duration_seconds}s duration, max {max_attempts} frames")
+        logger.info(f"Starting auto-scan: {scan_duration_seconds}s duration, max {max_attempts} frames using {camera_name}")
         
         while attempt < max_attempts:
             ret, frame = cap.read()
@@ -486,7 +519,7 @@ async def auto_scan_attendance(
         cap.release()
         face_recognition_system.close()
         
-        logger.info(f"Auto-scan completed: {total_scan_time:.1f}s, {len(recognized_students)} students")
+        logger.info(f"Auto-scan completed: {total_scan_time:.1f}s, {len(recognized_students)} students using {camera_name}")
         
         return {
             "lesson_id": lesson_id,
@@ -494,6 +527,7 @@ async def auto_scan_attendance(
             "students": recognized_students,
             "scan_duration_seconds": total_scan_time,
             "scan_reason": scan_reason,
+            "camera_used": camera_name,
             "lesson_start_time": lesson_start.isoformat() if lesson_start is not None else None
         }
         
