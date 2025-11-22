@@ -36,6 +36,9 @@ class UzbekLLMQAService:
     with Retrieval-Augmented Generation (RAG)
     """
 
+    # Improvement message to append to all answers
+    IMPROVEMENT_MESSAGE = "\n\nSiz har doim aniqroq savollar berib, meni yaxshilashingiz mumkin."
+
     def __init__(
         self,
         model_name: str = None,  # If None, loads from backend/llm_config.py
@@ -407,6 +410,9 @@ Javob:"""
             print(f"[LLM] Total generation time: {total_time:.1f}s")
             print(f"[LLM] Generated answer length: {len(answer)} chars")
 
+            # Append improvement message
+            answer += self.IMPROVEMENT_MESSAGE
+
             return answer
 
         except Exception as e:
@@ -531,6 +537,9 @@ Javob:"""
                 total_time = time.time() - start_time
                 print(f"[LLM] Total generation time: {total_time:.1f}s")
                 print(f"[LLM] Generated answer length: {len(answer)} chars")
+
+                # Append improvement message
+                answer += self.IMPROVEMENT_MESSAGE
 
                 return answer
 
@@ -668,6 +677,7 @@ Javob:"""
                 if relevant_docs:
                     # Return the most relevant document content
                     answer = relevant_docs[0].page_content[:500] + "..." if len(relevant_docs[0].page_content) > 500 else relevant_docs[0].page_content
+                    answer += self.IMPROVEMENT_MESSAGE
                     return answer, True, relevant_docs
                 else:
                     return "Bu dars uchun tegishli ma'lumot topilmadi.", False, []
