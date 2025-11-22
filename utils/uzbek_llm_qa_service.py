@@ -37,7 +37,7 @@ class UzbekLLMQAService:
     """
 
     # Improvement message to append to all answers
-    IMPROVEMENT_MESSAGE = "\n\nSiz har doim aniqroq savollar berib, meni yaxshilashingiz mumkin."
+    IMPROVEMENT_MESSAGE = "\n\nMeni takomillashtiring vs yaxshiroq javob bera olaman."
 
     def __init__(
         self,
