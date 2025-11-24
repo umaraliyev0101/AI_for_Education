@@ -1,8 +1,40 @@
 """
 Database Initialization Script
 Creates initial admin user and sets up database
+
+This script is safe to run directly (python backend/init_db.py) from the repo root
+even when the repo root is not on PYTHONPATH. It ensures the repository root is
+on sys.path, then imports model modules so SQLAlchemy mappers are configured
+before any queries/mapper configuration runs.
 """
+import os
+import sys
+import importlib
+
+# Ensure repo root is on sys.path so `import backend...` works when running
+# this file directly (no need to run as a module or change CWD).
+REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if REPO_ROOT not in sys.path:
+    sys.path.insert(0, REPO_ROOT)
+
 from backend.database import SessionLocal, init_db
+
+model_modules = [
+    "backend.models.user",
+    "backend.models.student",
+    "backend.models.group",
+    "backend.models.lesson",
+    "backend.models.attendance",
+    "backend.models.qa_session",
+]
+
+for mod in model_modules:
+    try:
+        importlib.import_module(mod)
+    except Exception as e:
+        # Don't crash here; print a warning so the user can see missing model issues.
+        print(f"Warning importing {mod}: {e}")
+
 from backend.models.user import User, UserRole
 from backend.auth import get_password_hash
 
