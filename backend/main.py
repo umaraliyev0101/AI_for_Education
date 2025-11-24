@@ -83,7 +83,7 @@ async def health_check():
 
 
 # Import and include routers
-from backend.routes import auth, students, lessons, attendance, qa, websocket
+from backend.routes import auth, students, lessons, attendance, qa, websocket, groups
 
 app.include_router(auth.router, prefix="/api/auth", tags=["Authentication"])
 app.include_router(students.router, prefix="/api/students", tags=["Students"])
@@ -91,6 +91,7 @@ app.include_router(lessons.router, prefix="/api/lessons", tags=["Lessons"])
 app.include_router(attendance.router, prefix="/api/attendance", tags=["Attendance"])
 app.include_router(qa.router, prefix="/api/qa", tags=["Q&A"])
 app.include_router(websocket.router, prefix="/api", tags=["WebSocket"])
+app.include_router(groups.router, prefix="/api/groups", tags=["Groups"])
 
 
 if __name__ == "__main__":

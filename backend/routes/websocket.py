@@ -45,6 +45,7 @@ class ConnectionManager:
         # Attendance monitoring
         self.attendance_monitors: Dict[int, Dict[str, Any]] = {}  # {lesson_id: monitor_data}
         self.monitoring_tasks: Dict[int, asyncio.Task] = {}  # {lesson_id: task}
+        self.stop_flags: Dict[int, bool] = {}  # {lesson_id: stop_flag}
     
     def _serialize_data(self, data: Any) -> Any:
         """
@@ -149,6 +150,9 @@ class ConnectionManager:
             'camera_id': 0  # Default camera
         }
         
+        # Initialize stop flag
+        self.stop_flags[lesson_id] = False
+        
         # Initialize face recognition system
         try:
             attendance_db_path = os.path.join("uploads", "attendance.db")
@@ -169,6 +173,9 @@ class ConnectionManager:
     
     async def stop_attendance_monitoring(self, lesson_id: int):
         """Stop attendance monitoring for a lesson"""
+        # Set stop flag first
+        self.stop_flags[lesson_id] = True
+        
         if lesson_id in self.monitoring_tasks:
             self.monitoring_tasks[lesson_id].cancel()
             try:
@@ -182,6 +189,10 @@ class ConnectionManager:
             if monitor['face_recognition']:
                 monitor['face_recognition'].close()
             del self.attendance_monitors[lesson_id]
+        
+        # Clean up stop flag
+        if lesson_id in self.stop_flags:
+            del self.stop_flags[lesson_id]
         
         logger.info(f"🛑 Stopped attendance monitoring for lesson {lesson_id}")
     
@@ -204,7 +215,7 @@ class ConnectionManager:
             return
         
         try:
-            while lesson_id in self.attendance_monitors:
+            while not self.stop_flags.get(lesson_id, False) and lesson_id in self.attendance_monitors:
                 ret, frame = cap.read()
                 if not ret:
                     await asyncio.sleep(1)
@@ -597,6 +608,10 @@ async def handle_stop_auto_attendance(lesson_id: int, manager):
     if is_monitoring:
         # Stop the monitoring
         await manager.stop_attendance_monitoring(lesson_id)
+        
+        # Update session state to mark attendance as stopped
+        session_service = get_lesson_session_service()
+        session_service.update_session_state(lesson_id, {'attendance_started': False})
         
         # Send confirmation to all clients
         await manager.broadcast_to_lesson(lesson_id, {

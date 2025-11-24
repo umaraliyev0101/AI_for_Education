@@ -11,6 +11,7 @@ class StudentBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
+    group_id: int = Field(..., description="ID of the group this student belongs to")
     is_active: bool = True
 
 
@@ -24,6 +25,7 @@ class StudentUpdate(BaseModel):
     name: Optional[str] = Field(None, min_length=1, max_length=100)
     email: Optional[EmailStr] = None
     phone: Optional[str] = None
+    group_id: Optional[int] = Field(None, description="ID of the group this student belongs to")
     is_active: Optional[bool] = None
 
 

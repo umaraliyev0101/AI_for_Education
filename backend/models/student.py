@@ -2,7 +2,7 @@
 Student Model
 Represents a student with face encoding for recognition
 """
-from sqlalchemy import Column, Integer, String, DateTime, LargeBinary, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, LargeBinary, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from backend.database import Base
@@ -17,6 +17,9 @@ class Student(Base):
     email = Column(String(100), unique=True, nullable=True, index=True)
     phone = Column(String(20), nullable=True)
     
+    # Group assignment
+    group_id = Column(Integer, ForeignKey("groups.id"), nullable=False)
+    
     # Face recognition data (stored as binary pickle)
     face_encoding = Column(LargeBinary, nullable=True)
     face_image_path = Column(String(255), nullable=True)
@@ -30,6 +33,7 @@ class Student(Base):
     
     # Relationships
     attendance_records = relationship("Attendance", back_populates="student", cascade="all, delete-orphan")
+    group = relationship("Group", back_populates="students")
     
     def __repr__(self):
         return f"<Student(id={self.id}, student_id='{self.student_id}', name='{self.name}')>"

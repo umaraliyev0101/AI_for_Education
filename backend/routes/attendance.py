@@ -10,6 +10,7 @@ from backend.database import get_db
 from backend.models.attendance import Attendance
 from backend.models.student import Student
 from backend.models.lesson import Lesson
+from backend.models.group import Group
 from backend.models.user import User
 from backend.schemas.attendance import AttendanceCreate, AttendanceResponse
 from backend.dependencies import require_teacher, get_current_user
@@ -599,32 +600,55 @@ async def auto_scan_attendance(
     }
 
 
-@router.delete("/{attendance_id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_attendance(
-    attendance_id: int,
+@router.get("/lesson/{lesson_id}/attendance-candidates")
+async def get_attendance_candidates(
+    lesson_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_teacher)
+    current_user: User = Depends(get_current_user)
 ):
     """
-    Delete an attendance record (Teacher or Admin)
+    Get all students that can be marked for attendance in a specific lesson
+    (students belonging to groups assigned to the lesson)
     
     Args:
-        attendance_id: Attendance record ID
+        lesson_id: Lesson database ID
         db: Database session
-        current_user: Authenticated teacher/admin
+        current_user: Authenticated user
         
     Returns:
-        No content
+        List of students eligible for attendance in this lesson
     """
-    attendance = db.query(Attendance).filter(Attendance.id == attendance_id).first()
-    
-    if not attendance:
+    # Verify lesson exists
+    lesson = db.query(Lesson).filter(Lesson.id == lesson_id).first()
+    if not lesson:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Attendance record with ID {attendance_id} not found"
+            detail=f"Lesson with ID {lesson_id} not found"
         )
     
-    db.delete(attendance)
-    db.commit()
+    # Get all groups assigned to this lesson
+    lesson_groups = lesson.groups
+    if not lesson_groups:
+        # If no groups assigned, return empty list
+        return []
     
-    return None
+    group_ids = [g.id for g in lesson_groups]
+    
+    # Get all active students belonging to these groups
+    students = db.query(Student).filter(
+        Student.group_id.in_(group_ids),
+        Student.is_active == True
+    ).order_by(Student.name).all()
+    
+    # Add group information to each student
+    students_with_groups = []
+    for student in students:
+        student_dict = student.__dict__.copy()
+        student_dict['group'] = {
+            'id': student.group.id,
+            'name': student.group.name,
+            'year_level': student.group.year_level
+        }
+        students_with_groups.append(student_dict)
+    
+    return students_with_groups

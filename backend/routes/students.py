@@ -7,6 +7,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from backend.database import get_db
 from backend.models.student import Student
+from backend.models.group import Group
 from backend.models.user import User
 from backend.schemas.student import StudentCreate, StudentUpdate, StudentResponse
 from backend.dependencies import require_admin, require_teacher, get_current_user
@@ -114,12 +115,21 @@ async def create_student(
                 detail=f"Student with email {student_data.email} already exists"
             )
     
+    # Check if group exists
+    group = db.query(Group).filter(Group.id == student_data.group_id).first()
+    if not group:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Group with ID {student_data.group_id} not found"
+        )
+    
     # Create new student
     new_student = Student(
         student_id=student_data.student_id,
         name=student_data.name,
         email=student_data.email,
         phone=student_data.phone,
+        group_id=student_data.group_id,
         is_active=student_data.is_active
     )
     

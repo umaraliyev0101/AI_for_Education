@@ -9,6 +9,7 @@ from typing import List, Optional
 from datetime import datetime
 from backend.database import get_db
 from backend.models.lesson import Lesson, LessonStatus
+from backend.models.group import Group
 from backend.models.user import User
 from backend.schemas.lesson import LessonCreate, LessonUpdate, LessonResponse
 from backend.dependencies import require_teacher, get_current_user
@@ -51,7 +52,34 @@ async def list_lessons(
     
     db.commit()
     
-    return lessons
+    # Add groups data to each lesson
+    lessons_with_groups = []
+    for lesson in lessons:
+        lesson_dict = {
+            'id': lesson.id,
+            'title': lesson.title,
+            'description': lesson.description,
+            'date': lesson.date,
+            'duration_minutes': lesson.duration_minutes,
+            'subject': lesson.subject,
+            'notes': lesson.notes,
+            'status': lesson.status,
+            'created_at': lesson.created_at,
+            'updated_at': lesson.updated_at,
+            'start_time': lesson.start_time,
+            'end_time': lesson.end_time,
+            'presentation_path': lesson.presentation_path,
+            'materials_path': lesson.materials_path,
+            'vector_store_path': lesson.vector_store_path,
+            'groups': [
+                {'id': g.id, 'name': g.name, 'year_level': g.year_level}
+                for g in lesson.groups
+            ],
+            'group_ids': [g.id for g in lesson.groups]
+        }
+        lessons_with_groups.append(lesson_dict)
+    
+    return lessons_with_groups
 
 
 @router.get("/{lesson_id}", response_model=LessonResponse)
@@ -83,7 +111,15 @@ async def get_lesson(
     lesson.update_status()
     db.commit()
     
-    return lesson
+    # Prepare response with groups data
+    lesson_dict = lesson.__dict__.copy()
+    lesson_dict['groups'] = [
+        {'id': g.id, 'name': g.name, 'year_level': g.year_level}
+        for g in lesson.groups
+    ]
+    lesson_dict['group_ids'] = [g.id for g in lesson.groups]
+    
+    return lesson_dict
 
 
 @router.post("/", response_model=LessonResponse, status_code=status.HTTP_201_CREATED)
@@ -103,7 +139,6 @@ async def create_lesson(
     Returns:
         Created lesson information
     """
-    
     new_lesson = Lesson(
         title=lesson_data.title,
         description=lesson_data.description,
@@ -120,7 +155,30 @@ async def create_lesson(
     db.commit()
     db.refresh(new_lesson)
     
-    return new_lesson
+    # Assign groups to the lesson
+    if lesson_data.group_ids:
+        groups = db.query(Group).filter(Group.id.in_(lesson_data.group_ids)).all()
+        if len(groups) != len(lesson_data.group_ids):
+            # Some groups not found
+            found_ids = {g.id for g in groups}
+            missing_ids = set(lesson_data.group_ids) - found_ids
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Groups with IDs {list(missing_ids)} not found"
+            )
+        new_lesson.groups = groups
+        db.commit()
+        db.refresh(new_lesson)
+    
+    # Prepare response with groups data
+    lesson_dict = new_lesson.__dict__.copy()
+    lesson_dict['groups'] = [
+        {'id': g.id, 'name': g.name, 'year_level': g.year_level}
+        for g in new_lesson.groups
+    ]
+    lesson_dict['group_ids'] = [g.id for g in new_lesson.groups]
+    
+    return lesson_dict
 
 
 @router.put("/{lesson_id}", response_model=LessonResponse)
@@ -153,8 +211,24 @@ async def update_lesson(
     # Update fields if provided
     update_data = lesson_data.model_dump(exclude_unset=True)
     
+    # Handle group_ids separately
+    group_ids = update_data.pop('group_ids', None)
+    
     for field, value in update_data.items():
         setattr(lesson, field, value)
+    
+    # Update groups if provided
+    if group_ids is not None:
+        groups = db.query(Group).filter(Group.id.in_(group_ids)).all()
+        if len(groups) != len(group_ids):
+            # Some groups not found
+            found_ids = {g.id for g in groups}
+            missing_ids = set(group_ids) - found_ids
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Groups with IDs {list(missing_ids)} not found"
+            )
+        lesson.groups = groups
     
     # Automatically update status based on new timing
     lesson.update_status()
@@ -162,7 +236,15 @@ async def update_lesson(
     db.commit()
     db.refresh(lesson)
     
-    return lesson
+    # Prepare response with groups data
+    lesson_dict = lesson.__dict__.copy()
+    lesson_dict['groups'] = [
+        {'id': g.id, 'name': g.name, 'year_level': g.year_level}
+        for g in lesson.groups
+    ]
+    lesson_dict['group_ids'] = [g.id for g in lesson.groups]
+    
+    return lesson_dict
 
 
 @router.delete("/{lesson_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -290,7 +372,15 @@ async def start_lesson(
     db.commit()
     db.refresh(lesson)
     
-    return lesson
+    # Prepare response with groups data
+    lesson_dict = lesson.__dict__.copy()
+    lesson_dict['groups'] = [
+        {'id': g.id, 'name': g.name, 'year_level': g.year_level}
+        for g in lesson.groups
+    ]
+    lesson_dict['group_ids'] = [g.id for g in lesson.groups]
+    
+    return lesson_dict
 
 
 @router.post("/{lesson_id}/end", response_model=LessonResponse)
@@ -330,7 +420,15 @@ async def end_lesson(
     db.commit()
     db.refresh(lesson)
     
-    return lesson
+    # Prepare response with groups data
+    lesson_dict = lesson.__dict__.copy()
+    lesson_dict['groups'] = [
+        {'id': g.id, 'name': g.name, 'year_level': g.year_level}
+        for g in lesson.groups
+    ]
+    lesson_dict['group_ids'] = [g.id for g in lesson.groups]
+    
+    return lesson_dict
 
 
 @router.post("/{lesson_id}/upload-materials")

@@ -14,6 +14,7 @@ class LessonBase(BaseModel):
     duration_minutes: Optional[int] = Field(None, gt=0)
     subject: Optional[str] = None
     notes: Optional[str] = None
+    group_ids: list[int] = Field(default_factory=list, description="List of group IDs this lesson is assigned to")
 
 
 class LessonCreate(LessonBase):
@@ -30,6 +31,7 @@ class LessonUpdate(BaseModel):
     subject: Optional[str] = None
     notes: Optional[str] = None
     status: Optional[LessonStatus] = None
+    group_ids: Optional[list[int]] = Field(None, description="List of group IDs this lesson is assigned to")
 
 
 class LessonResponse(LessonBase):
@@ -43,6 +45,7 @@ class LessonResponse(LessonBase):
     status: LessonStatus
     created_at: datetime
     updated_at: Optional[datetime] = None
+    groups: list[dict] = Field(default_factory=list, description="List of groups assigned to this lesson")
     
     class Config:
         from_attributes = True

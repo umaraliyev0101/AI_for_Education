@@ -2,7 +2,7 @@
 Lesson Model
 Represents a lesson/class session with materials and presentation
 """
-from sqlalchemy import Column, Integer, String, DateTime, Text, Enum as SQLEnum
+from sqlalchemy import Column, Integer, String, DateTime, Text, Enum as SQLEnum, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from backend.database import Base
@@ -16,6 +16,15 @@ class LessonStatus(str, enum.Enum):
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
     CANCELLED = "cancelled"
+
+
+# Association table for many-to-many relationship between lessons and groups
+lesson_groups = Table(
+    'lesson_groups',
+    Base.metadata,
+    Column('lesson_id', Integer, ForeignKey('lessons.id'), primary_key=True),
+    Column('group_id', Integer, ForeignKey('groups.id'), primary_key=True)
+)
 
 
 class Lesson(Base):
@@ -50,6 +59,7 @@ class Lesson(Base):
     # Relationships
     attendance_records = relationship("Attendance", back_populates="lesson", cascade="all, delete-orphan")
     qa_sessions = relationship("QASession", back_populates="lesson", cascade="all, delete-orphan")
+    groups = relationship("Group", secondary=lesson_groups, backref="lessons")
     
     def calculate_status(self) -> LessonStatus:
         """
