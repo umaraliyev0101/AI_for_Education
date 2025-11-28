@@ -10,8 +10,48 @@ from backend.models.group import Group
 from backend.models.user import User
 from backend.schemas.group import GroupCreate, GroupUpdate, GroupResponse
 from backend.dependencies import require_teacher, get_current_user
+import os
+import glob
+from backend.config import settings
 
 router = APIRouter()
+
+
+def populate_face_image_paths(groups: List[Group], faces_dir: str, db: Session):
+    """
+    Populate face_image_path for students if not set but images exist
+    """
+    print(f"Looking for face images in: {faces_dir}")
+    print(f"Directory exists: {os.path.exists(faces_dir)}")
+    
+    if os.path.exists(faces_dir):
+        all_files = os.listdir(faces_dir)
+        print(f"All files in directory: {all_files}")
+    
+    for group in groups:
+        for student in group.students:
+            print(f"Checking student {student.student_id}, current face_image_path: {student.face_image_path}")
+            if not student.face_image_path:
+                # Look for existing face image
+                pattern = os.path.join(faces_dir, f"student_{student.student_id}_*.jpg")
+                print(f"Checking pattern: {pattern}")
+                matching_files = glob.glob(pattern)
+                print(f"Found {len(matching_files)} matching files: {matching_files}")
+                if matching_files:
+                    # Use the most recent file
+                    latest_file = max(matching_files, key=os.path.getctime)
+                    student.face_image_path = latest_file
+                    print(f"Populated face_image_path for student {student.student_id}: {latest_file}")
+                else:
+                    print(f"No matching files found for student {student.student_id}")
+    
+    # Commit the changes to persist them
+    try:
+        db.commit()
+        print("Database commit successful")
+    except Exception as e:
+        print(f"Database commit failed: {e}")
+        db.rollback()
 
 
 @router.get("/", response_model=List[GroupResponse])
@@ -46,6 +86,22 @@ async def list_groups(
         query = query.filter(Group.year_level == year_level)
 
     groups = query.offset(skip).limit(limit).all()
+    
+    # Populate face_image_path from existing images if not set
+    # Get the absolute path relative to the project root
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    faces_dir = os.path.join(project_root, "uploads", "faces")
+    populate_face_image_paths(groups, faces_dir, db)
+    
+    # Debug: Print what we're sending to frontend
+    print("=== SENDING GROUPS TO FRONTEND ===")
+    for group in groups:
+        print(f"Group: {group.name} (ID: {group.id})")
+        print(f"Students count: {len(group.students)}")
+        for student in group.students:
+            print(f"  Student: {student.name} (ID: {student.student_id}), image_path: {student.face_image_path}")
+        print("-" * 50)
+    
     return groups
 
 
@@ -73,6 +129,20 @@ async def get_group(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Group with ID {group_id} not found"
         )
+
+    # Populate face_image_path from existing images if not set
+    # Get the absolute path relative to the project root
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    faces_dir = os.path.join(project_root, "uploads", "faces")
+    populate_face_image_paths([group], faces_dir, db)
+
+    # Debug: Print what we're sending to frontend
+    print(f"=== SENDING GROUP {group_id} TO FRONTEND ===")
+    print(f"Group: {group.name} (ID: {group.id})")
+    print(f"Students count: {len(group.students)}")
+    for student in group.students:
+        print(f"  Student: {student.name} (ID: {student.student_id}), image_path: {student.face_image_path}")
+    print("-" * 50)
 
     return group
 

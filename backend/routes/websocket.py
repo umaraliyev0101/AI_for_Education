@@ -602,31 +602,20 @@ async def handle_start_qa(lesson_id: int, session_service, manager):
 
 async def handle_stop_auto_attendance(lesson_id: int, manager):
     """Handle stopping auto attendance monitoring"""
-    # Check if auto attendance is currently running
-    is_monitoring = lesson_id in manager.monitoring_tasks and not manager.monitoring_tasks[lesson_id].done()
+    # Always try to stop monitoring to clean up any leftover state
+    await manager.stop_attendance_monitoring(lesson_id)
     
-    if is_monitoring:
-        # Stop the monitoring
-        await manager.stop_attendance_monitoring(lesson_id)
-        
-        # Update session state to mark attendance as stopped
-        session_service = get_lesson_session_service()
-        session_service.update_session_state(lesson_id, {'attendance_started': False})
-        
-        # Send confirmation to all clients
-        await manager.broadcast_to_lesson(lesson_id, {
-            "type": "auto_attendance_stopped",
-            "message": "Auto attendance monitoring has been stopped",
-            "timestamp": datetime.now().isoformat()
-        })
-        logger.info(f"🛑 Auto attendance stopped for lesson {lesson_id}")
-    else:
-        # Send error if not currently monitoring
-        await manager.broadcast_to_lesson(lesson_id, {
-            "type": "error",
-            "message": "Auto attendance is not currently running",
-            "timestamp": datetime.now().isoformat()
-        })
+    # Update session state to mark attendance as stopped
+    session_service = get_lesson_session_service()
+    session_service.update_session_state(lesson_id, {'attendance_started': False})
+    
+    # Send confirmation to all clients
+    await manager.broadcast_to_lesson(lesson_id, {
+        "type": "auto_attendance_stopped",
+        "message": "Auto attendance monitoring has been stopped",
+        "timestamp": datetime.now().isoformat()
+    })
+    logger.info(f"🛑 Auto attendance stopped for lesson {lesson_id}")
 
 
 async def handle_end_lesson(lesson_id: int, session_service, manager, db: Session):

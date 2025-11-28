@@ -15,12 +15,14 @@ class StudentInfo(BaseModel):
     name: str
     email: Optional[str] = None
     phone: Optional[str] = None
+    image_path: Optional[str] = Field(default=None, alias="face_image_path")
     is_active: bool
     created_at: datetime
     updated_at: Optional[datetime] = None
 
     class Config:
         from_attributes = True
+        by_alias = True
 
 
 class GroupBase(BaseModel):
