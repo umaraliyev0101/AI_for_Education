@@ -14,6 +14,12 @@ modifier letter turned comma (U+02BB, 'ʻ').
 import argparse
 from transformers import AutoTokenizer
 
+# Try to import default model from backend.llm_config
+try:
+    from backend.llm_config import CURRENT_LLM_MODEL as DEFAULT_MODEL
+except Exception:
+    DEFAULT_MODEL = None
+
 APOSTROPHES = {
     "ASCII_apostrophe": "'",        # U+0027
     "MODIFIER_LETTER_TURNED_COMMA": "ʻ",  # U+02BB recommended for Uzbek
@@ -33,7 +39,9 @@ def normalize_to_uzbek_apostrophe(s: str) -> str:
 
 def main():
     p = argparse.ArgumentParser()
-    p.add_argument("--model", required=True, help="HuggingFace model id or local path to tokenizer")
+    p.add_argument("--model", required=(DEFAULT_MODEL is None),
+                   default=DEFAULT_MODEL,
+                   help=f"HuggingFace model id or local path to tokenizer (default from backend.llm_config: {DEFAULT_MODEL})")
     args = p.parse_args()
 
     tok = AutoTokenizer.from_pretrained(args.model, use_fast=True)
