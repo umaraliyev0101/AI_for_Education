@@ -2,7 +2,7 @@
 # AI Education System - Complete Requirements
 # ============================================================================
 # Comprehensive dependencies for all features
-# Date: November 18, 2025
+# Date: December 24, 2025
 
 # ============================================================================
 # CORE BACKEND FRAMEWORK
@@ -109,6 +109,19 @@ jiwer>=3.0.0
 # ============================================================================
 requests>=2.31.0
 httpx>=0.24.0
+
+# ============================================================================
+# HUGGINGFACE HUB (for model downloads)
+# ============================================================================
+huggingface-hub>=0.23.0
+tqdm>=4.66.0
+
+# ============================================================================
+# WINDOWS-SPECIFIC (PPTX to image conversion via PowerPoint COM)
+# ============================================================================
+# Note: comtypes is Windows-only and optional
+# Install manually on Windows: pip install comtypes
+# comtypes>=1.2.0  # Windows-only, uncomment if needed
 
 # ============================================================================
 # SYSTEM REQUIREMENTS & EXTERNAL DEPENDENCIES
