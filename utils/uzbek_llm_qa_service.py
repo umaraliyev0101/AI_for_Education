@@ -26,6 +26,9 @@ from langchain_core.documents import Document
 import faiss
 import numpy as np
 
+# Import Uzbek text normalizer for handling apostrophe characters
+from utils.uzbek_text_postprocessor import normalize_uzbek_text, UzbekTextNormalizer
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -82,6 +85,10 @@ class UzbekLLMQAService:
         self.max_new_tokens = max_new_tokens
         self.temperature = temperature
         self.k_documents = k_documents
+
+        # Initialize Uzbek text normalizer for handling oʻ, gʻ and apostrophe variants
+        # This prevents <UNK> tokens from appearing due to character encoding issues
+        self.text_normalizer = UzbekTextNormalizer(use_ascii_apostrophe=False)
 
         # Initialize components
         self.tokenizer = None
@@ -190,11 +197,79 @@ class UzbekLLMQAService:
             if hasattr(self.model, 'hf_device_map'):
                 logger.info(f"  Device map: {self.model.hf_device_map}")
             
+            # Test and auto-configure text normalizer for this tokenizer
+            self._configure_text_normalizer()
+            
             logger.info("✅ Models initialized successfully")
 
         except Exception as e:
             logger.error(f"❌ Failed to initialize models: {e}")
             raise
+
+    def _configure_text_normalizer(self):
+        """
+        Auto-configure text normalizer for the loaded tokenizer.
+        
+        Tests which apostrophe representation produces fewer UNK tokens
+        and configures the normalizer accordingly.
+        """
+        if self.tokenizer is None:
+            return
+        
+        # Test strings with Uzbek apostrophe characters
+        test_strings = [
+            "O'zbekiston",  # ASCII apostrophe
+            "Oʻzbekiston",  # Standard Uzbek (U+02BB)
+            "O`zbekiston",  # Grave accent
+            "gʻildirak",    # Standard Uzbek gʻ
+            "g'ildirak",    # ASCII apostrophe
+        ]
+        
+        # Test with standard Uzbek apostrophe (U+02BB)
+        standard_normalizer = UzbekTextNormalizer(use_ascii_apostrophe=False)
+        standard_unk_count = 0
+        
+        # Test with ASCII apostrophe
+        ascii_normalizer = UzbekTextNormalizer(use_ascii_apostrophe=True)
+        ascii_unk_count = 0
+        
+        for test_str in test_strings:
+            # Test standard normalization
+            std_normalized = standard_normalizer.normalize(test_str)
+            std_tokens = self.tokenizer.tokenize(std_normalized)
+            standard_unk_count += sum(1 for t in std_tokens if self.tokenizer.unk_token and self.tokenizer.unk_token in t)
+            
+            # Test ASCII normalization
+            ascii_normalized = ascii_normalizer.normalize(test_str)
+            ascii_tokens = self.tokenizer.tokenize(ascii_normalized)
+            ascii_unk_count += sum(1 for t in ascii_tokens if self.tokenizer.unk_token and self.tokenizer.unk_token in t)
+        
+        # Choose the normalizer with fewer UNK tokens
+        if ascii_unk_count < standard_unk_count:
+            self.text_normalizer = ascii_normalizer
+            logger.info("📝 Text normalizer configured to use ASCII apostrophe (') for better tokenization")
+        else:
+            self.text_normalizer = standard_normalizer
+            logger.info("📝 Text normalizer configured to use standard Uzbek apostrophe (ʻ)")
+        
+        logger.info(f"   Standard apostrophe UNK count: {standard_unk_count}")
+        logger.info(f"   ASCII apostrophe UNK count: {ascii_unk_count}")
+
+    def normalize_text(self, text: str) -> str:
+        """
+        Normalize Uzbek text to prevent UNK tokens.
+        
+        Handles variations in apostrophe characters used for oʻ and gʻ.
+        
+        Args:
+            text: Input text
+            
+        Returns:
+            Normalized text with consistent character encoding
+        """
+        if not text:
+            return ""
+        return self.text_normalizer.normalize(text)
 
     def prepare_lesson_materials(
         self,
@@ -280,6 +355,9 @@ class UzbekLLMQAService:
         Returns:
             List of similar documents
         """
+        # Normalize query to ensure consistent character encoding
+        query = self.normalize_text(query)
+        
         if lesson_id not in self.vector_stores:
             # Try to load from disk
             load_path = f"vector_stores/{lesson_id}"
@@ -322,10 +400,12 @@ class UzbekLLMQAService:
         start_time = time.time()
         
         try:
+            # Normalize question text to prevent UNK tokens from apostrophe variants
+            question = self.normalize_text(question)
             print(f"[LLM] Preparing context for question: '{question[:50]}...'")
             
-            # Prepare context
-            context = "\n\n".join([doc.page_content for doc in context_docs])
+            # Prepare and normalize context
+            context = "\n\n".join([self.normalize_text(doc.page_content) for doc in context_docs])
             context_length = len(context.split())
             
             print(f"[LLM] Context prepared: {context_length} words from {len(context_docs)} documents")
@@ -435,6 +515,8 @@ Javob:"""
         start_time = time.time()
         
         try:
+            # Normalize question text to prevent UNK tokens from apostrophe variants
+            question = self.normalize_text(question)
             print(f"[LLM] Generating general knowledge answer for: '{question[:50]}...'")
             print(f"[LLM] Starting inference with {self.model_name} on {self.device}...")
 

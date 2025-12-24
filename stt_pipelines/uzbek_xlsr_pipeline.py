@@ -57,6 +57,12 @@ class UzbekXLSRSTT:
 
     def transcribe_audio(self, audio_data: Union[np.ndarray, bytes], sample_rate: int = 16000) -> Dict[str, Any]:
         """Transcribe audio to Uzbek text"""
+        # Import text normalizer for Uzbek characters (oʻ, gʻ variants)
+        try:
+            from utils.uzbek_text_postprocessor import normalize_uzbek_text
+        except ImportError:
+            normalize_uzbek_text = lambda x: x  # Fallback to no normalization
+
         try:
             # Convert bytes to numpy array if needed
             if isinstance(audio_data, bytes):
@@ -90,8 +96,11 @@ class UzbekXLSRSTT:
             probs = torch.softmax(logits, dim=-1)
             confidence = torch.max(probs, dim=-1)[0].mean().item()
 
+            # Normalize text for LLM compatibility
+            normalized_text = normalize_uzbek_text(transcription.strip())
+
             return {
-                'text': transcription.strip(),
+                'text': normalized_text,
                 'confidence': confidence,
                 'model': self.model_name
             }

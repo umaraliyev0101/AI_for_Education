@@ -99,6 +99,12 @@ class UzbekHFSTTPipeline:
         Returns:
             Dict with 'text' and 'confidence' keys
         """
+        # Import text normalizer for Uzbek characters (oʻ, gʻ variants)
+        try:
+            from utils.uzbek_text_postprocessor import normalize_uzbek_text
+        except ImportError:
+            normalize_uzbek_text = lambda x: x  # Fallback to no normalization
+
         try:
             import time
             start_time = time.time()
@@ -116,8 +122,12 @@ class UzbekHFSTTPipeline:
 
             processing_time = time.time() - start_time
 
+            # Get raw text and normalize for LLM compatibility
+            raw_text = result['text'].strip() if isinstance(result, dict) and 'text' in result else str(result).strip()
+            normalized_text = normalize_uzbek_text(raw_text)
+
             return {
-                'text': result['text'].strip() if isinstance(result, dict) and 'text' in result else str(result).strip(),
+                'text': normalized_text,
                 'confidence': 0.8,  # Placeholder confidence
                 'processing_time': processing_time,
                 'model': self.model_name
@@ -142,10 +152,19 @@ class UzbekHFSTTPipeline:
         Returns:
             Dict with transcription results
         """
+        # Import text normalizer for Uzbek characters (oʻ, gʻ variants)
+        try:
+            from utils.uzbek_text_postprocessor import normalize_uzbek_text
+        except ImportError:
+            normalize_uzbek_text = lambda x: x  # Fallback to no normalization
+
         try:
             result = self.pipe(file_path)
+            raw_text = result['text'].strip() if isinstance(result, dict) and 'text' in result else str(result).strip()
+            normalized_text = normalize_uzbek_text(raw_text)
+            
             return {
-                'text': result['text'].strip() if isinstance(result, dict) and 'text' in result else str(result).strip(),
+                'text': normalized_text,
                 'confidence': 0.8,  # Placeholder
                 'file': file_path,
                 'model': self.model_name

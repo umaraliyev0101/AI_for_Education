@@ -99,6 +99,11 @@ class UzbekWhisperSTT:
         Returns:
             Dict with transcription results
         """
+        # Import text normalizer for Uzbek characters
+        try:
+            from utils.uzbek_text_postprocessor import normalize_uzbek_text
+        except ImportError:
+            normalize_uzbek_text = lambda x: x  # Fallback to no normalization
 
         try:
             # Ensure audio is float32
@@ -115,8 +120,11 @@ class UzbekWhisperSTT:
                 generate_kwargs={"language": self.config.language, "task": self.config.task}
             )
 
+            # Normalize text to prevent UNK tokens with LLM
+            normalized_text = normalize_uzbek_text(result["text"])
+
             return {
-                "text": result["text"],
+                "text": normalized_text,
                 "chunks": result.get("chunks", []),
                 "language": self.config.language,
                 "confidence": self._estimate_confidence(result),
