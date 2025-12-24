@@ -88,7 +88,9 @@ class UzbekLLMQAService:
 
         # Initialize Uzbek text normalizer for handling oʻ, gʻ and apostrophe variants
         # This prevents <UNK> tokens from appearing due to character encoding issues
-        self.text_normalizer = UzbekTextNormalizer(use_ascii_apostrophe=False)
+        # NOTE: use_ascii_apostrophe=True because the Llama Uzbek tokenizer produces
+        # cleaner tokens with ASCII apostrophe (') vs U+02BB which gets split into bytes
+        self.text_normalizer = UzbekTextNormalizer(use_ascii_apostrophe=True)
 
         # Initialize components
         self.tokenizer = None

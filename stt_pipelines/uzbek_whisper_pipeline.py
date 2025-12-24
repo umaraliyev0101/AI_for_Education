@@ -121,7 +121,8 @@ class UzbekWhisperSTT:
             )
 
             # Normalize text to prevent UNK tokens with LLM
-            normalized_text = normalize_uzbek_text(result["text"])
+            # Use ASCII apostrophe for better tokenization with Llama Uzbek model
+            normalized_text = normalize_uzbek_text(result["text"], use_ascii_apostrophe=True)
 
             return {
                 "text": normalized_text,

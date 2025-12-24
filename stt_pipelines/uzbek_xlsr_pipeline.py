@@ -97,7 +97,8 @@ class UzbekXLSRSTT:
             confidence = torch.max(probs, dim=-1)[0].mean().item()
 
             # Normalize text for LLM compatibility
-            normalized_text = normalize_uzbek_text(transcription.strip())
+            # Use ASCII apostrophe for better tokenization with Llama Uzbek model
+            normalized_text = normalize_uzbek_text(transcription.strip(), use_ascii_apostrophe=True)
 
             return {
                 'text': normalized_text,

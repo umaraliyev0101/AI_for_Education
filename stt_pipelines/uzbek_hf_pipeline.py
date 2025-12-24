@@ -123,8 +123,9 @@ class UzbekHFSTTPipeline:
             processing_time = time.time() - start_time
 
             # Get raw text and normalize for LLM compatibility
+            # Use ASCII apostrophe for better tokenization with Llama Uzbek model
             raw_text = result['text'].strip() if isinstance(result, dict) and 'text' in result else str(result).strip()
-            normalized_text = normalize_uzbek_text(raw_text)
+            normalized_text = normalize_uzbek_text(raw_text, use_ascii_apostrophe=True)
 
             return {
                 'text': normalized_text,
@@ -161,7 +162,8 @@ class UzbekHFSTTPipeline:
         try:
             result = self.pipe(file_path)
             raw_text = result['text'].strip() if isinstance(result, dict) and 'text' in result else str(result).strip()
-            normalized_text = normalize_uzbek_text(raw_text)
+            # Use ASCII apostrophe for better tokenization with Llama Uzbek model
+            normalized_text = normalize_uzbek_text(raw_text, use_ascii_apostrophe=True)
             
             return {
                 'text': normalized_text,
