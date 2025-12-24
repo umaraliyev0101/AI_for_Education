@@ -273,6 +273,18 @@ class UzbekLLMQAService:
             return ""
         return self.text_normalizer.normalize(text)
 
+    def _clear_memory(self):
+        """
+        Clear GPU and CPU memory to prevent OOM errors.
+        
+        Call this before and after large generation operations.
+        """
+        import gc
+        gc.collect()
+        if torch.cuda.is_available():
+            torch.cuda.empty_cache()
+            torch.cuda.synchronize()
+
     def prepare_lesson_materials(
         self,
         file_paths: List[str],
@@ -449,9 +461,12 @@ Javob:"""
                 prompt_length = len(prompt.split())
                 print(f"[LLM] Using Llama-style prompt (length: {prompt_length} words)")
                 
-                # Generate answer with progress monitoring
+                # Generate answer with progress monitoring and memory management
                 inference_start = time.time()
                 print(f"[LLM] {time.strftime('%H:%M:%S')} - Starting Llama inference...")
+                
+                # Clear memory before generation
+                self._clear_memory()
                 
                 # Start a progress monitoring thread
                 import threading
@@ -463,6 +478,9 @@ Javob:"""
                         time.sleep(30)  # Check every 30 seconds
                         elapsed += 30
                         print(f"[LLM] {time.strftime('%H:%M:%S')} - Still generating... ({elapsed}s elapsed)")
+                        if torch.cuda.is_available():
+                            mem_allocated = torch.cuda.memory_allocated() / 1024**3
+                            print(f"[LLM]   GPU memory: {mem_allocated:.2f}GB allocated")
                         if elapsed > 600:  # 10 minutes
                             print(f"[LLM] {time.strftime('%H:%M:%S')} - WARNING: Generation taking very long (>10min)")
                 
@@ -470,16 +488,33 @@ Javob:"""
                 progress_thread.start()
                 
                 try:
-                    outputs = self.pipe(
-                        prompt,
-                        max_new_tokens=self.max_new_tokens,
-                        temperature=self.temperature,
-                        do_sample=True,
-                        pad_token_id=self.tokenizer.eos_token_id
-                    )
+                    # Use torch.no_grad() to prevent gradient tracking and save memory
+                    with torch.no_grad():
+                        outputs = self.pipe(
+                            prompt,
+                            max_new_tokens=self.max_new_tokens,
+                            temperature=self.temperature,
+                            do_sample=True,
+                            pad_token_id=self.tokenizer.eos_token_id,
+                            return_full_text=True,
+                        )
+                except torch.cuda.OutOfMemoryError:
+                    print(f"[LLM] CUDA Out of Memory! Clearing cache and retrying with fewer tokens...")
+                    self._clear_memory()
+                    with torch.no_grad():
+                        outputs = self.pipe(
+                            prompt,
+                            max_new_tokens=min(128, self.max_new_tokens // 2),
+                            temperature=self.temperature,
+                            do_sample=True,
+                            pad_token_id=self.tokenizer.eos_token_id,
+                            return_full_text=True,
+                        )
                 finally:
                     stop_progress.set()
                     progress_thread.join(timeout=1)
+                    # Clear memory after generation
+                    self._clear_memory()
                 
                 inference_time = time.time() - inference_start
                 print(f"[LLM] {time.strftime('%H:%M:%S')} - Llama inference completed in {inference_time:.1f}s")
@@ -497,10 +532,17 @@ Javob:"""
 
             return answer
 
+        except torch.cuda.OutOfMemoryError:
+            self._clear_memory()
+            total_time = time.time() - start_time
+            print(f"[LLM] CUDA OOM after {total_time:.1f}s")
+            logger.error("❌ CUDA Out of Memory during generation")
+            return "Xotira yetishmadi. Iltimos, qisqaroq savol bering yoki keyinroq urinib ko'ring."
+
         except Exception as e:
             total_time = time.time() - start_time
             print(f"[LLM] ERROR after {total_time:.1f}s: {e}")
-            logger.error(f"❌ Failed to generate answer: {e}")
+            logger.error(f"❌ Failed to generate answer: {e}", exc_info=True)
             return "Kechirasiz, javob generatsiya qilishda xatolik yuz berdi."
 
     def generate_answer_general_knowledge(self, question: str) -> str:
@@ -575,9 +617,12 @@ Javob:"""
                 prompt_length = len(prompt.split())
                 print(f"[LLM] Using Llama-style prompt (length: {prompt_length} words)")
                 
-                # Generate answer with progress monitoring
+                # Generate answer with progress monitoring and memory management
                 inference_start = time.time()
                 print(f"[LLM] {time.strftime('%H:%M:%S')} - Starting Llama inference...")
+                
+                # Clear memory before generation
+                self._clear_memory()
                 
                 # Start a progress monitoring thread
                 import threading
@@ -589,6 +634,9 @@ Javob:"""
                         time.sleep(30)  # Check every 30 seconds
                         elapsed += 30
                         print(f"[LLM] {time.strftime('%H:%M:%S')} - Still generating... ({elapsed}s elapsed)")
+                        if torch.cuda.is_available():
+                            mem_allocated = torch.cuda.memory_allocated() / 1024**3
+                            print(f"[LLM]   GPU memory: {mem_allocated:.2f}GB allocated")
                         if elapsed > 600:  # 10 minutes
                             print(f"[LLM] {time.strftime('%H:%M:%S')} - WARNING: Generation taking very long (>10min)")
                 
@@ -596,16 +644,33 @@ Javob:"""
                 progress_thread.start()
                 
                 try:
-                    outputs = self.pipe(
-                        prompt,
-                        max_new_tokens=self.max_new_tokens,
-                        temperature=self.temperature,
-                        do_sample=True,
-                        pad_token_id=self.tokenizer.eos_token_id
-                    )
+                    # Use torch.no_grad() to prevent gradient tracking and save memory
+                    with torch.no_grad():
+                        outputs = self.pipe(
+                            prompt,
+                            max_new_tokens=self.max_new_tokens,
+                            temperature=self.temperature,
+                            do_sample=True,
+                            pad_token_id=self.tokenizer.eos_token_id,
+                            return_full_text=True,
+                        )
+                except torch.cuda.OutOfMemoryError:
+                    print(f"[LLM] CUDA Out of Memory! Clearing cache and retrying with fewer tokens...")
+                    self._clear_memory()
+                    with torch.no_grad():
+                        outputs = self.pipe(
+                            prompt,
+                            max_new_tokens=min(128, self.max_new_tokens // 2),
+                            temperature=self.temperature,
+                            do_sample=True,
+                            pad_token_id=self.tokenizer.eos_token_id,
+                            return_full_text=True,
+                        )
                 finally:
                     stop_progress.set()
                     progress_thread.join(timeout=1)
+                    # Clear memory after generation
+                    self._clear_memory()
                 
                 inference_time = time.time() - inference_start
                 print(f"[LLM] {time.strftime('%H:%M:%S')} - Llama inference completed in {inference_time:.1f}s")
@@ -627,10 +692,17 @@ Javob:"""
 
                 return answer
 
+        except torch.cuda.OutOfMemoryError:
+            self._clear_memory()
+            total_time = time.time() - start_time
+            print(f"[LLM] CUDA OOM after {total_time:.1f}s")
+            logger.error("❌ CUDA Out of Memory during generation")
+            return "Xotira yetishmadi. Iltimos, qisqaroq savol bering yoki keyinroq urinib ko'ring."
+
         except Exception as e:
             total_time = time.time() - start_time
             print(f"[LLM] ERROR after {total_time:.1f}s: {e}")
-            logger.error(f"❌ Failed to generate general knowledge answer: {e}")
+            logger.error(f"❌ Failed to generate general knowledge answer: {e}", exc_info=True)
             return "Kechirasiz, javob generatsiya qilishda xatolik yuz berdi."
 
     def _is_repeating_question(self, question: str, answer: str) -> bool:
