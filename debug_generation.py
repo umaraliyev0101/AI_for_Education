@@ -221,6 +221,21 @@ def main():
     clear_memory()
     
     try:
+        import signal
+        import sys
+        
+        # Timeout handler (Unix only, skip on Windows)
+        def timeout_handler(signum, frame):
+            raise TimeoutError("Generation timed out!")
+        
+        # Set timeout (only works on Unix)
+        if sys.platform != 'win32':
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(120)  # 2 minute timeout
+        
+        print("   Starting generation (timeout: 2 minutes)...")
+        print("   If running on CPU, this will be VERY slow. Consider using flan-t5-base instead.")
+        
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
@@ -231,6 +246,10 @@ def main():
                 eos_token_id=tokenizer.eos_token_id,
                 use_cache=True,
             )
+        
+        # Cancel timeout
+        if sys.platform != 'win32':
+            signal.alarm(0)
         
         print(f"   Generation successful")
         print(f"   Output shape: {outputs.shape}")
