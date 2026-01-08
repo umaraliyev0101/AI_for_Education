@@ -105,34 +105,20 @@ def main():
     clear_memory()
     
     try:
-        from transformers import AutoModelForCausalLM, BitsAndBytesConfig
+        from transformers import AutoModelForCausalLM
         
         # Determine device and dtype
         if torch.cuda.is_available():
             device_map = "auto"
             torch_dtype = torch.float16
             print("   Using CUDA with float16")
-            
-            # Try 8-bit quantization if available
-            try:
-                quantization_config = BitsAndBytesConfig(
-                    load_in_8bit=True,
-                    llm_int8_threshold=6.0,
-                )
-                print("   8-bit quantization available")
-                use_quantization = True
-            except Exception:
-                quantization_config = None
-                use_quantization = False
-                print("   8-bit quantization not available, using float16")
+            print("   Using FP16 precision (bitsandbytes disabled for Windows compatibility)")
         else:
             device_map = None
             torch_dtype = torch.float32
-            quantization_config = None
-            use_quantization = False
             print("   Using CPU with float32 (will be slow!)")
         
-        # Load model
+        # Load model with FP16 (no quantization for Windows compatibility)
         model_kwargs = {
             "torch_dtype": torch_dtype,
             "low_cpu_mem_usage": True,
@@ -141,10 +127,6 @@ def main():
         
         if device_map:
             model_kwargs["device_map"] = device_map
-        
-        # Don't use quantization for now to test baseline
-        # if use_quantization and quantization_config:
-        #     model_kwargs["quantization_config"] = quantization_config
         
         model = AutoModelForCausalLM.from_pretrained(
             CURRENT_LLM_MODEL,

@@ -16,7 +16,7 @@ from transformers import (
     AutoTokenizer,
     AutoModelForCausalLM,
     pipeline,
-    BitsAndBytesConfig
+    # BitsAndBytesConfig  # DISABLED - Windows compatibility issues
 )
 from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -147,33 +147,23 @@ class UzbekLLMQAService:
                 # Use standard causal LM for Llama/GPT models
                 self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
 
-                # Configure quantization for memory efficiency
+                # Load model with FP16 (no quantization for Windows compatibility)
+                # With 2x Tesla T4 (32GB VRAM), FP16 should be sufficient
                 if self.device == "cuda":
-                    quantization_config = BitsAndBytesConfig(
-                        load_in_8bit=True,  # Changed to 8-bit for offloading support
-                        llm_int8_enable_fp32_cpu_offload=True,  # Moved here for 8-bit quantization
-                        bnb_8bit_compute_dtype=torch.float16,
-                        bnb_8bit_use_double_quant=True
-                    )
                     self.model = AutoModelForCausalLM.from_pretrained(
                         self.model_name,
-                        # load_in_8bit=True,
-                        quantization_config=quantization_config,
-                        # llm_int8_enable_fp32_cpu_offload=True,
                         device_map="auto",
-                        torch_dtype=torch.float16
+                        torch_dtype=torch.float16,
+                        low_cpu_mem_usage=True
                     )
+                    logger.info("Loaded model with FP16 precision on CUDA")
                 else:  # CPU
-                    quantization_config = BitsAndBytesConfig(
-                        load_in_8bit=True,  # Use 8-bit quantization for CPU
-                        bnb_8bit_compute_dtype=torch.float16,
-                        bnb_8bit_use_double_quant=True
-                    )
                     self.model = AutoModelForCausalLM.from_pretrained(
                         self.model_name,
-                        quantization_config=quantization_config,
-                        torch_dtype=torch.float32
+                        torch_dtype=torch.float32,
+                        low_cpu_mem_usage=True
                     )
+                    logger.info("Loaded model with FP32 precision on CPU")
 
                 # Create text generation pipeline
                 self.pipe = pipeline(
